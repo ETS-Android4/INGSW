@@ -1,2 +1,0 @@
-# INGSW
-xiuxhviuxh
