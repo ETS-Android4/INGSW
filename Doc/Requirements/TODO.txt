@@ -1,0 +1,4 @@
+1) Scrivere il template del documento requisiti
+2) Divisione use case, mockup, cockburn.
+3) Class Diagram
+4) Sequence Diagram
