@@ -3,5 +3,4 @@
 4) Sequence Diagram
 
 
------ PROBLEMI -----
-Un'ingiunzione sospesa quando viene riemessa viene segnata come notifica o riemessa con un nuovo n° di protocollo?
+----------------------
