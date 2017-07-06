@@ -1,5 +1,6 @@
 package server;
 
+import entities.PaymentOrder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
@@ -28,7 +29,7 @@ public class PaymentOrderServlet extends HttpServlet {
                 break;
             case "delete":
                 break;
-            case "saveAspaid":
+            case "saveAsPaid":
                 break;
             case "saveAsNotPertinent":
                 break;
@@ -48,8 +49,8 @@ public class PaymentOrderServlet extends HttpServlet {
         //response.getWriter()
     }
     
-    private void createPaymentOrder(){
-        //TODO
+    private void createPaymentOrder(PaymentOrder p){
+        //TODO DAO
     }
     
     private void deletePaymentOrder(PaymentOrder p){
