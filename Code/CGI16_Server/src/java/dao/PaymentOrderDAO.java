@@ -32,4 +32,81 @@ public class PaymentOrderDAO {
         return true;
         
     }
+    
+    public boolean deletePaymentOrder(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "DELETE FROM PAYMENTORDER WHERE IDPAYMENTORDER = ?";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean issuePaymentOrder(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT NOTIFIED'";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean reissuePaymentOrder(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    public boolean saveAsPaid(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'PAID' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean saveAsSuspended(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'SUSPENDED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean saveAsNotPertinent(int idPaymentOrder){
+        ArrayList<Object> params = new ArrayList<>();
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'NOT PERTINENT' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
+        params.add(idPaymentOrder);
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
 }

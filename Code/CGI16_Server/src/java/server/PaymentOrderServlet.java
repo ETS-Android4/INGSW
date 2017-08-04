@@ -1,7 +1,6 @@
 package server;
 
 import dao.PaymentOrderDAO;
-import org.json.*;
 import entities.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.*;
 
 
 @WebServlet(urlPatterns = {"/"})
@@ -28,11 +28,30 @@ public class PaymentOrderServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response){
         //TODO CONTROLLO ACCESSI
+        
         String paymentOrder,bill;
         int idBill,idPaymentOrder;
         /* Parameter 1 - action */
         String action = request.getParameter("action");
-        
+        System.out.println(action);
+        JSONArray aj = new JSONArray();
+        JSONObject j = new JSONObject();
+        JSONObject j2 = new JSONObject();
+        try {
+            j.put("Nome", "CarloDeVita");
+            aj.put(j);
+            j2.put("Nome", "MattiaIodice" );
+            aj.put(j2);
+            PrintWriter out = response.getWriter();
+            out.print(aj.toString());
+            out.close();
+        } catch (JSONException ex) {
+            Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            
+    
         switch(action){
             case "create":
                 bill = request.getParameter("bill");
@@ -114,15 +133,15 @@ public class PaymentOrderServlet extends HttpServlet {
         return pDao.saveAsNotPertinent(idPaymentOrder);
     }
     
-    private void saveAsSuspended(int idPaymentOrder){
+    private boolean saveAsSuspended(int idPaymentOrder){
         return pDao.saveAsSuspended(idPaymentOrder);
     }
     
-    private void issuePaymentOrder(int idPaymentOrder){
+    private boolean issuePaymentOrder(int idPaymentOrder){
         return pDao.issuePaymentOrder(idPaymentOrder);
     }
     
-    private void reissuePaymentOrder(int idPaymentOrder){
+    private boolean reissuePaymentOrder(int idPaymentOrder){
         return pDao.reissuePaymentOrder(idPaymentOrder);
     }
 }
