@@ -6,15 +6,54 @@
 package dao;
 
 import db.Database;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.*;
 /**
  *
  * @author carlo
  */
 public class PaymentOrderDAO {
- 
+
+    public String showPaymentOrders(){//TODO CAMBIARE PREZZO INGIUNZIONE!!!
+        String query = "SELECT P.PROTOCOL,CONCAT(C.NAME,' ',C.SURNAME) AS DEBTOR,B.YEAR,B.TRIMESTER,P.AMOUNT,P.STATUS  "
+                    +  "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) PB JOIN CUSTOMER C ON PB.CUSTOMER = C.IDCUSTOMER "
+                    +  "WHERE P.STATUS NOT IN ('PAID','NOT PERTINENT')";
+        ResultSet rs = null;
+        String ret = null;
+        
+        try {
+            rs = Database.getInstance().execQuery(query,null);
+        } catch (SQLException ex) {
+            Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if(rs != null){
+            JSONArray jsonArr = new JSONArray();
+            JSONObject jsonOb;
+            try {
+                while(rs.next()){
+                    jsonOb = new JSONObject();
+                    jsonOb.put("Protocol", rs.getInt(1));
+                    jsonOb.put("Debtor", rs.getString(2));
+                    jsonOb.put("Year",rs.getString(3));
+                    jsonOb.put("Trimester",rs.getInt(4));
+                    jsonOb.put("Amount",rs.getDouble(5));
+                    jsonOb.put("Status",rs.getString(6));
+                    jsonArr.put(jsonOb);
+                }
+                ret = jsonArr.toString();
+            } catch (SQLException ex) {
+                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSONException ex) {
+                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return ret;
+    }
     
     public boolean createPaymentOrder(int idBill){
         
