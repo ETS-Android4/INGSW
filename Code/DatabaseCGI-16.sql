@@ -13,15 +13,28 @@ minvalue 1
 increment by 1
 start with 1;
 
-create or replace trigger incIdPaymentOrder
+create or replace trigger InsertingPaymentOrder
 before insert on PaymentOrder
 for each row
+declare
+  billMonth integer;
+  billYear integer;
+  months integer;
+
 begin
   
   :NEW.idPaymentOrder := giveIdPaymentOrder.nextval;
-
+  
+  SELECT b.TRIMESTER * 3 into billMonth FROM BILL b WHERE b.IDBILL = :NEW.BILL;
+  SELECT YEAR into billYear FROM BILL WHERE IDBILL = :NEW.BILL;
+  months := MONTHS_BETWEEN( to_date(current_date,'DD-MM-YY'),to_date('01-'||billMonth||'-'||billYear, 'DD-MM-YY')) - 1;--Ingiunzione scatta dopo 1 mese( -3 scatta dopo 3 mesi)
+  
+  if(months > 0) then
+    select  months*(amount* 0.2 ) + 5 + amount into :NEW.amount from bill where idBill = :NEW.bill;
+  else
+    raise_application_error(-25452,'You cannot create a payment order because it is too soon ');
+  end if;
 end;
-
 create or replace trigger incIdBill
 before insert on Bill
 for each row
@@ -46,8 +59,10 @@ idPaymentOrder integer primary key,
 protocol integer,
 status varchar2(100) not null ,
 bill integer not null,
-constraint cstatus check ( status IN ('NOTIFIED','NOT NOTIFIED','ISSUED','SUSPENDED','PAID','NOT PERTINENT')),
-constraint fkPO foreign key(bill) references Bill(idBill) on delete cascade
+amount number(5,2),
+constraint cstatus check ( status IN ('NOTIFIED','NOT ISSUED','ISSUED','SUSPENDED','PAID','NOT PERTINENT')),
+constraint fkPO foreign key(bill) references Bill(idBill) on delete cascade,
+constraint cprotocol check ((status <> 'NOT ISSUED' OR protocol IS NULL) AND (protocol IS NOT NULL OR status = 'NOT ISSUED'))
 );
 
 create table Bill
