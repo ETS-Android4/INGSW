@@ -24,35 +24,35 @@ public class PaymentOrderServlet extends HttpServlet {
     @Override
     public void init(){
        pDao = new PaymentOrderDAO();
+       System.out.println("init");
     }
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response){
         //TODO CONTROLLO ACCESSI
         
+        System.out.println("service");
         String paymentOrder,bill;
         int idBill,idPaymentOrder;
+        String res;
         /* Parameter 1 - action */
+        
         String action = request.getParameter("action");
-        System.out.println(action);
-        JSONArray aj = new JSONArray();
-        JSONObject j = new JSONObject();
-        JSONObject j2 = new JSONObject();
-        try {
-            j.put("Nome", "CarloDeVita");
-            aj.put(j);
-            j2.put("Nome", "MattiaIodice" );
-            aj.put(j2);
-            PrintWriter out = response.getWriter();
-            out.print(aj.toString());
-            out.close();
-        } catch (JSONException ex) {
-            Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        System.out.println("action = " + action);
             
-    
+        // TODO action se è null per avviare server da netbeans
         switch(action){
+            case "show":
+                res = showPaymentOrders();
+        
+                try {
+                    PrintWriter pw = response.getWriter();
+                    pw.print(res);
+                } catch (IOException ex) {
+                    Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+                break;
+            
             case "create":
                 bill = request.getParameter("bill");
                 if(bill != null){
@@ -116,6 +116,9 @@ public class PaymentOrderServlet extends HttpServlet {
     }
     
   
+    private String showPaymentOrders(){
+        return pDao.showPaymentOrders();
+    }
     
     private boolean createPaymentOrder(int idBill){
         return pDao.createPaymentOrder(idBill);

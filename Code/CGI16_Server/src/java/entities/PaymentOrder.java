@@ -5,17 +5,29 @@ package entities;
  * @author Mattia
  */
 public class PaymentOrder {
-    private int id;
+    //private int id;
     private Integer protocol;
     private Status status = Status.NOTISSUED;
-    private Bill bill;
+    //private Bill bill;
+    private String debtor;
+    private int year;
+    private int trimester;
+    private double amount;
     
     public enum Status{
         NOTISSUED, ISSUED, SUSPENDED, PAID, NOTPERTINENT, NOTIFIED;
     }
     
-    
-    public PaymentOrder(int id, Integer protocol, Status status, Bill bill){
+    public PaymentOrder(String debtor, Integer protocol, int year, int trimester, double amount, Status status){
+        this.debtor = debtor;
+        this.amount = amount;
+        this.protocol = protocol;
+        this.trimester = trimester;
+        this.year = year;
+        this.status = status;
+        
+    }
+   /* public PaymentOrder(int id, Integer protocol, Status status, Bill bill){
         this(protocol, status, bill);
         this.id = id;
     }
@@ -26,9 +38,7 @@ public class PaymentOrder {
         this.bill = bill;
     }
     
-    public int getId(){
-        return id;
-    }
+*/
     
     public Integer getProtocol(){
         return protocol;
@@ -38,7 +48,5 @@ public class PaymentOrder {
         return status;
     }
     
-    public Bill getBill(){
-        return bill;
-    }
+  
 }
