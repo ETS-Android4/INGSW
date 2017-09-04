@@ -4,9 +4,17 @@
         <servlet-name>PaymentOrderServlet</servlet-name>
         <servlet-class>server.PaymentOrderServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ReadingsServlet</servlet-name>
+        <servlet-class>server.mobile.ReadingsServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>PaymentOrderServlet</servlet-name>
         <url-pattern>/PaymentOrder</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReadingsServlet</servlet-name>
+        <url-pattern>/ReadingsServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
