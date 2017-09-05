@@ -6,6 +6,8 @@
 package dao;
 
 import db.Database;
+import entities.PaymentOrder;
+import entities.PaymentOrder.Status;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,8 +21,9 @@ import org.json.*;
  */
 public class PaymentOrderDAO {
 
-    public String showPaymentOrders(){//TODO CAMBIARE PREZZO INGIUNZIONE!!!
-         
+    public List<PaymentOrder> showPaymentOrders(){//TODO CAMBIARE PREZZO INGIUNZIONE!!!
+        
+        List <PaymentOrder> list = new ArrayList<>();
         ArrayList<Object> params = new ArrayList<>();
         
         String query = "SELECT P.PROTOCOL,(C.NAME || ' ' || C.SURNAME) AS DEBTOR,B.YEAR,B.TRIMESTER,P.AMOUNT,P.STATUS "
@@ -31,39 +34,32 @@ public class PaymentOrderDAO {
         params.add("PAID");
         ResultSet rs = null;
         String ret = null;
-        
+        String stat;
+        Status status;
         try {
             System.out.println("PRIMA");
             rs = Database.getInstance().execQuery(query,params);
             System.out.println("DOPO");
+            
+            PaymentOrder paymentOrder;
+            if(rs != null){
+                while(rs.next()){
+                    stat = rs.getString("status");
+                    if(stat.equals("NOT ISSUED"))
+                        stat = "NOTISSUED";
+                    status = Status.valueOf(stat);    
+
+                    paymentOrder = new PaymentOrder(rs.getString("debtor"), rs.getInt("protocol"),
+                                                    rs.getInt("year"), rs.getInt("trimester"),
+                                                    rs.getDouble("amount"), status);
+                    list.add(paymentOrder);
+                }
+            }
         } catch (SQLException ex) {
             Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(rs != null){
-            JSONArray jsonArr = new JSONArray();
-            JSONObject jsonOb;
-            try {
-                System.out.println("Trasformo in JSON Array!");
-                while(rs.next()){
-                   jsonOb = new JSONObject();
-                    jsonOb.append("Protocol", rs.getInt(3));
-                    jsonOb.append("Debtor", rs.getString(2));
-                    jsonOb.append("Year",rs.getInt(1));
-                    jsonOb.append("Trimester",rs.getInt(4));
-                    jsonOb.append("Amount",rs.getDouble(5));
-                    jsonOb.append("Status",rs.getString(6));
-                    jsonArr.put(jsonOb);
-                   
-                }
-                ret = jsonArr.toString();
-                System.out.println("DAO = " + ret);
-            } catch (SQLException ex) {
-                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (JSONException ex) {
-                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return ret;
+        
+        return list;
     }
     
     public boolean createPaymentOrder(int idBill){

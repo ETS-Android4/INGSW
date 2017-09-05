@@ -85,6 +85,14 @@ name varchar2(50) not null,
 surname varchar2(50) not null
 );
 
+create table operator(
+  username varchar2(100) primary key,
+  password varchar2(100) not null
+);
+
+insert into operator values('operator1','pass1');
+insert into operator values('operator2', 'pass2');  
+
 insert into Customer(FiscalNumber,Name,Surname) values ('LFNFNC70B14F839G','Francesco','Alfano');
 insert into Customer(FiscalNumber,Name,Surname) values ('PCTMHL75L20F839A','Michele','Pacato');
 insert into Customer(FiscalNumber,Name,Surname) values ('GPPDMR82A05F839S','Giuseppe','Di Maro');

@@ -41,15 +41,23 @@ public class Database {
         freeConnections = new LinkedBlockingQueue<Connection>(MAXCONNECTIONS);
         for(int i = 0;i < MAXCONNECTIONS;i++){
             conn = createConnection();
-            freeConnections.add(conn);
+           if(freeConnections == null)
+                System.out.println("\n\n\n\nFree connections null\n\n\n\n");
+            
+            try {
+                freeConnections.put(conn);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         }
         //occupiedConnections = new HashMap<Thread,Connection>();
-
+        
         
     }
 
     private synchronized Connection createConnection(){
+        System.out.println("\n\n\ncreate Connection\n\n\n");
         Connection conn = null;
         try {
             ods = new OracleDataSource();
@@ -59,8 +67,9 @@ public class Database {
             ods.setUser(user);
             ods.setPassword(password);
             ods.setDatabaseName(service);
+            System.out.println("\n\n\n\nPrima di getConnection\n\n\n\n");
             conn = ods.getConnection();
-
+            System.out.println("\n\n\n\nDopo di getConnection\n\n\n\n");
         } catch (SQLException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -81,7 +90,6 @@ public class Database {
     public static synchronized Database getInstance(){
         if(instance==null){
             instance = new Database();
-      
         }
         return instance;
     }
@@ -116,7 +124,6 @@ public class Database {
         } catch (InterruptedException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
-       
         return rs;
     }
 

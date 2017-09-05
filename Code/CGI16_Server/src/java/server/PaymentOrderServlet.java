@@ -1,9 +1,12 @@
 package server;
 
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import dao.PaymentOrderDAO;
 import entities.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -12,9 +15,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.*;
+import java.lang.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
 
 
-@WebServlet(urlPatterns = {"/"})
+@WebServlet(urlPatterns = {"/PaymentOrderServlet"})
 /**
  *
  * @author Riccardo
@@ -29,7 +36,7 @@ public class PaymentOrderServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response){
         //TODO CONTROLLO ACCESSI
-        
+       
         System.out.println("service");
         String paymentOrder,bill;
         int idBill,idPaymentOrder;
@@ -37,8 +44,7 @@ public class PaymentOrderServlet extends HttpServlet {
         /* Parameter 1 - action */
         
         String action = request.getParameter("action");
-        System.out.println("action = " + action);
-            
+        System.out.println("action = " + action);   
         // TODO action se è null per avviare server da netbeans
         switch(action){
             case "show":
@@ -117,7 +123,13 @@ public class PaymentOrderServlet extends HttpServlet {
     
   
     private String showPaymentOrders(){
-        return pDao.showPaymentOrders();
+        /* Da collections a JSON SERVER*/
+        List<PaymentOrder> list = pDao.showPaymentOrders();
+        Gson gson = new Gson();
+        String string = gson.toJson(list);
+        System.out.println("GSON = " + string);
+        return string;
+       
     }
     
     private boolean createPaymentOrder(int idBill){
