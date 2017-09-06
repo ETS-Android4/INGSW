@@ -32,6 +32,7 @@ public class ReadingsServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         HttpSession session = request.getSession(false);
+        // TODO check operator
         if(session==null && session!=null /* || getOperator()==null*/){
             response.sendError(402, "Authorization required");
             return;
@@ -44,13 +45,13 @@ public class ReadingsServlet extends HttpServlet {
         Type type = new TypeToken<List<Reading>>(){}.getType();
         Collection<Reading> readings = gson.fromJson(jsonList, type);
         System.out.println(readings);
-        //try{
-            //readingDAO.saveReadings(readings);
+        try{
+            readingDAO.saveReadings(readings);
             response.setStatus(200);
-        /*}catch (SQLException ex) {
+        }catch (SQLException ex) {
             Logger.getLogger(ReadingsServlet.class.getName()).log(Level.SEVERE, null, ex);
             response.sendError(500, "Internal server error");
-        }*/
+        }
     }
     
     /**
