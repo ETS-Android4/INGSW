@@ -20,18 +20,19 @@ public class OperatorDAO {
     
     public static Operator getOperator(String user,String pass){
         ArrayList<Object> params = new ArrayList<>();
-        String query = "select * from operatorB where username= ? AND pass= ?"; 
+        String query = "select * from operatorB where username= ? AND password= ?"; 
         params.add(user);
         params.add(pass);
         ResultSet rs;
         Operator op = null;
         try {
+            System.err.println("ciaoo prima");
             rs = db.Database.getInstance().execQuery(query, params);
-            System.out.println("ciaoo dopo");
+            System.err.println("ciaoo dopo");
             
             if(rs != null && rs.next()){
                 System.out.println("ciaoo");
-                op = new Operator(rs.getString("username"),rs.getString("pass"));
+                op = new Operator(rs.getString("username"),rs.getString("password"));
                 
             }
             
