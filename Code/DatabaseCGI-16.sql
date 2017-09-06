@@ -13,6 +13,48 @@ minvalue 1
 increment by 1
 start with 1;
 
+
+create table Customer
+(
+idCustomer integer primary key,
+fiscalNumber varchar2(16) unique not null,
+name varchar2(50) not null,
+surname varchar2(50) not null
+);
+
+create table operatorB(
+  username varchar2(100) primary key,
+  password varchar2(100) not null
+);
+
+create table Bill
+(
+idBill integer primary key,
+customer integer not null,
+trimester integer not null,
+year integer not null,
+amount number(5,2) not null,
+constraint ctrimester check (trimester IN(1,2,3,4)),
+constraint fkBill foreign key (customer) references Customer(idCustomer) on delete cascade,
+constraint u1 unique(customer,trimester,year);
+);
+
+create table PaymentOrder
+(
+idPaymentOrder integer primary key,
+protocol integer,
+status varchar2(100) not null ,
+bill integer not null,
+amount number(5,2),
+constraint cstatus check ( status IN ('NOTIFIED','NOT ISSUED','ISSUED','SUSPENDED','PAID','NOT PERTINENT')),
+constraint fkPO foreign key(bill) references Bill(idBill) on delete cascade,
+constraint cprotocol check ((status <> 'NOT ISSUED' OR protocol IS NULL) AND (protocol IS NOT NULL OR status = 'NOT ISSUED'))
+);
+
+
+
+
+
 create or replace trigger InsertingPaymentOrder
 before insert on PaymentOrder
 for each row
@@ -53,42 +95,6 @@ begin
 
 end;  
 
-create table PaymentOrder
-(
-idPaymentOrder integer primary key,
-protocol integer,
-status varchar2(100) not null ,
-bill integer not null,
-amount number(5,2),
-constraint cstatus check ( status IN ('NOTIFIED','NOT ISSUED','ISSUED','SUSPENDED','PAID','NOT PERTINENT')),
-constraint fkPO foreign key(bill) references Bill(idBill) on delete cascade,
-constraint cprotocol check ((status <> 'NOT ISSUED' OR protocol IS NULL) AND (protocol IS NOT NULL OR status = 'NOT ISSUED'))
-);
-
-create table Bill
-(
-idBill integer primary key,
-customer integer not null,
-trimester integer not null,
-year integer not null,
-amount number(5,2) not null,
-constraint ctrimester check (trimester IN(1,2,3,4)),
-constraint fkBill foreign key (customer) references Customer(idCustomer) on delete cascade
-constraint u1 unique(customer,trimester,year);
-);
-
-create table Customer
-(
-idCustomer integer primary key,
-fiscalNumber varchar2(16) unique not null,
-name varchar2(50) not null,
-surname varchar2(50) not null
-);
-
-create table operatorB(
-  username varchar2(100) primary key,
-  password varchar2(100) not null
-);
 
 insert into operatorB values('operator1','pass1');
 insert into operatorB values('operator2', 'pass2');  

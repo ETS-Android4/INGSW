@@ -47,7 +47,7 @@ public class PaymentOrderDAO {
             if(rs != null){
                 while(rs.next()){
                     Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
-                    Bill b = new Bill(c,rs.getDouble("b.amount"));
+                    Bill b = new Bill(c,rs.getDouble("b.amount"),rs.getInt("year"),rs.getInt("trimester"));
                     
                     stat = rs.getString("status");
                     if(stat.equals("NOT ISSUED"))

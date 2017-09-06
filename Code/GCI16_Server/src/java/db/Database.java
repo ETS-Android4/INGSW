@@ -41,7 +41,7 @@ public class Database {
         freeConnections = new LinkedBlockingQueue<Connection>(MAXCONNECTIONS);
         for(int i = 0;i < MAXCONNECTIONS;i++){
             conn = createConnection();
-           if(freeConnections == null)
+           if(freeConnections == null )
                 System.out.println("\n\n\n\nFree connections null\n\n\n\n");
             
             try {
@@ -71,6 +71,7 @@ public class Database {
             conn = ods.getConnection();
             System.out.println("\n\n\n\nDopo di getConnection\n\n\n\n");
         } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
         }
         return conn;

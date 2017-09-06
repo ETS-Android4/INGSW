@@ -38,8 +38,9 @@ public class LoginServlet extends HttpServlet {
         System.out.println("Sto in loginservlet");
         String user = request.getParameter("user");
         String pass = request.getParameter("pass");
-        System.out.println(user + " " + pass);
+        
         PrintWriter pw = response.getWriter();
+        System.out.println(user + " " + pass);
         Operator op = OperatorDAO.getOperator(user,pass);
         
         if(op != null){

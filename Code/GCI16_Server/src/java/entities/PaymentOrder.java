@@ -41,6 +41,9 @@ public class PaymentOrder {
         this.bill = bill;
     }
     
+    public Bill getBill(){
+        return bill;
+    }
 
     public int getId(){
         return id;
@@ -57,10 +60,20 @@ public class PaymentOrder {
         return status;
     }
     
-    /*public String getDebtor(){
-        return debtor;
-    }*/
+    public String getDebtor(){
+        String name = bill.getName(); 
+        String surname = bill.getSurname();
+        return (name + " " +surname); 
+    }
   
+    public int getTrimester(){
+        return bill.getTrimester();
+    }
+    
+    public int getYear(){
+        return bill.getYear();
+    }
+    
     public double getAmount(){
         return amount;
     }
