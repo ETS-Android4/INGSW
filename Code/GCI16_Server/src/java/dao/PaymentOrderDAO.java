@@ -6,6 +6,8 @@
 package dao;
 
 import db.Database;
+import entities.Bill;
+import entities.Customer;
 import entities.PaymentOrder;
 import entities.PaymentOrder.Status;
 import java.sql.ResultSet;
@@ -26,7 +28,7 @@ public class PaymentOrderDAO {
         List <PaymentOrder> list = new ArrayList<>();
         ArrayList<Object> params = new ArrayList<>();
         
-        String query = "SELECT P.PROTOCOL,(C.NAME || ' ' || C.SURNAME) AS DEBTOR,B.YEAR,B.TRIMESTER,P.AMOUNT,P.STATUS "
+        String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT,P.AMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
                 + "WHERE P.STATUS NOT IN (?,?)";
         
@@ -44,15 +46,23 @@ public class PaymentOrderDAO {
             PaymentOrder paymentOrder;
             if(rs != null){
                 while(rs.next()){
+                    Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
+                    Bill b = new Bill(c,rs.getDouble("b.amount"));
+                    
                     stat = rs.getString("status");
                     if(stat.equals("NOT ISSUED"))
                         stat = "NOTISSUED";
-                    status = Status.valueOf(stat);    
-
-                    paymentOrder = new PaymentOrder(rs.getString("debtor"), rs.getInt("protocol"),
+                    status = Status.valueOf(stat); 
+                    
+                    PaymentOrder p = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getInt("protocol"),status,b);
+                    
+                    
+                       
+/*
+                    paymentOrder = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getString("debtor"), rs.getInt("protocol"),
                                                     rs.getInt("year"), rs.getInt("trimester"),
-                                                    rs.getDouble("amount"), status);
-                    list.add(paymentOrder);
+                                                    rs.getDouble("amount"), status);*/
+                    list.add(p);
                 }
             }
         } catch (SQLException ex) {

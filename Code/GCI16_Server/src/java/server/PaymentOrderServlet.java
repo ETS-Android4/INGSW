@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 
-@WebServlet(urlPatterns = {"/PaymentOrderServlet"})
+@WebServlet(urlPatterns = {"/PaymentOrder"})
 /**
  *
  * @author Riccardo

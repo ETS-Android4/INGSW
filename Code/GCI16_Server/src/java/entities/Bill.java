@@ -15,6 +15,11 @@ public class Bill {
         this.cost = cost;
     }
     
+    public Bill(Customer customer,double cost){
+        this.customer = customer;
+        this.cost = cost;
+    }
+    
     public int getId(){
         return id;
     }
