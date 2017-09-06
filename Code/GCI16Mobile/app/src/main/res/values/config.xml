@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="server_address">127.0.0.0</string>
+    <string name="server_address">10.0.2.2</string>
     <integer name="server_port">8080</integer>
     <string name="session_cookie_name">JSESSIONID</string>
 </resources>

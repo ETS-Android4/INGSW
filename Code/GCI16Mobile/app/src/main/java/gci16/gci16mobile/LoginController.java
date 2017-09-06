@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -120,14 +121,14 @@ public class LoginController extends AppCompatActivity {
         //prova login
         String ip = getResources().getString(R.string.server_address);
         int port = getResources().getInteger(R.integer.server_port);
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
         try {
             URL url = new URL("http", String.format("%s:%d/login?operatorId=%d&password=%s", ip, port, operatorId, password), null);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-
+            connection.connect();
             int responseCode = connection.getResponseCode();
             if(responseCode==500){
                 String cookieName = getResources().getString(R.string.session_cookie_name);
@@ -136,15 +137,22 @@ public class LoginController extends AppCompatActivity {
                 for(String s : cookieString.split(";")) {
                     if (s.matches(cookieName)) {
                         cookieValue = s.substring(s.indexOf('='));
+                        Log.d("Debug", cookieName+":"+cookieValue);
                         break;
                     }
                 }
+                editor.putString(cookieName, cookieValue);
             }
             else{
                 //bad credentials
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Invalid id or password")
+                        .setPositiveButton("OK", null)
+                        .setMessage("Invalid id or password");
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
 
-            connection.connect();
         } catch (MalformedURLException e) {
             Log.e("Malformed URL", String.format("%s/%d", R.string.server_address, R.integer.server_port));
         } catch (IOException e) {
@@ -153,11 +161,9 @@ public class LoginController extends AppCompatActivity {
 
 
         //salva token e ultime credenziali
-        /*SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
         editor.putInt("operatorId", operatorId);
-        //editor.putString("sessionId", )
-*/
+        editor.putString("password", password);
+
         return true;
     }
 }
