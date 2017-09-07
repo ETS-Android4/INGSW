@@ -60,10 +60,14 @@ public class PaymentOrderServlet extends HttpServlet {
                 break;
             
             case "create":
+                
                 bill = request.getParameter("bill");
+                System.out.println("Sto creando ");
                 if(bill != null){
                     idBill = Integer.parseInt(bill);
-                    createPaymentOrder(idBill);
+                    System.out.println("la bolletta "+idBill);
+                    boolean b = createPaymentOrder(idBill);
+                    System.out.println("valore: "+b);
                 }
                 //TODO gestire caso in cui non va bene 
                 break;
@@ -99,7 +103,8 @@ public class PaymentOrderServlet extends HttpServlet {
                 paymentOrder = request.getParameter("paymentOrder");
                 if(paymentOrder != null){
                     idPaymentOrder = Integer.parseInt(paymentOrder);
-                    issuePaymentOrder(idPaymentOrder);
+                     issuePaymentOrder(idPaymentOrder);
+                    
                 }
                 break;
             case "reissue":

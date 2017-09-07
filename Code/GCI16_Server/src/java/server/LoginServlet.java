@@ -45,10 +45,11 @@ public class LoginServlet extends HttpServlet {
         
         if(op != null){
             response.setStatus(200);
-            System.out.println("success");
+            System.out.println("servlet: success");
         }else{
             pw.print("fail");
-            System.out.println("fail");
+            response.setStatus(500);
+            System.out.println("servlet: fail");
         }    
     }
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

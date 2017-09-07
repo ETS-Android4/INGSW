@@ -11,11 +11,9 @@ public class Bill {
     private int year;
     private int trimester;
     
-    public Bill(int id, Customer customer, double cost){
-        this.id = id;
-        this.customer = customer;
-        this.cost = cost;
-        
+    public Bill(int id, Customer customer, double cost,int year,int trimester){
+        this(customer,cost,year,trimester);
+        this.id = id;  
     }
     
     public Bill(Customer customer,double cost,int year,int trimester){

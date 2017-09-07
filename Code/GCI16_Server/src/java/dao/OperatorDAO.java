@@ -20,7 +20,7 @@ public class OperatorDAO {
     
     public static Operator getOperator(String user,String pass){
         ArrayList<Object> params = new ArrayList<>();
-        String query = "select * from operatorB where username= ? AND password= ?"; 
+        String query = "select * from operatorB where username= ? AND pass= ?"; 
         params.add(user);
         params.add(pass);
         ResultSet rs;
@@ -32,7 +32,7 @@ public class OperatorDAO {
             
             if(rs != null && rs.next()){
                 System.out.println("ciaoo");
-                op = new Operator(rs.getString("username"),rs.getString("password"));
+                op = new Operator(rs.getString("username"),rs.getString("pass"));
                 
             }
             

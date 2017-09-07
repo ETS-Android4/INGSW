@@ -30,9 +30,10 @@ public class PaymentOrder {
     }*/
   
     
-    public PaymentOrder(int id, Integer protocol, Status status, Bill bill){
+    public PaymentOrder(int id, Integer protocol, Status status, Bill bill,double amount){
         this(protocol, status, bill);
         this.id = id;
+        this.amount = amount;
    }
     
     public PaymentOrder(Integer protocol, Status status, Bill bill){

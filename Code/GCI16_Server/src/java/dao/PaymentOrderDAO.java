@@ -28,7 +28,7 @@ public class PaymentOrderDAO {
         List <PaymentOrder> list = new ArrayList<>();
         ArrayList<Object> params = new ArrayList<>();
         
-        String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT,P.AMOUNT,P.STATUS "
+        String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
                 + "WHERE P.STATUS NOT IN (?,?)";
         
@@ -47,14 +47,14 @@ public class PaymentOrderDAO {
             if(rs != null){
                 while(rs.next()){
                     Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
-                    Bill b = new Bill(c,rs.getDouble("b.amount"),rs.getInt("year"),rs.getInt("trimester"));
+                    Bill b = new Bill(c,rs.getDouble("bamount"),rs.getInt("year"),rs.getInt("trimester"));
                     
                     stat = rs.getString("status");
                     if(stat.equals("NOT ISSUED"))
                         stat = "NOTISSUED";
                     status = Status.valueOf(stat); 
                     
-                    PaymentOrder p = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getInt("protocol"),status,b);
+                    PaymentOrder p = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getInt("protocol"),status,b,rs.getDouble("pamount"));
                     
                     
                        
@@ -76,7 +76,7 @@ public class PaymentOrderDAO {
         
         ArrayList<Object> params = new ArrayList<>();
         String query = "INSERT INTO PAYMENTORDER (STATUS,BILL) VALUES(?,?)";
-        params.add("NOT NOTIFIED");
+        params.add("NOT ISSUED");
         params.add(idBill);
         try {
             Database.getInstance().execQuery(query, params);

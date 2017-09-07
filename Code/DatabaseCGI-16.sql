@@ -127,3 +127,4 @@ insert into Bill(Customer,trimester,year,amount) values (4,3,2016,95);
 insert into Bill(Customer,trimester,year,amount) values (4,4,2016,85.40);
 insert into Bill(Customer,trimester,year,amount) values (4,1,2017,98.10);
 insert into Bill(Customer,trimester,year,amount) values (4,2,2017,100.20);
+
