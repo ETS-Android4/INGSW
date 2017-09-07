@@ -37,7 +37,6 @@ public class LoginController extends AppCompatActivity {
         final EditText passwordEditText = (EditText) findViewById(R.id.operator_password_edit_text);
         final Button loginButton = (Button) findViewById(R.id.login_button);
 
-        //TODO listener e proprietà degli edittext
         // aggiunge listener che nasconde la tastiera quando il focus cambia
         View.OnFocusChangeListener keyboardCloser = new View.OnFocusChangeListener() {
             @Override
@@ -124,7 +123,7 @@ public class LoginController extends AppCompatActivity {
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         try {
-            URL url = new URL("http", String.format("%s:%d/login?operatorId=%d&password=%s", ip, port, operatorId, password), null);
+            URL url = new URL(String.format("http://%s:%d/login?operatorId=%d&password=%s", ip, port, operatorId, password));
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");

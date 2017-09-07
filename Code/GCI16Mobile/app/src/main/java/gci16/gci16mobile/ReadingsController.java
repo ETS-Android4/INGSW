@@ -16,10 +16,13 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import org.json.*;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +44,6 @@ public class ReadingsController extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readings_controller);
-
         updateButton = (Button) findViewById(R.id.update_button);
         getSupportActionBar().setTitle("GCI '16");
         updateButton.setOnClickListener(new View.OnClickListener() {
@@ -53,6 +55,7 @@ public class ReadingsController extends AppCompatActivity{
         });
 
         saveButton = (Button) findViewById(R.id.save_reading_button);
+        saveButton.setEnabled(false);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,13 +67,20 @@ public class ReadingsController extends AppCompatActivity{
         });
 
         sendButton = (Button) findViewById(R.id.send_readings_button);
-        //JAVA8 btn.setOnClickListener( view -> {sendReadings();});
+        //sendButton.setOnClickListener( view -> {sendReadings();});
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendReadings();
             }
         });
+        ArrayList<Assignment> list = new ArrayList<>();
+        list.add(new Assignment(928,17162,"Via Tassoni", "Mario"));
+
+        AssignmentListAdapter listAdapter = new AssignmentListAdapter(getApplicationContext(), list);
+
+        ListView listView = (ListView) findViewById(R.id.assignment_table);
+        listView.setAdapter(listAdapter);
 
         loadData();
 
@@ -176,7 +186,7 @@ public class ReadingsController extends AppCompatActivity{
                 AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this, R.style.Theme_Design);
                 builder.setMessage("Do you want to logout?" +
                         "Unsent will be stored in the phone untill you send them")
-                        //JAVA8 .setPositiveButton("YES", (dialog, i) -> {finish();})
+                        //.setPositiveButton("YES", (dialog, i) -> {finish();})
                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
