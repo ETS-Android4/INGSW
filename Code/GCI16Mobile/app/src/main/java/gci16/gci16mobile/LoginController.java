@@ -52,14 +52,10 @@ public class LoginController extends AppCompatActivity {
 
         TextWatcher loginButtonActivator = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {
@@ -104,12 +100,12 @@ public class LoginController extends AppCompatActivity {
                 }
             }
         });
-
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
         if(pref.getString("session", null)!=null){ //sessione salvata
             Intent intent = new Intent(LoginController.this, ReadingsController.class);
             startActivity(intent);
         }
+
     }
 
 
@@ -140,16 +136,11 @@ public class LoginController extends AppCompatActivity {
                         break;
                     }
                 }
+                if(cookieValue==null) return false;
                 editor.putString(cookieName, cookieValue);
             }
             else{
-                //bad credentials
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Invalid id or password")
-                        .setPositiveButton("OK", null)
-                        .setMessage("Invalid id or password");
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                return false;
             }
 
         } catch (MalformedURLException e) {

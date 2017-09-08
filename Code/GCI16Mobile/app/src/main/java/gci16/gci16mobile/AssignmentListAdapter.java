@@ -1,6 +1,7 @@
 package gci16.gci16mobile;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,32 +21,30 @@ import gci16.gci16mobile.R;
 
 public class AssignmentListAdapter extends ArrayAdapter<Assignment> {
     public AssignmentListAdapter(android.content.Context context, ArrayList<Assignment> list) {
-        super(context, R.layout.list_text_view, list);
+        super(context, R.layout.list_row_item, list);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         Context context = getContext();
-        LayoutParams params;
         LinearLayout row = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.assignment_table_row, parent, false);
         Assignment a = getItem(position);
+        LayoutParams cellParams = new LayoutParams(0, LayoutParams.WRAP_CONTENT, 2.5f);
+        cellParams.gravity = Gravity.CENTER_VERTICAL;
+        cellParams.leftMargin = 8;
         TextView text = new TextView(context);
-        params = new LayoutParams(0, LayoutParams.MATCH_PARENT, 1f);
-        text.setLayoutParams(params);
-        text.setBackgroundResource(R.drawable.border);
         text.setText(Integer.toString(a.getMeterId()));
+        text.setLayoutParams(cellParams);
         row.addView(text);
         text = new TextView(context);
-        params = new LayoutParams(0, LayoutParams.MATCH_PARENT, 5f);
-        text.setLayoutParams(params);
-        text.setBackgroundResource(R.drawable.border);
+        cellParams.weight = 5.5f;
         text.setText(a.getAddress());
+        text.setLayoutParams(cellParams);
         row.addView(text);
         text = new TextView(context);
-        params = new LayoutParams(0, LayoutParams.MATCH_PARENT, 3f);
-        text.setLayoutParams(params);
-        text.setBackgroundResource(R.drawable.border);
+        cellParams.weight = 4f;
         text.setText(a.getCustomer());
+        text.setLayoutParams(cellParams);
         row.addView(text);
         return row;
     }
