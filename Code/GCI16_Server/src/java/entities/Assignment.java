@@ -11,6 +11,8 @@ public class Assignment {
     private String customer;
 
     public Assignment(int operatorId, int meterId, String address, String customer){
+        if(address==null) throw new IllegalArgumentException("Address must not be null");
+        if(customer==null) throw new IllegalArgumentException("Customer must not be null");
         this.operatorId = operatorId;
         this.meterId = meterId;
         this.address = address;

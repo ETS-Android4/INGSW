@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -21,22 +22,20 @@ import java.util.LinkedList;
 public class AssignmentDAO {
     public Collection<Assignment> getAssignments(int operatorId) throws SQLException{
         Collection<Assignment> assignments = new LinkedList<>();
-        String query = "SELECT * FROM ASSIGNMENTS WHERE operator=?";
+        List<Object> params = new LinkedList<>();
+        String query = "SELECT * FROM ASSIGNMENT A JOIN METER M ON A.meterId=M.meterId WHERE operatorId=?";
         //TODO gestione errori!!??
-        Connection con = Database.getInstance().getConnection();
-        PreparedStatement statement = con.prepareStatement(query);
-        statement.setInt(1, operatorId);
-        
-        ResultSet result = statement.executeQuery();
-        while(result.next()){
-            assignments.add(new Assignment(
-                                result.getInt("operator"),
-                                result.getInt("meter"),
-                                result.getString("address"),
-                                result.getString("customer")
-                            ));
+        params.add(operatorId);
+        try (ResultSet result = Database.getInstance().execQuery(query, params)) {
+            while(result.next()){
+                assignments.add(new Assignment(
+                        result.getInt("operatorid"),
+                        result.getInt("meterid"),
+                        result.getString("address"),
+                        result.getString("customer")
+                ));
+            }
         }
-        result.close();
         return assignments;
     }
 }

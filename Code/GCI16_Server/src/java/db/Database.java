@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +19,7 @@ public class Database {
     private OracleDataSource ods;
     private final LinkedBlockingQueue<Connection> freeConnections;
     //private final HashMap<Thread,Connection> occupiedConnections;
-    private static final int MAXCONNECTIONS = 10;
+    private static final int MAXCONNECTIONS = 5;
     private String host = "127.0.0.1";
     private String service = "xe";
     private int port = 1521;
@@ -73,7 +73,7 @@ public class Database {
         return instance;
     }
     
-     public ResultSet execQuery(String query, ArrayList<Object> params) throws SQLException{
+     public ResultSet execQuery(String query, List<Object> params) throws SQLException{
         PreparedStatement st;
         ResultSet rs = null;
         Connection c = getConnection();

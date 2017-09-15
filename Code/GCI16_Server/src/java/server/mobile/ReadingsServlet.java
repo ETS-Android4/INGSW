@@ -33,7 +33,7 @@ public class ReadingsServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         HttpSession session = request.getSession(false);
         // TODO check operator
-        if(session==null && session!=null /* || getOperator()==null*/){
+        if(session==null && session!=null){
             response.sendError(402, "Authorization required");
             return;
         }

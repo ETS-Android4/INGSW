@@ -24,27 +24,33 @@ import javax.servlet.http.HttpSession;
  *
  * @author Riccardo
  */
-@WebServlet(name = "AssignmentServlet", urlPatterns = {"/AssignmentServlet"})
+@WebServlet(name = "AssignmentServlet", urlPatterns = {"/Assignments"})
 public class AssignmentServlet extends HttpServlet {
     private final AssignmentDAO assignmentDAO = new AssignmentDAO();
     
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         HttpSession session = request.getSession(false);
-        if(session==null /* || session.getOperator()==null*/){
+        
+        if(session==null){
             response.sendError(401, "Authorization required");
             return;
         }
-        int operatorId = 0;
-        
+        Integer operatorId = (Integer) session.getAttribute("operatorId");
+        if(operatorId==null){
+            response.sendError(401, "Authorization required");
+            return;
+        }
         try ( PrintWriter out = response.getWriter()) {
             Collection<Assignment> assignments = assignmentDAO.getAssignments(operatorId);
             //Collection -> JSON
             Gson gson = new Gson();
             String jsonString = gson.toJson(assignments);
+            System.err.println(jsonString);
             out.print(jsonString);
         } catch (SQLException ex) {
             Logger.getLogger(AssignmentServlet.class.getName()).log(Level.SEVERE, null, ex);
+            response.sendError(500, "Internal server error");
         }
     }
 
