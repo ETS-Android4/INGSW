@@ -25,7 +25,7 @@ public class BillDAO {
                     +  "from bill b join customer c on c.idcustomer = b.customer " +
                         "where extract(year from current_date) >= b.year and " +
                         "extract(month from current_date) >= b.trimester*3 - 3 and "+
-                        "b.status = 'unpaid'";
+                        "b.status = 'UNPAID'";
         ArrayList<Object> params = null;
         List<Bill> list = new ArrayList<>();
         

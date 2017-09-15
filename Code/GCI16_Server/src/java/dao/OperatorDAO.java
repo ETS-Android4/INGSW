@@ -20,7 +20,7 @@ public class OperatorDAO {
     
     public static Operator getOperator(String user,String pass){
         ArrayList<Object> params = new ArrayList<>();
-        String query = "select * from operatorB where username= ? AND pass= ?"; 
+        String query = "select * from backOfficeOperator where username= ? AND pass= ?"; 
         params.add(user);
         params.add(pass);
         ResultSet rs;
