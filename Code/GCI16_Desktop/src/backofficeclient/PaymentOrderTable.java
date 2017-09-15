@@ -5,6 +5,7 @@
  */
 package backofficeclient;
 
+import backofficeclient.PaymentOrder.Status;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -16,6 +17,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -28,6 +32,27 @@ public class PaymentOrderTable extends javax.swing.JFrame {
      */
     public PaymentOrderTable() {
         initComponents();
+        poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int row = poTable.getSelectedRow();
+                Status status = ((Status)poTable.getValueAt(row,6));
+                if(status != null){    
+                    String stat = status.toString();
+                
+                    if(stat.equals("NOTIFIED")){
+                        saveAsSuspendedButton.setEnabled(true);
+                        deleteButton.setEnabled(false);
+                    }else if(stat.equals("NOTISSUED")){
+                        deleteButton.setEnabled(true);
+                        saveAsSuspendedButton.setEnabled(false);
+                    }    
+                }else{
+                    deleteButton.setEnabled(false);
+                    saveAsSuspendedButton.setEnabled(false);
+                }
+            }
+        });
     }
 
     /**
@@ -42,6 +67,8 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         poTable = new javax.swing.JTable();
         createButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
+        saveAsSuspendedButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -105,9 +132,16 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Double.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(poTable);
@@ -119,6 +153,22 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             }
         });
 
+        deleteButton.setText("DELETE");
+        deleteButton.setEnabled(false);
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
+
+        saveAsSuspendedButton.setText("SAVE AS SUSPENDED");
+        saveAsSuspendedButton.setEnabled(false);
+        saveAsSuspendedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveAsSuspendedButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -126,15 +176,24 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 710, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(createButton)
-                .addGap(136, 136, 136))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(saveAsSuspendedButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(createButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(deleteButton)))
+                .addGap(103, 103, 103))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(createButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE)
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(createButton)
+                    .addComponent(deleteButton))
+                .addGap(26, 26, 26)
+                .addComponent(saveAsSuspendedButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -149,6 +208,37 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         billTable.setVisible(true);
     }//GEN-LAST:event_createButtonActionPerformed
 
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        int row = poTable.getSelectedRow();
+        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8080/GCI16/PaymentOrder?action=delete&paymentOrder="+poTable.getValueAt(row,0));
+        try {
+            if(conn.getResponseCode() == 200){
+                poTable.remove(row);
+                ((DefaultTableModel)poTable.getModel()).removeRow(row);
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_deleteButtonActionPerformed
+
+    private void saveAsSuspendedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsSuspendedButtonActionPerformed
+        int row = poTable.getSelectedRow();
+        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8080/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+poTable.getValueAt(row,0));
+
+        try {
+            if(conn.getResponseCode() == 200){
+                poTable.setValueAt("SUSPENDED", row, 6); /*Modifico la colonna relativa allo stato.*/
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_saveAsSuspendedButtonActionPerformed
+
+    
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -209,8 +299,7 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             int column = 0;
        
         
-        //System.out.println("Tutta: " + list + "\nTipo: " + list.getClass());
-        
+            
             int row = 0;
             for(PaymentOrder p : list2){
                 column=0;
@@ -227,11 +316,15 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton createButton;
+    private javax.swing.JButton deleteButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable poTable;
+    private javax.swing.JButton saveAsSuspendedButton;
     // End of variables declaration//GEN-END:variables
 }
