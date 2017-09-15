@@ -1,18 +1,10 @@
 package db;
 
 import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import oracle.jdbc.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,56 +23,42 @@ public class Database {
     private String host = "127.0.0.1";
     private String service = "xe";
     private int port = 1521;
-    private String user = "CARLO";
-    private String password = "carlo";
+    private String user = "GCI16";
+    private String password = "GCI16";
     private Connection conn;
     
     
     private Database(){
 
-        freeConnections = new LinkedBlockingQueue<Connection>(MAXCONNECTIONS);
+        freeConnections = new LinkedBlockingQueue<>(MAXCONNECTIONS);
         for(int i = 0;i < MAXCONNECTIONS;i++){
-            conn = createConnection();
-           if(freeConnections == null )
-                System.out.println("\n\n\n\nFree connections null\n\n\n\n");
-            
             try {
+                conn = createConnection();
                 freeConnections.put(conn);
-            } catch (InterruptedException ex) {
+            } catch (SQLException | InterruptedException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
             }
             
         }
         //occupiedConnections = new HashMap<Thread,Connection>();
-        
-        
     }
 
-    private synchronized Connection createConnection(){
-        System.out.println("\n\n\ncreate Connection\n\n\n");
-        Connection conn = null;
-        try {
-            ods = new OracleDataSource();
-            ods.setDriverType("thin");
-            ods.setServerName(host);
-            ods.setPortNumber(port);
-            ods.setUser(user);
-            ods.setPassword(password);
-            ods.setDatabaseName(service);
-            System.out.println("\n\n\n\nPrima di getConnection\n\n\n\n");
-            conn = ods.getConnection();
-            System.out.println("\n\n\n\nDopo di getConnection\n\n\n\n");
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return conn;
+    private synchronized Connection createConnection() throws SQLException{
+        ods = new OracleDataSource();
+        ods.setDriverType("thin");
+        ods.setServerName(host);
+        ods.setPortNumber(port);
+        ods.setUser(user);
+        ods.setPassword(password);
+        ods.setDatabaseName(service);
+        Connection newConnection = ods.getConnection();
+
+        return newConnection;
     }
     
     public synchronized Connection getConnection(){
         Connection c = null;
         try {
-            if(freeConnections.isEmpty()) System.out.println("CODA VUOTA");
             c = freeConnections.take();
         } catch (InterruptedException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
@@ -127,7 +105,4 @@ public class Database {
         }
         return rs;
     }
-
-    
-    
 }
