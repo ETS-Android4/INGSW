@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,26 +17,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
-import org.json.*;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 public class ReadingsController extends AppCompatActivity{
-
-    private final Collection<Reading> readingsDone = new HashSet<>();
-    private final Collection<Assignment> assignmentsLeft = new HashSet<>();
-    private Button updateButton;
-    private Button saveButton;
-    private Button sendButton;
+    private int operatorId;
+    int selectedItem;
+    private List<Reading> readingsDone;
+    private Set<Assignment> assignmentsCompleted;
+    private List<Assignment> assignmentsLeft;
+    private ArrayAdapter<Assignment> assignmentTableAdapter;
+    private ListView assignmentTable;
 
     @Override
     public void onBackPressed(){
@@ -49,66 +63,94 @@ public class ReadingsController extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readings_controller);
-        updateButton = (Button) findViewById(R.id.update_button);
         getSupportActionBar().setTitle("GCI '16");
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO check wether connection is available
-                updateAssignments();
-            }
-        });
 
-        saveButton = (Button) findViewById(R.id.save_reading_button);
-        saveButton.setEnabled(false);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Assignment r = new Assignment(12, 3392, "Via cazzo", "Gino");
-                //retrieve reading
-
-                readConsumption(r);
-            }
-        });
-
-        sendButton = (Button) findViewById(R.id.send_readings_button);
-        //sendButton.setOnClickListener( view -> {sendReadings();});
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendReadings();
-            }
-        });
-        ArrayList<Assignment> list = new ArrayList<>();
-        list.add(new Assignment(928,17162,"Via Tassoni", "Mario"));
-        list.add(new Assignment(928, 7362, "Via Peppe", "Peppe"));
-        AssignmentListAdapter listAdapter = new AssignmentListAdapter(getApplicationContext(), list);
-
-        ListView listView = (ListView) findViewById(R.id.assignment_table);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                saveButton.setEnabled(true);
-            }
-        });
-        listView.setAdapter(listAdapter);
+        final Button updateButton = (Button) findViewById(R.id.update_button);
+        final Button saveButton = (Button) findViewById(R.id.save_reading_button);
+        final Button sendButton = (Button) findViewById(R.id.send_readings_button);
+        assignmentTable = (ListView) findViewById(R.id.assignment_table);
 
         loadData();
 
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        if(pref.getString("readingsDone", null)==null)
-            sendButton.setEnabled(false);
+        // evento del bottone update
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    updateAssignments();
+                } catch(IOException e){
+
+                }
+            }
+        });
+
+        // evento del bottone save
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                readConsumption();
+                if(!readingsDone.isEmpty())
+                    sendButton.setEnabled(true);
+            }
+        });
+
+        // evento del bottone send
+        sendButton.setEnabled(!readingsDone.isEmpty());
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    sendReadings();
+                    sendButton.setEnabled(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        // popolamento della tablle delle assegnazioni
+        assignmentTableAdapter = new AssignmentListAdapter(getApplicationContext(), assignmentsLeft);
+        assignmentTable.setAdapter(assignmentTableAdapter);
+        assignmentTable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                selectedItem = i;
+                saveButton.setEnabled(true);
+            }
+        });
 
     }
 
 
     //TODO
     private void loadData(){
-
+        Type type;
+        String json;
+        operatorId = this.getIntent().getIntExtra("operatorId", -1);
+        if(operatorId==-1){ finish(); return;}
+        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        type = new TypeToken<HashSet<Assignment>>(){}.getType();
+        json = pref.getString("assignmentsCompleted"+operatorId, null);
+        if(json==null) assignmentsCompleted = new HashSet<>();
+        else assignmentsCompleted = (Set<Assignment>) gson.fromJson(json, type);
+        type = new TypeToken<ArrayList<Assignment>>(){}.getType();
+        json = pref.getString("assignmentsLeft"+operatorId, null);
+        if(json==null){
+            assignmentsLeft = new ArrayList<>();
+            assignmentsLeft.add(new Assignment(operatorId, 234, "Via ciao", "Giuseppe"));
+            assignmentsLeft.add(new Assignment(operatorId, 21134, "Via ciao2", "Mario"));
+        }
+        else assignmentsLeft = (List<Assignment>) gson.fromJson(json, type);
+        type = new TypeToken<LinkedList<Reading>>(){}.getType();
+        json = pref.getString("readingsDone"+operatorId, null);
+        if(json==null) readingsDone= new LinkedList<>();
+        else readingsDone = gson.fromJson(json, type);
     }
 
     //TODO
-    private void saveReading(Assignment a, float consumption) {
+    private void saveReading(final float consumption){
+        final Assignment a = assignmentsLeft.get(selectedItem);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirm reading")
                 .setMessage(String.format(
@@ -124,8 +166,26 @@ public class ReadingsController extends AppCompatActivity{
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
-                        //TODO salva
-                        sendButton.setEnabled(true);
+                        Reading r = new Reading(operatorId, a.getMeterId(),new java.util.Date(), consumption);
+                        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+                        Resources res = getResources();
+                        Gson gson = new Gson();
+                        String s; //nomi degli elementi salvati nelle SharedPreferences
+                        assignmentsCompleted.add(a);
+                        s = res.getString(R.string.assignments_completed_pref)+operatorId;
+                        editor.putString(s, gson.toJson(assignmentsCompleted));
+                        readingsDone.add(r);
+                        s = res.getString(R.string.readings_done_pref)+operatorId;
+                        editor.putString(s, gson.toJson(readingsDone));
+                        if(assignmentsLeft.remove(a)) Log.d("DEBUG", "Eliminato");
+                        else Log.d("DEBUG", "Non eliminato");
+                        assignmentTableAdapter.notifyDataSetChanged();
+                        assignmentTable.invalidateViews();
+                        s = res.getString(R.string.assignments_left_pref)+operatorId;
+                        editor.putString(s, gson.toJson(assignmentsLeft));
+                        editor.apply();
+                        selectedItem=-1;
                         dialog.cancel();
                     }
                 });
@@ -134,7 +194,7 @@ public class ReadingsController extends AppCompatActivity{
     }
 
     //TODO
-    private void readConsumption(final Assignment a){
+    private void readConsumption(){
         //input numerico
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -164,22 +224,50 @@ public class ReadingsController extends AppCompatActivity{
                 if (text != null && !text.equals("")) {
                     float consumption = Float.valueOf(text);
                     dialog.cancel();
-                    saveReading(a, consumption);
+                    saveReading(consumption);
                 }
             }
         });
     }
 
     //TODO
-    private void sendReadings() {
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-
-        //check internet connection
-        //add cookie
-        //urlconnection
-        //wait for response
-
-        sendButton.setEnabled(false);
+    private void sendReadings() throws IOException {
+        String ip = getResources().getString(R.string.server_address);
+        int port = getResources().getInteger(R.integer.server_port);
+        URL url = null;
+        try {
+            url = new URL(String.format("http://%s:%d/Readings", ip, port));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/json");
+        // scrive nel messaggio le letture effettuate in formato json
+        connection.setDoOutput(true);
+        Gson gson = new Gson();
+        String json = gson.toJson(readingsDone);
+        DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
+        writer.write(json.getBytes()); writer.flush();
+        writer.close();
+        //invia
+        connection.connect();
+        int responseCode = connection.getResponseCode();
+        if(responseCode==HttpURLConnection.HTTP_OK){
+            SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            readingsDone.clear();
+            String s = getResources().getString(R.string.readings_done_pref)+operatorId;
+            editor.remove(s);
+            assignmentsCompleted.clear();
+            s = getResources().getString(R.string.assignments_completed_pref)+operatorId;
+            editor.remove(s);
+            editor.apply();
+        }
+        else if(responseCode==getResources().getInteger(R.integer.connection_timeout)){
+            disconnect(); return;
+        }
     }
 
     @Override
@@ -194,10 +282,9 @@ public class ReadingsController extends AppCompatActivity{
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.logout_item:
-                AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this, R.style.Theme_Design);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
                 builder.setMessage("Do you want to logout?" +
-                        "Unsent will be stored in the phone untill you send them")
-                        //.setPositiveButton("YES", (dialog, i) -> {finish();})
+                        "Unsent will be stored in the phone until you send them")
                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
@@ -215,7 +302,59 @@ public class ReadingsController extends AppCompatActivity{
     }
 
     //TODO metodo che aggiorna la lista degli assegnamenti
-    private void updateAssignments(){
+    private void updateAssignments()throws IOException {
+        String ip = getResources().getString(R.string.server_address);
+        int port = getResources().getInteger(R.integer.server_port);
+        URL url = null;
+        try {
+            url = new URL(String.format("http://%s:%d/Assignment?operatorId=?", ip, port, operatorId));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return;
+        }
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
+        connection.setRequestMethod("GET");
+        connection.setDoOutput(false);
+        connection.connect();
+        int responseCode = connection.getResponseCode();
+        if(responseCode==getResources().getInteger(R.integer.server_unauthorized)){
+            disconnect();
+            return;
+        }
+        else if(responseCode==getResources().getInteger(R.integer.server_ok)){
+            // leggi stringa json
+            BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String json = "";
+            for(String s=reader.readLine(); s!=null ; s=reader.readLine()) json = json + s;
+                reader.close();
 
+            // ottieni collection richiesta
+            Gson gson = new Gson();
+            Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
+            Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
+
+            // distingui quelle già salvate ma non inviate
+            downloadedAssignments.removeAll(assignmentsCompleted);
+            if(!downloadedAssignments.isEmpty()) {
+                assignmentTableAdapter.addAll(downloadedAssignments);
+                SharedPreferences pref = getPreferences(Context.MODE_APPEND);
+                SharedPreferences.Editor editor = pref.edit();
+                String prefname = getResources().getString(R.string.assignments_left_pref)+Integer.toString(operatorId);
+                editor.putString(prefname, gson.toJson(assignmentsLeft));
+                editor.apply();
+            }
+        }
     }
+
+    private void ShowConnectionError(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this, R.style.Theme_Design);
+    }
+
+    private void disconnect(){
+        //TODO mostra sessione finita!!
+        finish();
+    }
+
 }

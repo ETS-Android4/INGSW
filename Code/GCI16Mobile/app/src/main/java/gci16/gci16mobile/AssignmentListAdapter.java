@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import gci16.gci16mobile.Assignment;
 import gci16.gci16mobile.R;
@@ -20,7 +21,7 @@ import gci16.gci16mobile.R;
  */
 
 public class AssignmentListAdapter extends ArrayAdapter<Assignment> {
-    public AssignmentListAdapter(android.content.Context context, ArrayList<Assignment> list) {
+    public AssignmentListAdapter(android.content.Context context, List<Assignment> list) {
         super(context, R.layout.list_row_item, list);
     }
 

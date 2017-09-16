@@ -32,4 +32,16 @@ public class Assignment {
     public String getCustomer() {
         return customer;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(!(o instanceof Assignment)) return false;
+        Assignment a = (Assignment) o;
+        return a.meterId==this.meterId;
+    }
+
+    @Override
+    public int hashCode(){
+        return meterId;
+    }
 }

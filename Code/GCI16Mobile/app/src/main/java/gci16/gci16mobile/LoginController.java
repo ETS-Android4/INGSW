@@ -23,6 +23,7 @@ import android.widget.EditText;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
@@ -36,6 +37,15 @@ public class LoginController extends AppCompatActivity {
         final EditText operatorIdEditText = (EditText) findViewById(R.id.operator_id_edit_text);
         final EditText passwordEditText = (EditText) findViewById(R.id.operator_password_edit_text);
         final Button loginButton = (Button) findViewById(R.id.login_button);
+
+        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+        int op = pref.getInt("operatorId", -1);
+        if(op!=-1) operatorIdEditText.setText(Integer.toString(op));
+        String pass = pref.getString("password", null);
+        if(pass!=null){
+            passwordEditText.setText(pass);
+            loginButton.setEnabled(true);
+        }
 
         // aggiunge listener che nasconde la tastiera quando il focus cambia
         View.OnFocusChangeListener keyboardCloser = new View.OnFocusChangeListener() {
@@ -79,10 +89,16 @@ public class LoginController extends AppCompatActivity {
                     return;
 
                 int operatorId = Integer.valueOf(operatorIdText);
-
-                //TODO login
-                if(login(operatorId, password)){
+                boolean logged = false;
+                try {
+                    logged = login(operatorId, password);
+                }catch(IOException ex){
+                    Log.d("DEBUG", "Impossibile raggiungere il server");
+                    return;
+                }
+                if(logged){
                     Intent intent = new Intent(LoginController.this, ReadingsController.class);
+                    intent.putExtra("operatorId", operatorId);
                     startActivity(intent);
                 }
                 else{
@@ -100,9 +116,10 @@ public class LoginController extends AppCompatActivity {
                 }
             }
         });
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+
         if(pref.getString("session", null)!=null){ //sessione salvata
             Intent intent = new Intent(LoginController.this, ReadingsController.class);
+            intent.putExtra("operatorId", pref.getInt("operatorId", -1));
             startActivity(intent);
         }
 
@@ -112,20 +129,27 @@ public class LoginController extends AppCompatActivity {
 
     //TODO
     //tenta il login, se questo ha successo salva il session id
-    private boolean login(int operatorId, String password){
-        //prova login
-        String ip = getResources().getString(R.string.server_address);
-        int port = getResources().getInteger(R.integer.server_port);
+    private boolean login(int operatorId, String password) throws IOException{
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        try {
-            URL url = new URL(String.format("http://%s:%d/login?operatorId=%d&password=%s", ip, port, operatorId, password));
+        String ip = getResources().getString(R.string.server_address);
+        int port = getResources().getInteger(R.integer.server_port);
 
+        //salva token e ultime credenziali
+        editor.putInt("operatorId", operatorId);
+        editor.putString("password", password);
+        editor.apply();
+
+        try {
+            String urlString = String.format("http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s", ip, port, operatorId, password);
+            Log.d("DEBUG", "url = " + urlString);
+            URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
             connection.setRequestMethod("GET");
             connection.connect();
             int responseCode = connection.getResponseCode();
-            if(responseCode==500){
+            if(responseCode==getResources().getInteger(R.integer.server_ok)){
                 String cookieName = getResources().getString(R.string.session_cookie_name);
                 String cookieValue = null;
                 String cookieString = connection.getHeaderField("Set-Cookie");
@@ -136,8 +160,12 @@ public class LoginController extends AppCompatActivity {
                         break;
                     }
                 }
-                if(cookieValue==null) return false;
+                if(cookieValue==null){
+                    Log.d("DEBUG", "No cookie");
+                    return false;
+                }
                 editor.putString(cookieName, cookieValue);
+                editor.apply();
             }
             else{
                 return false;
@@ -145,15 +173,7 @@ public class LoginController extends AppCompatActivity {
 
         } catch (MalformedURLException e) {
             Log.e("Malformed URL", String.format("%s/%d", R.string.server_address, R.integer.server_port));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-
-        //salva token e ultime credenziali
-        editor.putInt("operatorId", operatorId);
-        editor.putString("password", password);
-
-        return true;
+        return false;
     }
 }
