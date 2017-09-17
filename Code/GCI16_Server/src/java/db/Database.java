@@ -1,6 +1,7 @@
 package db;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -81,14 +82,14 @@ public class Database {
         st = c.prepareStatement(query);
         if (params != null){
             for (Object p : params ){
+                if( p instanceof Date)
+                    st.setDate(k,(Date) p);
                 if( p instanceof Integer)
                     st.setInt(k, (Integer)p);
-                else if (p instanceof Float){
+                else if (p instanceof Float)
                     st.setFloat(k,(Float)p);
-                }
-                else if( p instanceof Number){
+                else if( p instanceof Number)
                     st.setDouble(k, (Double)p);
-                }
                 else 
                     st.setString(k, (String)p);
                 k++;

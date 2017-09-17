@@ -11,11 +11,8 @@ import dao.ReadingDAO;
 import entities.Reading;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,9 +29,8 @@ public class ReadingsServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         HttpSession session = request.getSession(false);
-        // TODO check operator
-        if(session==null && session!=null){
-            response.sendError(402, "Authorization required");
+        if(session==null){
+            response.sendError(401, "Authorization required");
             return;
         }
         
@@ -45,23 +41,12 @@ public class ReadingsServlet extends HttpServlet {
         Type type = new TypeToken<List<Reading>>(){}.getType();
         Collection<Reading> readings = gson.fromJson(jsonList, type);
         System.out.println(readings);
-        try{
-            readingDAO.saveReadings(readings);
-            response.setStatus(200);
-        }catch (SQLException ex) {
-            Logger.getLogger(ReadingsServlet.class.getName()).log(Level.SEVERE, null, ex);
-            response.sendError(500, "Internal server error");
-        }
-    }
-    
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }
 
+        boolean saved = readingDAO.saveReadings(readings);
+        
+        if(saved)
+            response.setStatus(200);
+        else
+            response.sendError(500, "Internal server error");
+    }
 }

@@ -7,34 +7,35 @@ package dao;
 
 import db.Database;
 import entities.Reading;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
  * @author Riccardo
  */
 public class ReadingDAO {
-    public void saveReadings(Collection<Reading> readings) throws SQLException{
+    public boolean saveReadings(Collection<Reading> readings){
         int i;//TODO
         if(readings==null) throw new IllegalArgumentException("Argument must be not null");
-        Connection con = Database.getInstance().getConnection();
         String single = "INSERT INTO READINGS(operator, meter, date, consumption)VALUES(?,?,?,?);";
-        String total = "";
-        for(i=0; i<readings.size(); i++)
-            total += single;
-        
-        PreparedStatement statement = con.prepareStatement(total);
-        i=1;
+        String query = "";
+        List<Object> params = new LinkedList<>();
         for(Reading r : readings){
-            statement.setInt(i++, r.getOperatorId());
-            statement.setInt(i++, r.getMeterId());
-            //TODO statement.setDate(i++, new Date());
-            statement.setFloat(i++, r.getConsumption());
+            query += single;
+            params.add(r.getOperatorId());
+            params.add(r.getMeterId());
+            params.add(new java.sql.Date(r.getDate().getTime()));
+            params.add(r.getConsumption());
         }
-        
-        statement.executeQuery();
+        try{
+        ResultSet result = Database.getInstance().execQuery(query, params);
+        }catch(SQLException ex){
+            return false;
+        }
+        return true;
     }
 }

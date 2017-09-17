@@ -94,6 +94,7 @@ public class LoginController extends AppCompatActivity {
                     logged = login(operatorId, password);
                 }catch(IOException ex){
                     Log.d("DEBUG", "Impossibile raggiungere il server");
+                    Log.d("DEBUG", ex.getMessage());
                     return;
                 }
                 if(logged){
