@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.design.widget.FloatingActionButton;
@@ -27,8 +28,13 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.util.concurrent.ExecutionException;
 
 public class LoginController extends AppCompatActivity {
+    private Button loginButton;
+    private int operatorId;
+    private String password;
+    private String session;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,16 +42,16 @@ public class LoginController extends AppCompatActivity {
 
         final EditText operatorIdEditText = (EditText) findViewById(R.id.operator_id_edit_text);
         final EditText passwordEditText = (EditText) findViewById(R.id.operator_password_edit_text);
-        final Button loginButton = (Button) findViewById(R.id.login_button);
+        loginButton = (Button) findViewById(R.id.login_button);
 
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        int op = pref.getInt("operatorId", -1);
-        if(op!=-1) operatorIdEditText.setText(Integer.toString(op));
-        String pass = pref.getString("password", null);
-        if(pass!=null){
-            passwordEditText.setText(pass);
-            loginButton.setEnabled(true);
-        }
+        final SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit(); //TODO elimina
+        editor.clear().apply();
+        operatorId = pref.getInt("operatorId", -1);
+        if(operatorId!=-1) operatorIdEditText.setText(Integer.toString(operatorId));
+        password = pref.getString("password", null);
+        if(password!=null) passwordEditText.setText(password);
+        if(password!=null && operatorId!=-1) loginButton.setEnabled(true);
 
         // aggiunge listener che nasconde la tastiera quando il focus cambia
         View.OnFocusChangeListener keyboardCloser = new View.OnFocusChangeListener() {
@@ -89,24 +95,26 @@ public class LoginController extends AppCompatActivity {
                     return;
 
                 int operatorId = Integer.valueOf(operatorIdText);
-                boolean logged = false;
-                try {
-                    logged = login(operatorId, password);
-                }catch(IOException ex){
+                LoginController.this.operatorId = operatorId;
+                LoginController.this.password = password;
+                Boolean logged = login(operatorId, password);
+                if(logged==null){
                     Log.d("DEBUG", "Impossibile raggiungere il server");
-                    Log.d("DEBUG", ex.getMessage());
-                    return;
                 }
-                if(logged){
+                else if(logged){
                     Intent intent = new Intent(LoginController.this, ReadingsController.class);
                     intent.putExtra("operatorId", operatorId);
+                    SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+                    String session = preferences.getString("session", null);
+                    if(session==null) Log.d("DEBUG", "session is null nel blocco che chiama l'intent");
+                    intent.putExtra("session", session);
                     startActivity(intent);
                 }
                 else{
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginController.this, R.style.Theme_Design);
-                    builder.setMessage("Wrong id or password").setTitle("Error");
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    builder.setMessage("Wrong id or password").setTitle("Error")
+                           .setCancelable(false)
+                           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int i) {
                             dialog.cancel();
@@ -118,9 +126,14 @@ public class LoginController extends AppCompatActivity {
             }
         });
 
-        if(pref.getString("session", null)!=null){ //sessione salvata
+        String session = pref.getString("session", null);
+        if(session!=null){ //sessione salvata
             Intent intent = new Intent(LoginController.this, ReadingsController.class);
-            intent.putExtra("operatorId", pref.getInt("operatorId", -1));
+            intent.putExtra("operatorId", operatorId);
+            intent.putExtra("session", session);
+            Log.d("DEBUG", "Operator: "+intent.getIntExtra("operatorId", -1));
+            Log.d("DEBUG", "Cookie: "+intent.getStringExtra("session"));
+
             startActivity(intent);
         }
 
@@ -130,51 +143,72 @@ public class LoginController extends AppCompatActivity {
 
     //TODO
     //tenta il login, se questo ha successo salva il session id
-    private boolean login(int operatorId, String password) throws IOException{
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        String ip = getResources().getString(R.string.server_address);
-        int port = getResources().getInteger(R.integer.server_port);
+    private Boolean login(final int operatorId,final String password) {
+        loginButton.setEnabled(false);
+        AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected Boolean doInBackground(Void... strings) {
 
-        //salva token e ultime credenziali
-        editor.putInt("operatorId", operatorId);
-        editor.putString("password", password);
-        editor.apply();
+                SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                String ip = getResources().getString(R.string.server_address);
+                int port = getResources().getInteger(R.integer.server_port);
 
-        try {
-            String urlString = String.format("http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s", ip, port, operatorId, password);
-            Log.d("DEBUG", "url = " + urlString);
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
-            connection.setRequestMethod("GET");
-            connection.connect();
-            int responseCode = connection.getResponseCode();
-            if(responseCode==getResources().getInteger(R.integer.server_ok)){
-                String cookieName = getResources().getString(R.string.session_cookie_name);
-                String cookieValue = null;
-                String cookieString = connection.getHeaderField("Set-Cookie");
-                for(String s : cookieString.split(";")) {
-                    if (s.matches(cookieName)) {
-                        cookieValue = s.substring(s.indexOf('='));
-                        Log.d("Debug", cookieName+":"+cookieValue);
-                        break;
+                //salva token e ultime credenziali
+                editor.putInt("operatorId", operatorId)
+                      .putString("password", password)
+                      .apply();
+                try {
+                    String urlString = String.format("http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s", ip, port, operatorId, password);
+                    Log.d("DEBUG", "url = " + urlString);
+                    URL url = new URL(urlString);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
+                    connection.setRequestMethod("GET");
+                    connection.connect();
+                    int responseCode = connection.getResponseCode();
+                    Log.d("DEBUG", "response code : "+responseCode);
+                    if (responseCode == getResources().getInteger(R.integer.server_ok)) {
+                        String cookieName = getResources().getString(R.string.session_cookie_name);
+                        String cookieNameMatch = cookieName+".*";
+                        String cookie = null;
+                        String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
+                        for (String s : cookieString.split(";")) {
+                            if (s.matches(cookieNameMatch)) {
+                                cookie = s;
+                                Log.d("Debug", cookie);
+                                break;
+                            }
+                        }
+                        if (cookie == null) {
+                            Log.d("DEBUG", "No cookie, cookiestring = "+cookieString);
+                            return false;
+                        } else {
+                            Log.d("DEBUG", "Cookie obtained: "+cookie);
+                        }
+                        editor.putString("session", cookie).apply();
+                        return true;
                     }
+                } catch (MalformedURLException e) {
+                    Log.e("Malformed URL", String.format("%s/%d", R.string.server_address, R.integer.server_port));
+                    return null;
+                } catch (IOException e) {
+                    Log.e("IOException", e.getMessage());
+                    return null;
                 }
-                if(cookieValue==null){
-                    Log.d("DEBUG", "No cookie");
-                    return false;
-                }
-                editor.putString(cookieName, cookieValue);
-                editor.apply();
-            }
-            else{
                 return false;
             }
-
-        } catch (MalformedURLException e) {
-            Log.e("Malformed URL", String.format("%s/%d", R.string.server_address, R.integer.server_port));
+        };
+        asyncTask.execute();
+        Boolean result = null;
+        try {
+            result = asyncTask.get();
+        } catch (InterruptedException e) {
+            Log.d("Interrupted", e.getMessage());
+        } catch (ExecutionException e) {
+            Log.d("Execution", e.getMessage());
         }
-        return false;
+        loginButton.setEnabled(true);
+        return result;
     }
 }
