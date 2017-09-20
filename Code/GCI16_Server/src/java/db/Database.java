@@ -1,10 +1,10 @@
 package db;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -57,7 +57,7 @@ public class Database {
         return newConnection;
     }
     
-    public synchronized Connection getConnection(){
+    private synchronized Connection getConnection(){
         Connection c = null;
         try {
             c = freeConnections.take();
@@ -82,16 +82,18 @@ public class Database {
         st = c.prepareStatement(query);
         if (params != null){
             for (Object p : params ){
-                if( p instanceof Date)
-                    st.setDate(k,(Date) p);
-                if( p instanceof Integer)
-                    st.setInt(k, (Integer)p);
+                if( p instanceof java.sql.Date)
+                    st.setDate(k,(java.sql.Date) p);
                 else if (p instanceof Float)
                     st.setFloat(k,(Float)p);
+                else if( p instanceof Integer)
+                    st.setInt(k, (Integer)p);
                 else if( p instanceof Number)
                     st.setDouble(k, (Double)p);
-                else 
+                else if( p instanceof String)
                     st.setString(k, (String)p);
+                else
+                    System.err.println(p.getClass().toString());
                 k++;
             }
         }
@@ -99,7 +101,9 @@ public class Database {
             rs = st.executeQuery();
             freeConnections.put(c);
         }catch(SQLException e){
+            System.err.println("statement = " + st.toString());
             System.err.println("query = " + query);
+            System.err.println("params = " + params);
             throw e;
         } catch (InterruptedException ex) {
             Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);

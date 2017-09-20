@@ -54,7 +54,7 @@ public class ReadingsOperatorLoginServlet extends HttpServlet {
             //crea una nuova sessione
            
             session = request.getSession(true);
-            session.setMaxInactiveInterval(5184000);
+            session.setMaxInactiveInterval(2592000);
             session.setAttribute("operatorId", operatorId);
         }
         else{

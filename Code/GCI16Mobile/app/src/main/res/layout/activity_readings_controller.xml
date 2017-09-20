@@ -28,7 +28,7 @@
         android:layout_marginBottom="14dp"
         android:layout_marginLeft="18dp"
         android:layout_marginStart="18dp"
-        android:enabled="false"
+        android:enabled="true"
         android:text="save reading" />
 
     <Button
