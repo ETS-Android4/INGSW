@@ -72,6 +72,35 @@ public class PaymentOrderDAO {
         return list;
     }
     
+    public PaymentOrder getPaymentOrderByBill(int idBill){
+        String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
+                + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
+                + "WHERE P.BILL = ?";
+        ArrayList<Object> params = new ArrayList<>();
+        params.add(idBill);
+        PaymentOrder p = null;
+        try {
+            ResultSet rs = db.Database.getInstance().execQuery(query, params);
+            if(rs!=null){
+            
+                if(rs.next()){
+                    Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
+                    Bill b = new Bill(c,rs.getDouble("bamount"),rs.getInt("year"),rs.getInt("trimester"));
+
+                    String stat = rs.getString("status");
+                    if(stat.equals("NOT ISSUED"))
+                        stat = "NOTISSUED";
+                    Status status = Status.valueOf(stat); 
+
+                     p = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getInt("protocol"),status,b,rs.getDouble("pamount"));
+                }
+            }     
+        }catch(SQLException ex){
+                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        return p;
+    }
+    
     public boolean createPaymentOrder(int idBill){
         
         ArrayList<Object> params = new ArrayList<>();
@@ -79,7 +108,7 @@ public class PaymentOrderDAO {
         params.add("NOT ISSUED");
         params.add(idBill);
         try {
-            Database.getInstance().execQuery(query, params);
+            ResultSet rs = Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return false;

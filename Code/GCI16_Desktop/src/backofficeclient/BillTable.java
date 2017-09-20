@@ -22,12 +22,12 @@ import java.util.logging.Logger;
  * @author carlo
  */
 public class BillTable extends javax.swing.JFrame {
-
-    /**
-     * Creates new form BillTable
-     */
-    public BillTable() {
+    
+    PaymentOrderTable paymentOrderTable;
+    
+    public BillTable( PaymentOrderTable paymentOrderTable ) {
         initComponents();
+        this.paymentOrderTable = paymentOrderTable; 
     }
 
     /**
@@ -152,15 +152,25 @@ public class BillTable extends javax.swing.JFrame {
 
     private void createPoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPoButtonActionPerformed
         System.out.println(bTable.getValueAt(bTable.getSelectedRow(),0));
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8080/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
-        try {
-            System.out.println("STATO: "+ conn.getResponseCode());
-        } catch (IOException ex) {
+        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
+        
+        try{
+            if(conn.getResponseCode() == 200){
+                InputStream is = conn.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                line = rd.readLine();     
+                rd.close();
+                Gson gson = new Gson();
+                System.out.println("GSON : " + line);
+                PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
+                paymentOrderTable.addPaymentOrder(p);
+                       
+            }
+        }catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
         }
-        PaymentOrderTable paymOrdTable = new PaymentOrderTable();
-        paymOrdTable.setTable();
-        paymOrdTable.setVisible(true);
+    
         this.dispose();
         
     }//GEN-LAST:event_createPoButtonActionPerformed
@@ -169,45 +179,11 @@ public class BillTable extends javax.swing.JFrame {
         createPoButton.setEnabled(true);
     }//GEN-LAST:event_bTableFocusGained
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(BillTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BillTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(BillTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(BillTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                BillTable bTable = new BillTable();
-                bTable.setVisible(true);
-                bTable.setTable();
-            }
-        });
-    }
+    
+   
     
     public void setTable(){
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8080/GCI16/Bill?action=show");
+        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/Bill?action=show");
         InputStream is = null;
         String line = null;
         try {
@@ -225,7 +201,6 @@ public class BillTable extends javax.swing.JFrame {
             java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
             List<Bill> list = gson.fromJson(line, BillListType);
             System.out.println("dimensione = "+ list.size());
-            
             int row = 0;
             int column;
             for(Bill b : list){
@@ -240,6 +215,9 @@ public class BillTable extends javax.swing.JFrame {
             createPoButton.setEnabled(false);
            
     }
+    
+    
+  
 
     
     

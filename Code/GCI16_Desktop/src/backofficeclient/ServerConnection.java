@@ -24,9 +24,7 @@ public abstract class ServerConnection {
             //Create connection
             URL url = new URL(targetURL);
             connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Content-Language", "en-US");  
+            connection.setRequestMethod("GET");  
 
             connection.setUseCaches(false);
             connection.setDoOutput(true);

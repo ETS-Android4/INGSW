@@ -62,12 +62,16 @@ public class PaymentOrderServlet extends HttpServlet {
             case "create":
                 
                 bill = request.getParameter("bill");
-                System.out.println("Sto creando ");
                 if(bill != null){
                     idBill = Integer.parseInt(bill);
-                    System.out.println("la bolletta "+idBill);
-                    boolean b = createPaymentOrder(idBill);
-                    System.out.println("valore: "+b);
+                    res  = createPaymentOrder(idBill);
+                    try {
+                        PrintWriter pw = response.getWriter();
+                        pw.print(res);
+                        System.out.println("stringaa "+ res);
+                    } catch (IOException ex) {
+                        Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 //TODO gestire caso in cui non va bene 
                 break;
@@ -137,8 +141,16 @@ public class PaymentOrderServlet extends HttpServlet {
        
     }
     
-    private boolean createPaymentOrder(int idBill){
-        return pDao.createPaymentOrder(idBill);
+    private String createPaymentOrder(int idBill){
+        String string = null;
+        if(pDao.createPaymentOrder(idBill)){
+           PaymentOrder p = pDao.getPaymentOrderByBill(idBill);
+           Gson gson = new Gson();
+           string = gson.toJson(p);
+           
+        }
+        System.out.println("Stringa d ritorno: "+string);
+        return string;
     }
     
     private boolean deletePaymentOrder(int idPaymentOrder){

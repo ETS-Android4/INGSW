@@ -1,5 +1,7 @@
 package backofficeclient;
 
+import java.util.Calendar;
+
 /**
  *
  * @author Mattia
@@ -40,6 +42,7 @@ public class PaymentOrder {
         this.protocol = protocol;
         this.status = status;
         this.bill = bill;
+        
     }
     
     public Bill getBill(){
@@ -78,7 +81,10 @@ public class PaymentOrder {
     public double getAmount(){
         return amount;
     }
-
+    
+    public void setStatus(Status status){
+        this.status = status;
+    }
     
     
 }
