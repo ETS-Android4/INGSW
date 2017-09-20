@@ -33,12 +33,12 @@ public class AssignmentServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         
         if(session==null){
-            response.sendError(403, "Authorization required");
+            response.sendError(401, "Authorization required");
             return;
         }
         Integer operatorId = (Integer) session.getAttribute("operatorId");
         if(operatorId==null){
-            response.sendError(403, "Authorization required");
+            response.sendError(401, "Authorization required");
             return;
         }
         try ( PrintWriter out = response.getWriter()) {
@@ -46,7 +46,7 @@ public class AssignmentServlet extends HttpServlet {
             //Collection -> JSON
             Gson gson = new Gson();
             String jsonString = gson.toJson(assignments);
-            response.setStatus(200);
+            System.err.println(jsonString);
             out.print(jsonString);
         } catch (SQLException ex) {
             Logger.getLogger(AssignmentServlet.class.getName()).log(Level.SEVERE, null, ex);

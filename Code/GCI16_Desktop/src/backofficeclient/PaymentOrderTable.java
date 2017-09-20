@@ -8,6 +8,7 @@ package backofficeclient;
 import backofficeclient.PaymentOrder.Status;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sun.glass.events.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.RowFilter.ComparisonType;
 import javax.swing.event.ListSelectionEvent;
@@ -37,38 +41,7 @@ public class PaymentOrderTable extends javax.swing.JFrame {
     List<PaymentOrder> list;
     public PaymentOrderTable() {
         initComponents();
-        mapVal = new HashMap<>();//per il filtro
-        poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                int row = poTable.getSelectedRow();
-                deleteButton.setEnabled(false);
-                saveAsSuspendedButton.setEnabled(false);
-                saveAsPaidButton.setEnabled(false);
-                saveAsNotPertinentButton.setEnabled(false);
-                reissueButton.setEnabled(false);
-                
-                if(row < list.size() && row>=0){
-                    
-                    Status status = list.get(row).getStatus();
-                    if(status != null){    
-                        String stat = status.toString();
-
-                        if(stat.equals("NOTIFIED")){
-                            saveAsSuspendedButton.setEnabled(true);
-                            saveAsPaidButton.setEnabled(true);
-                        }
-                        else if(stat.equals("NOTISSUED")){
-                            deleteButton.setEnabled(true);
-                        }
-                        else if(stat.equals("SUSPENDED")){
-                            reissueButton.setEnabled(true);
-                            saveAsNotPertinentButton.setEnabled(true);
-                        }
-                    }
-                }
-            }
-        });
+        
     }
 
     /**
@@ -94,15 +67,14 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         protocolText = new javax.swing.JTextField();
         debtorText = new javax.swing.JTextField();
-        amountText = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
+        statusText = new javax.swing.JTextField();
         filterButton = new javax.swing.JButton();
         yearList = new javax.swing.JComboBox<>();
         trimesterList = new javax.swing.JComboBox<>();
+        clearFilterButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -127,6 +99,39 @@ public class PaymentOrderTable extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int row = poTable.getSelectedRow();
+                deleteButton.setEnabled(false);
+                saveAsSuspendedButton.setEnabled(false);
+                saveAsPaidButton.setEnabled(false);
+                saveAsNotPertinentButton.setEnabled(false);
+                reissueButton.setEnabled(false);
+                issueButton.setEnabled(false);
+
+                if(row < list.size() && row>=0){
+
+                    Status status = list.get(row).getStatus();
+                    if(status != null){
+                        String stat = status.toString();
+
+                        if(stat.equals("NOTIFIED")){
+                            saveAsSuspendedButton.setEnabled(true);
+                            saveAsPaidButton.setEnabled(true);
+                        }
+                        else if(stat.equals("NOTISSUED")){
+                            deleteButton.setEnabled(true);
+                            issueButton.setEnabled(true);
+                        }
+                        else if(stat.equals("SUSPENDED")){
+                            reissueButton.setEnabled(true);
+                            saveAsNotPertinentButton.setEnabled(true);
+                        }
+                    }
+                }
             }
         });
         jScrollPane1.setViewportView(poTable);
@@ -163,6 +168,7 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         });
 
         saveAsNotPertinentButton.setText("Save as not pertinent");
+        saveAsNotPertinentButton.setEnabled(false);
         saveAsNotPertinentButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveAsNotPertinentButtonActionPerformed(evt);
@@ -170,6 +176,7 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         });
 
         reissueButton.setText("Reissue");
+        reissueButton.setEnabled(false);
         reissueButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 reissueButtonActionPerformed(evt);
@@ -177,6 +184,7 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         });
 
         issueButton.setText("Issue");
+        issueButton.setEnabled(false);
         issueButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 issueButtonActionPerformed(evt);
@@ -191,13 +199,16 @@ public class PaymentOrderTable extends javax.swing.JFrame {
 
         jLabel4.setText("Trimester");
 
-        jLabel5.setText("Amount");
-
         jLabel6.setText("Status");
 
-        protocolText.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                protocolTextFocusLost(evt);
+        protocolText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                protocolTextActionPerformed(evt);
+            }
+        });
+        protocolText.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                protocolTextKeyTyped(evt);
             }
         });
 
@@ -213,69 +224,77 @@ public class PaymentOrderTable extends javax.swing.JFrame {
 
 trimesterList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No", "1", "2", "3", "4" }));
 
-javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-jPanel1.setLayout(jPanel1Layout);
-jPanel1Layout.setHorizontalGroup(
-    jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-    .addGroup(jPanel1Layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(filterButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(63, 63, 63))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(debtorText, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
-                            .addComponent(protocolText, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(0, 218, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(amountText)
-                            .addComponent(yearList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(59, 59, 59)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField7)
-                            .addComponent(trimesterList, 0, 59, Short.MAX_VALUE))
-                        .addGap(63, 63, 63))))))
-    );
-    jPanel1Layout.setVerticalGroup(
+clearFilterButton.setText("Clear");
+clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
+    public void actionPerformed(java.awt.event.ActionEvent evt) {
+        clearFilterButtonActionPerformed(evt);
+    }
+    });
+
+    javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+    jPanel1.setLayout(jPanel1Layout);
+    jPanel1Layout.setHorizontalGroup(
         jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(jPanel1Layout.createSequentialGroup()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(jLabel1))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addContainerGap()
+                            .addComponent(jLabel3)))
+                    .addGap(0, 0, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(jLabel2))
-                .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addGap(20, 20, 20)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(debtorText)
+                                .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(yearList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGap(63, 63, 63)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel4)
+                        .addComponent(jLabel6))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(statusText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGap(76, 76, 76))
+    );
+    jPanel1Layout.setVerticalGroup(
+        jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGap(15, 15, 15)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jLabel1)
-                .addComponent(debtorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel2))
             .addGap(18, 18, 18)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jLabel3)
+                .addComponent(debtorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel1)
                 .addComponent(jLabel4)
-                .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGap(18, 18, 18)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(statusText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jLabel6)
-                .addComponent(amountText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jLabel5))
-            .addGap(18, 18, 18)
-            .addComponent(filterButton, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                .addComponent(jLabel3)
+                .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(filterButton)
+                .addComponent(clearFilterButton))
             .addContainerGap())
     );
 
@@ -283,45 +302,51 @@ jPanel1Layout.setHorizontalGroup(
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 729, Short.MAX_VALUE)
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 918, Short.MAX_VALUE)
         .addGroup(layout.createSequentialGroup()
+            .addGap(20, 20, 20)
             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(18, 18, 18)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                .addComponent(issueButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                    .addComponent(saveAsPaidButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(saveAsSuspendedButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(issueButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createSequentialGroup()
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(saveAsPaidButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(createButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)
-                        .addComponent(reissueButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(saveAsNotPertinentButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(saveAsSuspendedButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-            .addGap(65, 65, 65))
+                    .addComponent(reissueButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(saveAsNotPertinentButton))
+                .addGroup(layout.createSequentialGroup()
+                    .addComponent(createButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGap(84, 84, 84))
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addContainerGap()
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 24, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(deleteButton)
                         .addComponent(createButton))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGap(18, 18, 18)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(saveAsPaidButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(saveAsSuspendedButton))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(reissueButton)
-                        .addComponent(saveAsNotPertinentButton))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(issueButton))
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGap(18, 18, 18)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(saveAsNotPertinentButton)
+                        .addComponent(reissueButton))
+                    .addGap(18, 18, 18)
+                    .addComponent(issueButton)
+                    .addGap(39, 39, 39)))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addContainerGap())
     );
@@ -337,13 +362,12 @@ jPanel1Layout.setHorizontalGroup(
     }//GEN-LAST:event_createButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        int row = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
         HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
         try {
             if(conn.getResponseCode() == 200){
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
-                list.remove(row);
-                
+                list.remove(row);    
             }
             
         } catch (IOException ex) {
@@ -353,7 +377,7 @@ jPanel1Layout.setHorizontalGroup(
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void saveAsSuspendedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsSuspendedButtonActionPerformed
-        int row = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
         HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+list.get(row).getId());
 
         try {
@@ -368,7 +392,7 @@ jPanel1Layout.setHorizontalGroup(
     }//GEN-LAST:event_saveAsSuspendedButtonActionPerformed
 
     private void saveAsPaidButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsPaidButtonActionPerformed
-       int row = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
         HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsPaid&paymentOrder="+list.get(row).getId());
 
         try {
@@ -383,7 +407,7 @@ jPanel1Layout.setHorizontalGroup(
     }//GEN-LAST:event_saveAsPaidButtonActionPerformed
 
     private void saveAsNotPertinentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsNotPertinentButtonActionPerformed
-        int row = poTable.getSelectedRow();
+         int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
         HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsNotPertinent&paymentOrder="+list.get(row).getId());
 
         try {
@@ -406,69 +430,47 @@ jPanel1Layout.setHorizontalGroup(
     }//GEN-LAST:event_issueButtonActionPerformed
 
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
-         List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>();
+        List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>();
         String protocol = protocolText.getText();
         if(protocol.length() > 0 )
             filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(protocol), 0));
-            //mapVal.put("protocol", protocol);
         String debtor = debtorText.getText();
         if(debtor.length() > 0)
             filters.add(RowFilter.regexFilter(debtor, 1));
-            //mapVal.put("debtor",debtor);
-      
+        int i;
+        if( (i = yearList.getSelectedIndex())!=0)
+            filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(yearList.getItemAt(i)), 2));
+        if( (i = trimesterList.getSelectedIndex())!=0)
+            filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(trimesterList.getItemAt(i)), 3));
+        String status = statusText.getText();
+        if(status.length() > 0)
+            filters.add(RowFilter.regexFilter(status, 5));
         TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(poTable.getModel()); 
         poTable.setRowSorter(sorter);
         sorter.setRowFilter(RowFilter.andFilter( filters ));
-       
-        /* int i,year = 0,trimester = 0;
-        double amount = 0;
-        if( (i = yearList.getSelectedIndex())!=0)
-            mapVal.put("year",yearList.getItemAt(i));
-        if( (i = trimesterList.getSelectedIndex())!=0)
-            mapVal.put("trimester",trimesterList.getItemAt(i));
         
        
-        
-        
-        filterList();
-        
-        mapVal.clear();*/
     }//GEN-LAST:event_filterButtonActionPerformed
 
-    private void protocolTextFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_protocolTextFocusLost
-         try{
-            Integer.parseInt(protocolText.getText());
-        }catch(NumberFormatException e){
-            protocolText.setText("");
-        }
-    }//GEN-LAST:event_protocolTextFocusLost
+    private void protocolTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_protocolTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_protocolTextActionPerformed
 
-    public void filterList(){
-        int v; //0 : paymentOrder is not filtered
-        ((DefaultTableModel)poTable.getModel()).setRowCount(0);
-        for(PaymentOrder p : list) {
-            v = 1;
-            for(String s : mapVal.keySet() ){
-                if(s.equals("protocol") ){
-                    String protocol = mapVal.get(s);
-                    if( ! p.getProtocol().equals(Integer.parseInt(protocol))){
-                        v = 0;
-                    }
-                }
-                if(s.equals("debtor") ){
-                    String debtor = mapVal.get(s);
-                    if( ! p.getDebtor().equals(debtor)){
-                        v = 0;
-                    }
-                }
-            }
-            if(v == 1){
-                addPaymentOrderTable(p);
-            }
-        
-        }
-    }
+    private void protocolTextKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_protocolTextKeyTyped
+       int c = evt.getKeyChar();
+       if( (c < '0' || c > '9') && c!=KeyEvent.VK_BACKSPACE )
+           evt.consume();
+    }//GEN-LAST:event_protocolTextKeyTyped
 
+    private void clearFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearFilterButtonActionPerformed
+        protocolText.setText("");
+        debtorText.setText("");
+        yearList.setSelectedIndex(0);
+        trimesterList.setSelectedIndex(0);
+        statusText.setText("");
+    }//GEN-LAST:event_clearFilterButtonActionPerformed
+
+ 
     
     private void addPaymentOrderTable(PaymentOrder p){
         Object[] values = new Object[6];
@@ -540,7 +542,7 @@ jPanel1Layout.setHorizontalGroup(
             java.util.logging.Logger.getLogger(PaymentOrderTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -550,7 +552,7 @@ jPanel1Layout.setHorizontalGroup(
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField amountText;
+    private javax.swing.JButton clearFilterButton;
     private javax.swing.JButton createButton;
     private javax.swing.JTextField debtorText;
     private javax.swing.JButton deleteButton;
@@ -560,17 +562,16 @@ jPanel1Layout.setHorizontalGroup(
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField7;
     private javax.swing.JTable poTable;
     private javax.swing.JTextField protocolText;
     private javax.swing.JButton reissueButton;
     private javax.swing.JButton saveAsNotPertinentButton;
     private javax.swing.JButton saveAsPaidButton;
     private javax.swing.JButton saveAsSuspendedButton;
+    private javax.swing.JTextField statusText;
     private javax.swing.JComboBox<String> trimesterList;
     private javax.swing.JComboBox<String> yearList;
     // End of variables declaration//GEN-END:variables

@@ -30,7 +30,7 @@ public class ReadingsServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         HttpSession session = request.getSession(false);
         if(session==null){
-            response.sendError(403, "Authorization required");
+            response.sendError(401, "Authorization required");
             return;
         }
         
