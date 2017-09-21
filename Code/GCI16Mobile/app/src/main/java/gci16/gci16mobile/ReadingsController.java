@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 
 public class ReadingsController extends AppCompatActivity{
     private int operatorId;
-    int selectedItem;
+    private int selectedItem = -1;
     private String session;
     private List<Reading> readingsDone;
     private Set<Assignment> assignmentsCompleted;
@@ -55,7 +55,6 @@ public class ReadingsController extends AppCompatActivity{
     private ArrayAdapter<Assignment> assignmentTableAdapter;
     private ListView assignmentTable;
     private Button sendButton;
-    private Button saveButton;
 
     @Override
     public void onBackPressed(){
@@ -72,22 +71,17 @@ public class ReadingsController extends AppCompatActivity{
         getSupportActionBar().setTitle("GCI '16");
 
         final Button updateButton = (Button) findViewById(R.id.update_button);
-        saveButton = (Button) findViewById(R.id.save_reading_button);
+        Button saveButton = (Button) findViewById(R.id.save_reading_button);
         sendButton = (Button) findViewById(R.id.send_readings_button);
         assignmentTable = (ListView) findViewById(R.id.assignment_table);
 
         loadData();
-        if(session==null) Log.d("DEBUG", "session is null!");
-        else Log.d("DEBUG", session);
-        if(operatorId==-1) Log.d("DEBUG", "operatorId missing!");
-        else Log.d("DEBUG", "operatorId = "+operatorId);
 
         // evento del bottone update
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean update = updateAssignments();
-                Log.d("DEBUG", "update = " + update);
+                updateAssignments();
             }
         });
 
@@ -96,9 +90,7 @@ public class ReadingsController extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 if(selectedItem<0 || selectedItem>assignmentsLeft.size()) return;
-                readConsumption();
-                if(!readingsDone.isEmpty())
-                    sendButton.setEnabled(true);
+                saveReading();
             }
         });
 
@@ -107,26 +99,17 @@ public class ReadingsController extends AppCompatActivity{
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    Boolean sent = sendReadings();
-                    if(sent!=null && sent){
-                        sendButton.setEnabled(false);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-                        builder.setMessage("Readings successfully sent!")
-                                .setPositiveButton("OK", null);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                    }
+                sendReadings();
             }
         });
 
-        // popolamento della tablle delle assegnazioni
-        assignmentTableAdapter = new AssignmentListAdapter(getApplicationContext(), assignmentsLeft);
+        // popolamento della tabelle delle assegnazioni
+        assignmentTableAdapter = new AssignmentListAdapter(this, assignmentsLeft);
         assignmentTable.setAdapter(assignmentTableAdapter);
         assignmentTable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 selectedItem = i;
-                saveButton.setEnabled(true);
             }
         });
 
@@ -140,13 +123,6 @@ public class ReadingsController extends AppCompatActivity{
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
         pref.edit().clear().apply();//todo rimuovi
         session = this.getIntent().getStringExtra("session");
-        if(session==null){
-            Log.d("DEBUG", "session is null da loaddata intent");
-            session = pref.getString("session", null);
-            if(session==null){
-                Log.d("DEBUG", "session is null da loaddata preferences");
-                finish(); return;}
-        }
         operatorId = this.getIntent().getIntExtra("operatorId", -1);
         if(operatorId==-1){ finish(); return;}
         Gson gson = new Gson();
@@ -164,7 +140,11 @@ public class ReadingsController extends AppCompatActivity{
         else readingsDone = gson.fromJson(json, type);
     }
 
-    //TODO
+    private void saveReading(){
+        readConsumption();
+    }
+
+    //TODO dialog in layout
     private void saveReading(final float consumption){
         final Assignment a = assignmentsLeft.get(selectedItem);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -194,21 +174,16 @@ public class ReadingsController extends AppCompatActivity{
                         readingsDone.add(r);
                         s = res.getString(R.string.readings_done_pref)+operatorId;
                         editor.putString(s, gson.toJson(readingsDone));
-                        if(assignmentsLeft.remove(a)) Log.d("DEBUG", "Eliminato");
-                        else Log.d("DEBUG", "Non eliminato");
-                        assignmentTableAdapter.notifyDataSetChanged();
-                        assignmentTable.invalidateViews();
+                        assignmentTableAdapter.remove(a);
                         s = res.getString(R.string.assignments_left_pref)+operatorId;
-                        editor.putString(s, gson.toJson(assignmentsLeft));
-                        editor.apply();
-                        selectedItem=-1;
+                        editor.putString(s, gson.toJson(assignmentsLeft)).apply();
                         assignmentTable.performItemClick(null, -1, 0);
                         sendButton.setEnabled(true);
+                        selectedItem = -1;
                         dialog.cancel();
                     }
                 });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        builder.create().show();
     }
 
     //TODO
@@ -239,26 +214,25 @@ public class ReadingsController extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 String text = input.getText().toString();
-                if (text != null && !text.equals("")) {
-                    float consumption = Float.valueOf(text);
+                if (text != null && text.length()>0){
                     dialog.cancel();
-                    saveReading(consumption);
+                    saveReading(Float.valueOf(text));
                 }
             }
         });
     }
 
     //TODO
-    private Boolean sendReadings(){
-        AsyncTask<Void, Void, Boolean> asyncTask = new AsyncTask<Void, Void, Boolean>() {
+    private void sendReadings(){
+        // task che effettua l'invio al server
+        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
             @Override
-            protected Boolean doInBackground(Void... voids) {
+            protected Integer doInBackground(Void... voids) {
                 String ip = getResources().getString(R.string.server_address);
                 int port = getResources().getInteger(R.integer.server_port);
                 Gson gson = new Gson();
                 String json = gson.toJson(readingsDone);
-                Log.d("DEBUG", "Json = "+json);
-                int responseCode=-1;
+                Integer responseCode;
                 try {
                     URL url = new URL(String.format("http://%s:%d/GCI16/Readings", ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -275,39 +249,53 @@ public class ReadingsController extends AppCompatActivity{
                     //invia
                     connection.connect();
                     responseCode = connection.getResponseCode();
-                } catch(MalformedURLException e){
+                } catch (MalformedURLException e) {
                     Log.e("Bad URL", e.getMessage());
-                }catch(IOException e) {
+                } catch (SocketTimeoutException e) {
+                    Log.e("SocketTimeout", e.getMessage());
+                } catch (IOException e) {
                     Log.e("Connection error", e.getMessage());
-                }
-
-                Log.d("DEBUG", "response code : " + responseCode);
-                if(responseCode==403) disconnect();
-                if (responseCode == 200) {
-                    SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = pref.edit();
-                    readingsDone.clear();
-                    String s = getResources().getString(R.string.readings_done_pref) + operatorId;
-                    editor.remove(s);
-                    assignmentsCompleted.clear();
-                    s = getResources().getString(R.string.assignments_completed_pref) + operatorId;
-                    editor.remove(s);
-                    editor.apply();
-                    return true;
                 }
                 return null;
             }
         };
         asyncTask.execute();
-        Boolean result = null;
+        Integer responseCode = null;
         try {
-            result = asyncTask.get();
+            responseCode = asyncTask.get();
         } catch (InterruptedException e) {
             Log.e("Interrupted", e.getMessage());
         } catch (ExecutionException e) {
             Log.e("Execution", e.getMessage());
         }
-        return result;
+        if(responseCode==null) {
+            showServerUnreachableError();
+            return;
+        }
+
+        Log.d("DEBUG", "response code : " + responseCode);
+        if(responseCode==403) {
+            disconnect();
+            return;
+        }
+        if(responseCode == 200) {
+            SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            readingsDone.clear();
+            String s = getResources().getString(R.string.readings_done_pref) + operatorId;
+            editor.remove(s);
+            assignmentsCompleted.clear();
+            s = getResources().getString(R.string.assignments_completed_pref) + operatorId;
+            editor.remove(s);
+            editor.apply();
+
+            sendButton.setEnabled(false);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+            builder.setMessage("Readings successfully sent!")
+                    .setPositiveButton("OK", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override
@@ -342,15 +330,14 @@ public class ReadingsController extends AppCompatActivity{
     }
 
     //TODO metodo che aggiorna la lista degli assegnamenti
-    private boolean updateAssignments() {
-        AsyncTask<Void, Void, String> asyncTask = new AsyncTask<Void, Void, String>() {
+    private void updateAssignments() {
+        final StringBuffer buffer = new StringBuffer();
+        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
             @Override
-            protected String doInBackground(Void... voids) {
-                Resources res = getResources();
-                String ip = res.getString(R.string.server_address);
-                int port = res.getInteger(R.integer.server_port);
-                int responseCode = -1;
-                String json = null;
+            protected Integer doInBackground(Void... voids) {
+                String ip = getResources().getString(R.string.server_address);
+                int port = getResources().getInteger(R.integer.server_port);
+                Integer responseCode = null;
                 try {
                     URL url = new URL(String.format("http://%s:%d/GCI16/Assignments", ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -361,69 +348,91 @@ public class ReadingsController extends AppCompatActivity{
                     Log.d("DEBUG", url.toString());
                     connection.connect();
                     responseCode = connection.getResponseCode();
-                    Log.d("DEBUG", "response code : " + responseCode);
-                    if (responseCode == res.getInteger(R.integer.server_unauthorized))
-                        return null;
-                    //todo sposta fuori dal thread
                     if (responseCode == 200) {
                         // leggi stringa json
                         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                        json = "";
                         for (String s = reader.readLine(); s != null; s = reader.readLine())
-                            json = json + s;
+                            buffer.append(s);
                         reader.close();
                     }
-                }catch (SocketTimeoutException e){
+                } catch (SocketTimeoutException e) {
                     Log.e("Timeout", e.getMessage());
                 } catch (MalformedURLException e) {
                     Log.e("URL", e.getMessage());
-                    return null;
                 } catch (IOException e) {
                     Log.e("Connection", e.getMessage());
-                    return null;
                 }
-                return json;
+                return responseCode;
             }
         };
         asyncTask.execute();
-        String json = null;
+        Integer responseCode = null;
         try {
-            json = asyncTask.get();
+            responseCode = asyncTask.get();
         } catch (InterruptedException e) {
             Log.e("Interrupted task", e.getMessage());
         } catch (ExecutionException e) {
             Log.e("Exception in task", e.getMessage());
         }
-        if(json==null) return false;
 
-        // ottieni collection richiesta
-        Gson gson = new Gson();
-        Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
-        Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
-
-        // distingui quelle già salvate ma non inviate
-        downloadedAssignments.removeAll(assignmentsCompleted);
-        downloadedAssignments.removeAll(assignmentsLeft);
-
-        if (!downloadedAssignments.isEmpty()) {
-            assignmentTableAdapter.addAll(downloadedAssignments);
-            SharedPreferences pref = getPreferences(Context.MODE_APPEND);
-            SharedPreferences.Editor editor = pref.edit();
-            String prefname = getResources().getString(R.string.assignments_left_pref) + operatorId;
-            editor.putString(prefname, gson.toJson(assignmentsLeft));
-            editor.apply();
+        Log.d("DEBUG", "response code : " + responseCode);
+        if(responseCode == 403) {
+            showServerUnreachableError();
+            return;
         }
-        return true;
-    }
+        if(responseCode == 200){
+            String json = buffer.toString();
+            if(json==null || json.length()<=0) return;
+            // ottieni collection richiesta
+            Gson gson = new Gson();
+            Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
+            Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
 
-    private void ShowConnectionError(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this, R.style.Theme_Design);
+            // distingui quelle già salvate ma non inviate
+            downloadedAssignments.removeAll(assignmentsCompleted);
+            downloadedAssignments.removeAll(assignmentsLeft);
+
+            if (!downloadedAssignments.isEmpty()) {
+                assignmentTableAdapter.addAll(downloadedAssignments);
+                SharedPreferences pref = getPreferences(Context.MODE_APPEND);
+                SharedPreferences.Editor editor = pref.edit();
+                String prefname = getResources().getString(R.string.assignments_left_pref) + operatorId;
+                editor.putString(prefname, gson.toJson(assignmentsLeft));
+                editor.apply();
+            }
+        }
     }
 
     private void disconnect(){
-        //TODO mostra sessione finita!!
-        finish();
+        disconnect(true);
     }
 
+    private void disconnect(boolean alert){
+        if(!alert){
+            finish();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+        builder.setMessage("Session expired, log in again")
+               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       finish();
+                   }
+               });
+        builder.create().show();
+    }
+
+    private void showServerUnreachableError(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+        builder.setTitle("Connectivity problems")
+                .setMessage("The application couldn't reach the server.\n" +
+                        "Check your internet connection and try again.\n" +
+                        "If the problem persists please contact the administators.")
+                .setPositiveButton("Ok", null);
+        builder.create().show();
+
+    }
 }
