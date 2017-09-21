@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -335,11 +336,12 @@ public class ReadingsController extends AppCompatActivity{
         AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
-                String ip = getResources().getString(R.string.server_address);
-                int port = getResources().getInteger(R.integer.server_port);
                 Integer responseCode = null;
                 try {
-                    URL url = new URL(String.format("http://%s:%d/GCI16/Assignments", ip, port));
+                    String ip = getResources().getString(R.string.server_address);
+                    int port = getResources().getInteger(R.integer.server_port);
+                    String formatString = "http://%s:%d/GCI16/Assignments";
+                    URL url = new URL(String.format(Locale.getDefault(),formatString, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
                     connection.setRequestMethod("GET");
@@ -372,18 +374,20 @@ public class ReadingsController extends AppCompatActivity{
             responseCode = asyncTask.get();
         } catch (InterruptedException e) {
             Log.e("Interrupted task", e.getMessage());
+            return;
         } catch (ExecutionException e) {
             Log.e("Exception in task", e.getMessage());
+            return;
         }
 
         Log.d("DEBUG", "response code : " + responseCode);
-        if(responseCode == 403) {
+        if(responseCode == null || responseCode!=200){ //mostra messaggi di errore
             showServerUnreachableError();
             return;
         }
+
         if(responseCode == 200){
             String json = buffer.toString();
-            if(json==null || json.length()<=0) return;
             // ottieni collection richiesta
             Gson gson = new Gson();
             Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
@@ -405,10 +409,15 @@ public class ReadingsController extends AppCompatActivity{
     }
 
     private void disconnect(){
-        disconnect(true);
+        // elimina il cookie di sessione
+        SharedPreferences sharedPreferences = getSharedPreferences("session_preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        sharedPrefEditor.remove("session").apply();
+        finish();
     }
 
     private void disconnect(boolean alert){
+
         if(!alert){
             finish();
             return;
@@ -427,12 +436,9 @@ public class ReadingsController extends AppCompatActivity{
 
     private void showServerUnreachableError(){
         AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-        builder.setTitle("Connectivity problems")
-                .setMessage("The application couldn't reach the server.\n" +
-                        "Check your internet connection and try again.\n" +
-                        "If the problem persists please contact the administators.")
+        builder.setTitle("Connectivity problems").
+                setView(R.layout.error_no_connection)
                 .setPositiveButton("Ok", null);
         builder.create().show();
-
     }
 }

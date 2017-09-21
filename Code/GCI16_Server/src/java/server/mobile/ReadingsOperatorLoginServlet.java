@@ -25,16 +25,16 @@ import javax.servlet.http.HttpSession;
 public class ReadingsOperatorLoginServlet extends HttpServlet {
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        //TODO codici errore
-        HttpSession session = request.getSession(false);
-        if(session!=null){
-            response.sendError(403, "Operator already logged in");
-            return;
-        }
-        
         //TODO read credentials
         int operatorId = Integer.parseInt(request.getParameter("operatorId"));
         String password = request.getParameter("password");
+
+        //TODO codici errore
+        HttpSession session = request.getSession(false);
+        if(session!=null){
+            Integer op = (Integer) session.getAttribute("operatorId");
+            if(op==operatorId) return;
+        }
         
         //TODO check login
         String query = "SELECT * FROM GCI16.READINGS_OPERATOR WHERE operatorId=? AND pass=?";
@@ -46,19 +46,18 @@ public class ReadingsOperatorLoginServlet extends HttpServlet {
             ResultSet result = Database.getInstance().execQuery(query, params);
             ok = result.next();
             result.close();
-        } catch (SQLException ex) {
+        } catch (SQLException ex){
             Logger.getLogger(ReadingsOperatorLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         if(ok){
             response.setStatus(200);
             //crea una nuova sessione
-           
             session = request.getSession(true);
-            session.setMaxInactiveInterval(2592000);
+            session.setMaxInactiveInterval(2592000); //un mese
             session.setAttribute("operatorId", operatorId);
         }
         else{
-            response.sendError(443, "Bad credentials");
+            response.sendError(460, "Wrong id or password");
         }
     }
 

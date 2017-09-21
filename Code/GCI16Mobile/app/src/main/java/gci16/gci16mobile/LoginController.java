@@ -2,24 +2,17 @@ package gci16.gci16mobile;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -28,10 +21,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class LoginController extends AppCompatActivity {
@@ -48,7 +38,7 @@ public class LoginController extends AppCompatActivity {
         SharedPreferences.Editor editor = pref.edit(); //TODO elimina
         editor.clear().apply();
         final int operatorId = pref.getInt("operatorId", -1);
-        if(operatorId!=-1) operatorIdEditText.setText(Integer.toString(operatorId));
+        if(operatorId!=-1) operatorIdEditText.setText(String.valueOf(operatorId));
         String password = pref.getString("password", null);
         if(password!=null) passwordEditText.setText(password);
         if(password!=null && operatorId!=-1) loginButton.setEnabled(true);
@@ -97,6 +87,7 @@ public class LoginController extends AppCompatActivity {
             }
         });
 
+        pref = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
         String session = pref.getString("session", null);
         if(session!=null && operatorId>0) //sessione salvata
             startReadingController(operatorId, session);
@@ -114,7 +105,8 @@ public class LoginController extends AppCompatActivity {
                 int port = getResources().getInteger(R.integer.server_port);
                 Integer responseCode = null;
                 try {
-                    String urlString = String.format("http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s", ip, port, operatorId, password);
+                    String formatString = "http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s";
+                    String urlString = String.format(Locale.getDefault(), formatString, ip, port, operatorId, password);
                     URL url = new URL(urlString);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
@@ -148,24 +140,41 @@ public class LoginController extends AppCompatActivity {
             responseCode = asyncTask.get();
         } catch (InterruptedException e) {
             Log.d("Interrupted", e.getMessage());
+            return;
         } catch (ExecutionException e) {
             Log.d("Execution", e.getMessage());
+            return;
         }
         //TODO
         //MESSAGGI DI ERRORE CON LAYOUT
         String session = buffer.toString();
-        if (responseCode==null || responseCode!=200 || session==null || session.length()<=0) return;
+        if (responseCode==null || responseCode!=200 || session.length()<=0){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            if(responseCode==null)
+                builder.setView(R.layout.error_no_connection).setTitle("Connectivity Problems");
+            else if (responseCode==402)
+                builder.setView(R.layout.error_login);
+            else
+                builder.setView(R.layout.error_unknown);
+            builder.setPositiveButton("OK", null);
+            builder.create().show();
+            return;
+        }
 
+        // salva ultime credenziali e token di accesso
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
         editor.putInt("operatorId",operatorId)
                 .putString("password", password)
-                .putString("session", session)
                 .apply();
 
         startReadingController(operatorId, password);
     }
 
     private void startReadingController(int operatorId, String session){
+        SharedPreferences sharedPreferences = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
+        SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
+        sharedPrefEditor.putString("session", session).apply();
+
         Intent intent = new Intent(LoginController.this, ReadingsController.class);
         intent.putExtra("operatorId", operatorId);
         intent.putExtra("session", session);
