@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.RowFilter.ComparisonType;
@@ -31,6 +32,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import pdfgenerator.PDFGenerator;
 
 /**
  *
@@ -426,7 +428,23 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }//GEN-LAST:event_reissueButtonActionPerformed
 
     private void issueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issueButtonActionPerformed
-        // TODO add your handling code here:
+        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
+        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+list.get(row).getId());
+        
+        try {
+            if(conn.getResponseCode() == 200){
+                poTable.setValueAt("ISSUED", row, 5); /*Modifico la colonna relativa allo stato.*/
+                PaymentOrder paymOrd = list.get(row);
+                paymOrd.setStatus(Status.ISSUED);
+                
+                /* Genera PDF */
+                PDFGenerator.generate(paymOrd);
+                
+                JOptionPane.showMessageDialog(null, "Payment order with protocol " + paymOrd.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_issueButtonActionPerformed
 
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
