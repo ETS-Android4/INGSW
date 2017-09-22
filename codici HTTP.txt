@@ -1,0 +1,4 @@
+200 - OK
+500 - Errore server
+461 - Errore credenziali
+462 - Sessione scaduta o inesistente
