@@ -151,11 +151,11 @@ public class LoginController extends AppCompatActivity {
         if (responseCode==null || responseCode!=200 || session.length()<=0){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             if(responseCode==null)
-                builder.setView(R.layout.error_no_connection).setTitle("Connectivity Problems");
+                builder.setView(R.layout.error_no_connection_layout).setTitle("Connectivity Problems");
             else if (responseCode==402)
                 builder.setView(R.layout.error_login);
             else
-                builder.setView(R.layout.error_unknown);
+                builder.setView(R.layout.error_unknown_layout);
             builder.setPositiveButton("OK", null);
             builder.create().show();
             return;

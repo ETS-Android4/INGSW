@@ -2,5 +2,91 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    //TODO
+
+    <TextView
+        android:id="@+id/meter_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="32dp"
+        android:text="Meter ID"/>
+
+    <TextView
+        android:id="@+id/address_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/meter_label"
+        android:layout_alignRight="@+id/meter_label"
+        android:layout_below="@+id/meter_label"
+        android:layout_marginTop="31dp"
+        android:text="Address"/>
+
+    <TextView
+        android:id="@+id/customer_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/address_label"
+        android:layout_alignStart="@+id/address_label"
+        android:layout_below="@+id/address_label"
+        android:layout_marginTop="31dp"
+        android:text="Customer"/>
+
+    <TextView
+        android:id="@+id/consumption_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/customer_label"
+        android:layout_alignStart="@+id/customer_label"
+        android:layout_below="@+id/customer_label"
+        android:layout_marginTop="31dp"
+        android:text="Consumption"/>
+
+    <TextView
+        android:id="@+id/meterid_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/meter_label"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"/>
+
+    <TextView
+        android:id="@+id/address_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/meterid_value"
+        android:layout_alignRight="@+id/meterid_value"
+        android:layout_alignTop="@+id/address_label"/>
+
+    <TextView
+        android:id="@+id/customer_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/address_value"
+        android:layout_alignRight="@+id/address_value"
+        android:layout_alignTop="@+id/customer_label"/>
+
+    <TextView
+        android:id="@+id/consumption_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/unit_measure"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/unit_measure"
+        android:layout_toStartOf="@+id/unit_measure"/>
+
+    <TextView
+        android:id="@+id/unit_measure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/customer_value"
+        android:layout_alignTop="@+id/consumption_label"
+        android:text="m^3"/>
+
 </RelativeLayout>

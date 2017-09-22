@@ -8,6 +8,19 @@
     <string name="login_failed">
         Wrong id or password.
     </string>
-    <string name="unknown_error">An unknown error occurred.</string>
-
+    <string name="unknown_error">
+        An unknown error occurred.\n
+        Please try again later.
+    </string>
+    <string name="session_expired_error">
+        You have been disconnected from the server.\n
+        Please log in again.
+    </string>
+    <string name="logout_message">
+        Do you want to logout?\n
+        Unsent readings will be saved in the phone until you send them.
+    </string>
+    <string name="readings_sent_message">
+        All the readings have been successfully sent!
+    </string>
 </resources>

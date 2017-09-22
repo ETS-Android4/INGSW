@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -22,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -30,7 +30,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -38,7 +37,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +56,12 @@ public class ReadingsController extends AppCompatActivity{
     private ListView assignmentTable;
     private Button sendButton;
 
+    /**
+     * Prevents the user to log out accidentally
+     * by pressing 'back' button.
+     * It takes to phone's home screen instead.
+     * To log out the user must access the menu.
+     */
     @Override
     public void onBackPressed(){
         Intent mainActivity = new Intent(Intent.ACTION_MAIN);
@@ -65,6 +70,12 @@ public class ReadingsController extends AppCompatActivity{
         startActivity(mainActivity);
     }
 
+    /**
+     * Manages activity's creation loading parameters
+     * and setting listeners.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +87,7 @@ public class ReadingsController extends AppCompatActivity{
         sendButton = (Button) findViewById(R.id.send_readings_button);
         assignmentTable = (ListView) findViewById(R.id.assignment_table);
 
+        // assegna i valori agli attributi della classe
         loadData();
 
         // evento del bottone update
@@ -116,81 +128,40 @@ public class ReadingsController extends AppCompatActivity{
 
     }
 
-
-    //TODO
+    /**
+     * Loads activity's attributes from storage.
+     */
     private void loadData(){
+        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
         Type type;
         String json;
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
         pref.edit().clear().apply();//todo rimuovi
         session = this.getIntent().getStringExtra("session");
         operatorId = this.getIntent().getIntExtra("operatorId", -1);
-        if(operatorId==-1){ finish(); return;}
         Gson gson = new Gson();
         type = new TypeToken<HashSet<Assignment>>(){}.getType();
         json = pref.getString("assignmentsCompleted"+operatorId, null);
         if(json==null) assignmentsCompleted = new HashSet<>();
-        else assignmentsCompleted = (Set<Assignment>) gson.fromJson(json, type);
+        else assignmentsCompleted = gson.fromJson(json, type);
         type = new TypeToken<ArrayList<Assignment>>(){}.getType();
         json = pref.getString("assignmentsLeft"+operatorId, null);
         if(json==null) assignmentsLeft = new ArrayList<>();
-        else assignmentsLeft = (List<Assignment>) gson.fromJson(json, type);
+        else assignmentsLeft = gson.fromJson(json, type);
         type = new TypeToken<LinkedList<Reading>>(){}.getType();
         json = pref.getString("readingsDone"+operatorId, null);
         if(json==null) readingsDone= new LinkedList<>();
         else readingsDone = gson.fromJson(json, type);
     }
 
+    /**
+     * Shows the user the input form to submit the reading.
+     */
     private void saveReading(){
-        readConsumption();
-    }
-
-    //TODO dialog in layout
-    private void saveReading(final float consumption){
-        final Assignment a = assignmentsLeft.get(selectedItem);
+        if(selectedItem<0 || selectedItem>assignmentsLeft.size()) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Confirm reading")
-                .setMessage(String.format(
-                "Meter ID       %d\n" +
-                "Address        %s\n" +
-                "Customer       %s\n" +
-                "Consumption    %.2f m^3",
-                a.getMeterId(),
-                a.getAddress(),
-                a.getCustomer(),
-                consumption))
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        Reading r = new Reading(operatorId, a.getMeterId(),new java.util.Date(), consumption);
-                        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = pref.edit();
-                        Resources res = getResources();
-                        Gson gson = new Gson();
-                        String s; //nomi degli elementi salvati nelle SharedPreferences
-                        assignmentsCompleted.add(a);
-                        s = res.getString(R.string.assignments_completed_pref)+operatorId;
-                        editor.putString(s, gson.toJson(assignmentsCompleted));
-                        readingsDone.add(r);
-                        s = res.getString(R.string.readings_done_pref)+operatorId;
-                        editor.putString(s, gson.toJson(readingsDone));
-                        assignmentTableAdapter.remove(a);
-                        s = res.getString(R.string.assignments_left_pref)+operatorId;
-                        editor.putString(s, gson.toJson(assignmentsLeft)).apply();
-                        assignmentTable.performItemClick(null, -1, 0);
-                        sendButton.setEnabled(true);
-                        selectedItem = -1;
-                        dialog.cancel();
-                    }
-                });
-        builder.create().show();
-    }
 
-    //TODO
-    private void readConsumption(){
-        //input numerico
-        final EditText input = new EditText(this);
+        // input for float values
+        final EditText input = new EditText(builder.getContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -202,40 +173,89 @@ public class ReadingsController extends AppCompatActivity{
             }
         });
 
-        //mostra popup di input
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Insert water consumption\n" +
-                "(cubic meters)")
+        // shows consumption input popup
+        builder.setMessage("Insert water consumption\n(cubic meters)")
                 .setView(input)
                 .setNegativeButton("Cancel", null)
-                .setPositiveButton("Save", null);
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String text = input.getText().toString();
-                if (text != null && text.length()>0){
-                    dialog.cancel();
-                    saveReading(Float.valueOf(text));
-                }
-            }
-        });
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        String text = input.getText().toString();
+                        if (text.length()>0){
+                            dialog.cancel();
+                            saveReading(Float.valueOf(text));
+                        }
+                    }
+                });
+        builder.create().show();
     }
 
-    //TODO
+    /**
+     * Saves the reading in phone's storage.
+     * The method uses the assignment selected by the user
+     * to create the reading.
+     * The assignment is also removed from the list of the ones left
+     * and put in the ones completed.
+     *
+     * @param consumption the amount of water consumed
+     */
+    private void saveReading(final float consumption){
+        final Assignment a = assignmentsLeft.get(selectedItem);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View recap  = getLayoutInflater().inflate(R.layout.reading_recap_layout, null);
+        ((TextView)recap.findViewById(R.id.meterid_value)).setText(String.valueOf(a.getMeterId()));
+        ((TextView)recap.findViewById(R.id.address_value)).setText(a.getAddress());
+        ((TextView)recap.findViewById(R.id.customer_value)).setText(a.getCustomer());
+        ((TextView)recap.findViewById(R.id.consumption_value)).setText(String.valueOf(consumption));
+        builder.setView(recap)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        Reading r = new Reading(operatorId, a.getMeterId(),new Date(), consumption);
+                        Gson gson = new Gson();
+
+                        // modifies the collections
+                        assignmentsCompleted.add(a);
+                        readingsDone.add(r);
+                        assignmentTableAdapter.remove(a);
+
+                        // saves collections' states in the storage
+                        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+                        editor.putString("readingsDone"+operatorId, gson.toJson(readingsDone))
+                        .putString("assignmentsCompleted"+operatorId, gson.toJson(assignmentsCompleted))
+                        .putString("assignmentsLeft"+operatorId, gson.toJson(assignmentsLeft))
+                        .apply();
+
+                        // updates the UI and reset the selectedItem
+                        assignmentTable.performItemClick(null, -1, 0);
+                        sendButton.setEnabled(true);
+                        selectedItem = -1;
+                        dialog.cancel();
+                    }
+                });
+        builder.create().show();
+    }
+
+    /**
+     * Sends all the readings saved to the server.
+     * Shows a popup message which shows the result of the action.
+     */
     private void sendReadings(){
-        // task che effettua l'invio al server
-        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
+        if(readingsDone.isEmpty()) return;
+        // this task sends the request to the server
+        // it returns null on connection error, the response code otherwise
+        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>(){
             @Override
             protected Integer doInBackground(Void... voids) {
-                String ip = getResources().getString(R.string.server_address);
-                int port = getResources().getInteger(R.integer.server_port);
                 Gson gson = new Gson();
                 String json = gson.toJson(readingsDone);
-                Integer responseCode;
+                Integer responseCode = null;
                 try {
-                    URL url = new URL(String.format("http://%s:%d/GCI16/Readings", ip, port));
+                    String ip = getResources().getString(R.string.server_address);
+                    int port = getResources().getInteger(R.integer.server_port);
+                    String formatString = "http://%s:%d/GCI16/Readings";
+                    URL url = new URL(String.format(Locale.getDefault(),formatString, ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
                     connection.setRequestMethod("POST");
@@ -257,48 +277,60 @@ public class ReadingsController extends AppCompatActivity{
                 } catch (IOException e) {
                     Log.e("Connection error", e.getMessage());
                 }
-                return null;
+                return responseCode;
             }
         };
+
+        // executes the task
         asyncTask.execute();
         Integer responseCode = null;
         try {
             responseCode = asyncTask.get();
-        } catch (InterruptedException e) {
-            Log.e("Interrupted", e.getMessage());
-        } catch (ExecutionException e) {
-            Log.e("Execution", e.getMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            Log.e("TaskError", e.getMessage()); return;
         }
-        if(responseCode==null) {
-            showServerUnreachableError();
+
+        if(responseCode==null || responseCode!=200){ // shows error messages
+            AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false);
+            if(responseCode==null)
+                builder.setView(R.layout.error_no_connection_layout);
+            else if(responseCode==462)
+                builder.setView(R.layout.error_session_expired_layout);
+            else
+                builder.setView(R.layout.error_unknown_layout);
+            if(responseCode!=null && responseCode==462)
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        disconnect();
+                        dialog.cancel();
+                    }
+                });
+            else
+                builder.setPositiveButton("OK", null);
+            builder.create().show();
             return;
         }
 
-        Log.d("DEBUG", "response code : " + responseCode);
-        if(responseCode==403) {
-            disconnect();
-            return;
-        }
-        if(responseCode == 200) {
-            SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = pref.edit();
-            readingsDone.clear();
-            String s = getResources().getString(R.string.readings_done_pref) + operatorId;
-            editor.remove(s);
-            assignmentsCompleted.clear();
-            s = getResources().getString(R.string.assignments_completed_pref) + operatorId;
-            editor.remove(s);
-            editor.apply();
+        // resets the collections and erases them from preferences
+        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+        readingsDone.clear();
+        assignmentsCompleted.clear();
+        editor.remove("readingsDone"+operatorId)
+                .remove("assignmentsCompleted"+operatorId)
+                .apply();
 
-            sendButton.setEnabled(false);
-            AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-            builder.setMessage("Readings successfully sent!")
-                    .setPositiveButton("OK", null);
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
+        // manages changes on UI
+        sendButton.setEnabled(false);
+        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+        builder.setMessage("Readings successfully sent!")
+                .setPositiveButton("OK", null);
+        builder.create().show();
     }
 
+    /**
+     * Creates the options menu.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -306,24 +338,24 @@ public class ReadingsController extends AppCompatActivity{
         return true;
     }
 
+    /**
+     * Manages the selection of menu item.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.logout_item:
+            case R.id.logout_item:  // Presses logout
                 AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-                builder.setMessage("Do you want to logout?" +
-                        "Unsent will be stored in the phone until you send them")
+                builder.setView(R.layout.logout_message_layout)
                         .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
-                                finish();
+                                disconnect();
                             }
                         })
                         .setNegativeButton("NO", null);
-                AlertDialog dialog = builder.create();
-                dialog.setCancelable(false);
-                dialog.show();
+                builder.create().show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -332,7 +364,13 @@ public class ReadingsController extends AppCompatActivity{
 
     //TODO metodo che aggiorna la lista degli assegnamenti
     private void updateAssignments() {
+        // this buffer contains the json string returned by the server
+        // the StringBuffer has been used because it is thread-safe and
+        // can contain a string which can be edited without the buffer
+        // reference being modified
         final StringBuffer buffer = new StringBuffer();
+        // this task sends the request to the server and returns
+        // it returns null on connection error, the response code otherwise
         AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
             @Override
             protected Integer doInBackground(Void... voids) {
@@ -341,7 +379,7 @@ public class ReadingsController extends AppCompatActivity{
                     String ip = getResources().getString(R.string.server_address);
                     int port = getResources().getInteger(R.integer.server_port);
                     String formatString = "http://%s:%d/GCI16/Assignments";
-                    URL url = new URL(String.format(Locale.getDefault(),formatString, port));
+                    URL url = new URL(String.format(Locale.getDefault(),formatString,ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
                     connection.setRequestMethod("GET");
@@ -372,73 +410,58 @@ public class ReadingsController extends AppCompatActivity{
         Integer responseCode = null;
         try {
             responseCode = asyncTask.get();
-        } catch (InterruptedException e) {
-            Log.e("Interrupted task", e.getMessage());
-            return;
-        } catch (ExecutionException e) {
-            Log.e("Exception in task", e.getMessage());
-            return;
+        } catch (InterruptedException | ExecutionException e) {
+            Log.e("TaskError", e.getMessage()); return;
         }
 
-        Log.d("DEBUG", "response code : " + responseCode);
-        if(responseCode == null || responseCode!=200){ //mostra messaggi di errore
-            showServerUnreachableError();
-            return;
-        }
-
-        if(responseCode == 200){
-            String json = buffer.toString();
-            // ottieni collection richiesta
-            Gson gson = new Gson();
-            Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
-            Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
-
-            // distingui quelle già salvate ma non inviate
-            downloadedAssignments.removeAll(assignmentsCompleted);
-            downloadedAssignments.removeAll(assignmentsLeft);
-
-            if (!downloadedAssignments.isEmpty()) {
-                assignmentTableAdapter.addAll(downloadedAssignments);
-                SharedPreferences pref = getPreferences(Context.MODE_APPEND);
-                SharedPreferences.Editor editor = pref.edit();
-                String prefname = getResources().getString(R.string.assignments_left_pref) + operatorId;
-                editor.putString(prefname, gson.toJson(assignmentsLeft));
-                editor.apply();
+        if(responseCode == null || responseCode!=200){ //shows error messages
+            AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false);
+            if(responseCode==null)
+                builder.setView(R.layout.error_no_connection_layout);
+            else if(responseCode==462)
+                builder.setView(R.layout.error_session_expired_layout);
+            else {
+                builder.setView(R.layout.error_unknown_layout);
+                Log.e("ServerResponse", "Response code : " + responseCode);
             }
+
+            if(responseCode!=null && responseCode==462)
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        disconnect();
+                        dialog.cancel();
+                    }
+                });
+            else
+                builder.setPositiveButton("OK", null);
+            builder.create().show();
+            return;
+        }
+
+        // gets the assignments from the json string
+        String json = buffer.toString();
+        Gson gson = new Gson();
+        Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
+        Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
+
+        // filters only the assingments which have not been completed
+        downloadedAssignments.removeAll(assignmentsCompleted);
+        downloadedAssignments.removeAll(assignmentsLeft);
+
+        // adds to the ones left
+        if (!downloadedAssignments.isEmpty()) {
+            assignmentTableAdapter.addAll(downloadedAssignments);
+            SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+            editor.putString("assignmentsLeft"+operatorId, gson.toJson(assignmentsLeft)).apply();
         }
     }
 
     private void disconnect(){
-        // elimina il cookie di sessione
+        // deletes session cookie and closes the activity
         SharedPreferences sharedPreferences = getSharedPreferences("session_preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.remove("session").apply();
         finish();
-    }
-
-    private void disconnect(boolean alert){
-
-        if(!alert){
-            finish();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-        builder.setMessage("Session expired, log in again")
-               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialogInterface, int i) {
-                       finish();
-                   }
-               });
-        builder.create().show();
-    }
-
-    private void showServerUnreachableError(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-        builder.setTitle("Connectivity problems").
-                setView(R.layout.error_no_connection)
-                .setPositiveButton("Ok", null);
-        builder.create().show();
     }
 }

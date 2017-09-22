@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="assignments_left_pref">assignmentsLeft</string>
-    <string name="assignments_completed_pref">assignmentsCompleted</string>
-    <string name="readings_done_pref">readingsDone</string>
-</resources>
