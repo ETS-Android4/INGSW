@@ -1,3 +1,10 @@
+create sequence giveProtocol
+minvalue 1000
+increment by 1
+start with 1000;
+
+/
+
 create sequence giveIdPaymentOrder
 minvalue 1
 increment by 1
@@ -126,6 +133,36 @@ begin
   :NEW.idBill := giveIdBill.nextval;
 
 end;  
+
+/
+
+create or replace trigger SetProtocol
+before update on PaymentOrder
+for each row
+
+begin
+
+    if(:NEW.status = 'ISSUED') then
+        :NEW.protocol := giveProtocol.nextval;
+    end if;
+    
+end;
+
+/
+
+create or replace trigger SetPaidBill
+before update on PaymentOrder
+for each row
+
+begin
+
+    if(:NEW.status = 'PAID') then
+        UPDATE Bill
+        SET status = 'PAID'
+        WHERE idbill = :NEW.bill;
+    end if;
+    
+end;
 
 /
 
