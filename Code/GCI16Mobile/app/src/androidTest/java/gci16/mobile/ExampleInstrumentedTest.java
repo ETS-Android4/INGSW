@@ -1,4 +1,4 @@
-package gci16.gci16mobile;
+package gci16.mobile;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -1,4 +1,4 @@
-package gci16.gci16mobile;
+package gci16.mobile.controllers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +24,13 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import gci16.mobile.R;
+
+/**
+ * Handles user interaction to let him log on to the system.
+ *
+ * @author Riccardo
+ */
 public class LoginController extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +42,13 @@ public class LoginController extends AppCompatActivity {
         final Button loginButton = (Button) findViewById(R.id.login_button);
 
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit(); //TODO elimina
-        editor.clear().apply();
         final int operatorId = pref.getInt("operatorId", -1);
         if(operatorId!=-1) operatorIdEditText.setText(String.valueOf(operatorId));
         String password = pref.getString("password", null);
         if(password!=null) passwordEditText.setText(password);
         if(password!=null && operatorId!=-1) loginButton.setEnabled(true);
 
-        // aggiunge listener che nasconde la tastiera quando il focus cambia
+        // hide input keyboard when focus changes
         View.OnFocusChangeListener keyboardCloser = new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -94,8 +99,13 @@ public class LoginController extends AppCompatActivity {
     }
 
 
-    //TODO
-    //tenta il login, se questo ha successo salva il session id
+    /**
+     * Asks the server for a access token (a session cookie).
+     * Shows an error message whenever
+     *
+     * @param operatorId the id of the operator who want to login
+     * @param password the password of the operator
+     */
     private void login(final int operatorId, final String password) {
         final StringBuffer buffer = new StringBuffer();
         AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
@@ -115,10 +125,9 @@ public class LoginController extends AppCompatActivity {
                     responseCode = connection.getResponseCode();
                     if(responseCode==200) { // setta cookie
                         String cookieName = getResources().getString(R.string.session_cookie_name);
-                        String cookieNameMatch = cookieName+".*";
                         String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
                         for (String s : cookieString.split(";")) {
-                            if (s.matches(cookieNameMatch)) {
+                            if (s.contains(cookieName)) {
                                 buffer.append(s);
                                 break;
                             }
@@ -145,15 +154,15 @@ public class LoginController extends AppCompatActivity {
             Log.d("Execution", e.getMessage());
             return;
         }
-        //TODO
-        //MESSAGGI DI ERRORE CON LAYOUT
+
+        // shows error message
         String session = buffer.toString();
         if (responseCode==null || responseCode!=200 || session.length()<=0){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             if(responseCode==null)
                 builder.setView(R.layout.error_no_connection_layout).setTitle("Connectivity Problems");
             else if (responseCode==402)
-                builder.setView(R.layout.error_login);
+                builder.setView(R.layout.error_login_layout).setTitle("Login error");
             else
                 builder.setView(R.layout.error_unknown_layout);
             builder.setPositiveButton("OK", null);
@@ -161,7 +170,7 @@ public class LoginController extends AppCompatActivity {
             return;
         }
 
-        // salva ultime credenziali e token di accesso
+        // saves last login credentials
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
         editor.putInt("operatorId",operatorId)
                 .putString("password", password)
@@ -170,6 +179,13 @@ public class LoginController extends AppCompatActivity {
         startReadingController(operatorId, password);
     }
 
+    /**
+     * Starts a ReadingController passing it the id of the operator
+     * and the session cookie through the Intent.
+     *
+     * @param operatorId the id of the operator logged
+     * @param session session cookie for the operator
+     */
     private void startReadingController(int operatorId, String session){
         SharedPreferences sharedPreferences = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();

@@ -1,4 +1,4 @@
-package gci16.gci16mobile;
+package gci16.mobile.controllers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,14 +7,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -45,6 +48,17 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import gci16.mobile.R;
+import gci16.mobile.entities.Assignment;
+import gci16.mobile.entities.Reading;
+
+/**
+ * Handles user's interaction with the application.
+ * It lets the user refresh the list of his assignment,
+ * save a reading and send all the readings done.
+ *
+ * @author Riccardo
+ */
 public class ReadingsController extends AppCompatActivity{
     private int operatorId;
     private int selectedItem = -1;
@@ -53,15 +67,7 @@ public class ReadingsController extends AppCompatActivity{
     private Set<Assignment> assignmentsCompleted;
     private List<Assignment> assignmentsLeft;
     private ArrayAdapter<Assignment> assignmentTableAdapter;
-    private ListView assignmentTable;
-    private Button sendButton;
 
-    /**
-     * Prevents the user to log out accidentally
-     * by pressing 'back' button.
-     * It takes to phone's home screen instead.
-     * To log out the user must access the menu.
-     */
     @Override
     public void onBackPressed(){
         Intent mainActivity = new Intent(Intent.ACTION_MAIN);
@@ -70,12 +76,6 @@ public class ReadingsController extends AppCompatActivity{
         startActivity(mainActivity);
     }
 
-    /**
-     * Manages activity's creation loading parameters
-     * and setting listeners.
-     *
-     * @param savedInstanceState
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,13 +84,14 @@ public class ReadingsController extends AppCompatActivity{
 
         final Button updateButton = (Button) findViewById(R.id.update_button);
         Button saveButton = (Button) findViewById(R.id.save_reading_button);
-        sendButton = (Button) findViewById(R.id.send_readings_button);
-        assignmentTable = (ListView) findViewById(R.id.assignment_table);
+        Button sendButton = (Button) findViewById(R.id.send_readings_button);
+        ListView assignmentTable = (ListView) findViewById(R.id.assignment_table);
 
-        // assegna i valori agli attributi della classe
-        loadData();
+        session = this.getIntent().getStringExtra("session");
+        operatorId = this.getIntent().getIntExtra("operatorId", -1);
+        loadData(); //loads the attributes from the storage
 
-        // evento del bottone update
+        // event of "update" button
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +99,7 @@ public class ReadingsController extends AppCompatActivity{
             }
         });
 
-        // evento del bottone save
+        // event of "save" button
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,7 +108,7 @@ public class ReadingsController extends AppCompatActivity{
             }
         });
 
-        // evento del bottone send
+        // event of "send" button
         sendButton.setEnabled(!readingsDone.isEmpty());
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,8 +117,20 @@ public class ReadingsController extends AppCompatActivity{
             }
         });
 
-        // popolamento della tabelle delle assegnazioni
-        assignmentTableAdapter = new AssignmentListAdapter(this, assignmentsLeft);
+        // populates assignment's table
+        assignmentTableAdapter = new ArrayAdapter<Assignment>(this,R.layout.list_row_item, assignmentsLeft){
+            @NonNull
+            @Override
+            public View getView(int position, View convertView, @NonNull ViewGroup parent){
+                Context context = getContext();
+                View row = LayoutInflater.from(context).inflate(R.layout.assignment_table_row, parent, false);
+                Assignment a = getItem(position);
+                ((TextView) row.findViewById(R.id.meterID)).setText(String.valueOf(a.getMeterId()));
+                ((TextView) row.findViewById(R.id.address)).setText(a.getAddress());
+                ((TextView) row.findViewById(R.id.customer)).setText(a.getCustomer());
+                return row;
+            }
+        };
         assignmentTable.setAdapter(assignmentTableAdapter);
         assignmentTable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -132,13 +145,11 @@ public class ReadingsController extends AppCompatActivity{
      * Loads activity's attributes from storage.
      */
     private void loadData(){
+        Type type; // type of the collection
+        String json; // json string representing the collection
+        Gson gson = new Gson(); // json parser
         SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        Type type;
-        String json;
-        pref.edit().clear().apply();//todo rimuovi
-        session = this.getIntent().getStringExtra("session");
-        operatorId = this.getIntent().getIntExtra("operatorId", -1);
-        Gson gson = new Gson();
+
         type = new TypeToken<HashSet<Assignment>>(){}.getType();
         json = pref.getString("assignmentsCompleted"+operatorId, null);
         if(json==null) assignmentsCompleted = new HashSet<>();
@@ -228,8 +239,8 @@ public class ReadingsController extends AppCompatActivity{
                         .apply();
 
                         // updates the UI and reset the selectedItem
-                        assignmentTable.performItemClick(null, -1, 0);
-                        sendButton.setEnabled(true);
+                        ((ListView) findViewById(R.id.assignment_table)).performItemClick(null, -1, 0);
+                        ((Button) findViewById(R.id.send_readings_button)).setEnabled(true);
                         selectedItem = -1;
                         dialog.cancel();
                     }
@@ -321,7 +332,7 @@ public class ReadingsController extends AppCompatActivity{
                 .apply();
 
         // manages changes on UI
-        sendButton.setEnabled(false);
+        ((Button)findViewById(R.id.send_readings_button)).setEnabled(false);
         AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
         builder.setMessage("Readings successfully sent!")
                 .setPositiveButton("OK", null);
@@ -362,7 +373,11 @@ public class ReadingsController extends AppCompatActivity{
         }
     }
 
-    //TODO metodo che aggiorna la lista degli assegnamenti
+    /**
+     * Downloads from the server the assignments of the operator.
+     * Shows a message whenever an error occurs and disconnects if
+     * the session has expired.
+     */
     private void updateAssignments() {
         // this buffer contains the json string returned by the server
         // the StringBuffer has been used because it is thread-safe and
@@ -389,7 +404,7 @@ public class ReadingsController extends AppCompatActivity{
                     connection.connect();
                     responseCode = connection.getResponseCode();
                     if (responseCode == 200) {
-                        // leggi stringa json
+                        // reads json string and puts it in the buffer
                         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                         for (String s = reader.readLine(); s != null; s = reader.readLine())
@@ -406,6 +421,8 @@ public class ReadingsController extends AppCompatActivity{
                 return responseCode;
             }
         };
+
+        //gets the response from server
         asyncTask.execute();
         Integer responseCode = null;
         try {
@@ -413,8 +430,8 @@ public class ReadingsController extends AppCompatActivity{
         } catch (InterruptedException | ExecutionException e) {
             Log.e("TaskError", e.getMessage()); return;
         }
-
-        if(responseCode == null || responseCode!=200){ //shows error messages
+        //shows error messages
+        if(responseCode == null || responseCode!=200){
             AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false);
             if(responseCode==null)
                 builder.setView(R.layout.error_no_connection_layout);
@@ -457,8 +474,10 @@ public class ReadingsController extends AppCompatActivity{
         }
     }
 
+    /**
+     * Deletes the session cookie and finishes the activity
+     */
     private void disconnect(){
-        // deletes session cookie and closes the activity
         SharedPreferences sharedPreferences = getSharedPreferences("session_preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.remove("session").apply();

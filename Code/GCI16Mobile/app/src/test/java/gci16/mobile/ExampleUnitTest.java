@@ -1,4 +1,4 @@
-package gci16.gci16mobile;
+package gci16.mobile;
 
 import org.junit.Test;
 

@@ -1,9 +1,10 @@
-package gci16.gci16mobile;
+package gci16.mobile.entities;
 
 /**
- * Created by Riccardo on 17/08/2017.
+ * A task assigned to a operator.
+ *
+ * @author Riccardo
  */
-
 public class Assignment {
     private int operatorId;
     private String address;
@@ -41,7 +42,7 @@ public class Assignment {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return meterId;
     }
 }
