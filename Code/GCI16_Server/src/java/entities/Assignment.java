@@ -1,18 +1,17 @@
 package entities;
 
 /**
- * Created by Riccardo on 17/08/2017.
+ * A task assigned to a operator.
+ *
+ * @author Riccardo
  */
-
 public class Assignment {
     private int operatorId;
-    private int meterId;
     private String address;
+    private int meterId;
     private String customer;
 
     public Assignment(int operatorId, int meterId, String address, String customer){
-        if(address==null) throw new IllegalArgumentException("Address must not be null");
-        if(customer==null) throw new IllegalArgumentException("Customer must not be null");
         this.operatorId = operatorId;
         this.meterId = meterId;
         this.address = address;
@@ -33,5 +32,17 @@ public class Assignment {
 
     public String getCustomer() {
         return customer;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(!(o instanceof Assignment)) return false;
+        Assignment a = (Assignment) o;
+        return a.meterId==this.meterId;
+    }
+
+    @Override
+    public int hashCode() {
+        return meterId;
     }
 }

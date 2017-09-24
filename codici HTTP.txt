@@ -2,3 +2,5 @@
 500 - Errore server
 461 - Errore credenziali
 462 - Sessione scaduta o inesistente
+463 - Parametro mancante
+464 - Valore del parametro non corretto

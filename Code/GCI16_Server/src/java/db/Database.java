@@ -44,7 +44,7 @@ public class Database {
         //occupiedConnections = new HashMap<Thread,Connection>();
     }
 
-    private synchronized Connection createConnection() throws SQLException{
+    private Connection createConnection() throws SQLException{
         ods = new OracleDataSource();
         ods.setDriverType("thin");
         ods.setServerName(host);
@@ -57,7 +57,19 @@ public class Database {
         return newConnection;
     }
     
-    private synchronized Connection getConnection(){
+    public void commit() throws SQLException{
+        Connection c = this.getConnection();
+        if(c!=null)
+            c.commit();
+    }
+    
+    public void rollback() throws SQLException{
+        Connection c = this.getConnection();
+        if(c!=null)
+            c.rollback();
+    }
+    
+    private Connection getConnection(){
         Connection c = null;
         try {
             c = freeConnections.take();
@@ -74,7 +86,7 @@ public class Database {
         return instance;
     }
     
-     public ResultSet execQuery(String query, List<Object> params) throws SQLException{
+    public ResultSet execQuery(String query, List<Object> params) throws SQLException{
         PreparedStatement st;
         ResultSet rs = null;
         Connection c = getConnection();
@@ -83,7 +95,7 @@ public class Database {
         if (params != null){
             for (Object p : params ){
                 if( p instanceof java.sql.Date)
-                    st.setDate(k,(java.sql.Date) p);
+                    st.setDate(k,(Date) p);
                 else if (p instanceof Float)
                     st.setFloat(k,(Float)p);
                 else if( p instanceof Integer)
