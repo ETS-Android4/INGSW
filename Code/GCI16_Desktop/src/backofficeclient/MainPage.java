@@ -10,12 +10,11 @@ package backofficeclient;
  * @author carlo
  */
 public class MainPage extends javax.swing.JFrame {
-
-    /**
-     * Creates new form MainPage
-     */
-    public MainPage() {
+    
+    String session;
+    public MainPage(String session) {
         initComponents();
+        this.session = session;
     }
 
     /**
@@ -94,7 +93,7 @@ public class MainPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void PaymentOrdersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PaymentOrdersButtonActionPerformed
-        PaymentOrderTable paymOrdTable =  new PaymentOrderTable();
+        PaymentOrderTable paymOrdTable =  new PaymentOrderTable(session);
         paymOrdTable.setTable();
         paymOrdTable.setVisible(true);
     }//GEN-LAST:event_PaymentOrdersButtonActionPerformed
@@ -137,7 +136,7 @@ public class MainPage extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainPage().setVisible(true);
+                new MainPage(null).setVisible(true);
             }
         });
     }

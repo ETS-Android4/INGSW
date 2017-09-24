@@ -78,4 +78,12 @@ public class PaymentOrder {
     public double getAmount(){
         return amount;
     }
+    
+    public void setStatus(Status status){
+        this.status = status;
+    }
+    
+    public void setProtocol(Integer protocol){
+        this.protocol = protocol;
+    }
 }

@@ -12,10 +12,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -24,10 +28,11 @@ import java.util.logging.Logger;
 public class BillTable extends javax.swing.JFrame {
     
     PaymentOrderTable paymentOrderTable;
-    
-    public BillTable( PaymentOrderTable paymentOrderTable ) {
+    String session;
+    public BillTable( PaymentOrderTable paymentOrderTable, String session ) {
         initComponents();
         this.paymentOrderTable = paymentOrderTable; 
+        this.session = session;
     }
 
     /**
@@ -45,6 +50,12 @@ public class BillTable extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        bTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                createPoButton.setEnabled(true);
+            }
+        });
         bTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
@@ -110,11 +121,6 @@ public class BillTable extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        bTable.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                bTableFocusGained(evt);
-            }
-        });
         jScrollPane1.setViewportView(bTable);
 
         createPoButton.setText("Create payment order");
@@ -152,20 +158,20 @@ public class BillTable extends javax.swing.JFrame {
 
     private void createPoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPoButtonActionPerformed
         System.out.println(bTable.getValueAt(bTable.getSelectedRow(),0));
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
-        
         try{
-            if(conn.getResponseCode() == 200){
-                InputStream is = conn.getInputStream();
+            //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            if(connection.getResponseCode() == 200){
+                InputStream is = connection.getInputStream();
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 String line;
                 line = rd.readLine();     
                 rd.close();
                 Gson gson = new Gson();
-                System.out.println("GSON : " + line);
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderTable.addPaymentOrder(p);
-                       
             }
         }catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -175,45 +181,42 @@ public class BillTable extends javax.swing.JFrame {
         
     }//GEN-LAST:event_createPoButtonActionPerformed
 
-    private void bTableFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_bTableFocusGained
-        createPoButton.setEnabled(true);
-    }//GEN-LAST:event_bTableFocusGained
-
     
    
     
     public void setTable(){
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/Bill?action=show");
-        InputStream is = null;
-        String line = null;
-        try {
-            is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            line = rd.readLine();
-            rd.close();
+        try{
+            URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();
+            if(connection.getResponseCode()==200){
+                InputStream is = connection.getInputStream();                
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line = rd.readLine();
+                rd.close();
+                Gson gson = new Gson();
+                /* Da JSON a collections CLIENT */
+                java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
+                List<Bill> list = gson.fromJson(line, BillListType);
+                int row = 0;
+                int column;
+                for(Bill b : list){
+                    column=0;
+                    bTable.setValueAt(b.getId() , row, column++);
+                    bTable.setValueAt(b.getDebtor() , row, column++);
+                    bTable.setValueAt(b.getYear() , row, column++);
+                    bTable.setValueAt(b.getTrimester() , row, column++);
+                    bTable.setValueAt(b.getCost() , row, column++);
+                    row++;
+                }
+                createPoButton.setEnabled(false);
+            }
+        }catch (MalformedURLException ex) {
+            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
-          
-            Gson gson = new Gson();
-            /* Da JSON a collections CLIENT */
-            java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
-            List<Bill> list = gson.fromJson(line, BillListType);
-            System.out.println("dimensione = "+ list.size());
-            int row = 0;
-            int column;
-            for(Bill b : list){
-                column=0;
-                bTable.setValueAt(b.getId() , row, column++);
-                bTable.setValueAt(b.getDebtor() , row, column++);
-                bTable.setValueAt(b.getYear() , row, column++);
-                bTable.setValueAt(b.getTrimester() , row, column++);
-                bTable.setValueAt(b.getCost() , row, column++);
-                row++;
-            }
-            createPoButton.setEnabled(false);
-           
     }
     
     

@@ -19,6 +19,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -46,7 +47,12 @@ public class BillServlet extends HttpServlet {
     protected void service (HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         String action = request.getParameter("action");
         Gson gson = new Gson();
-        
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            response.setStatus(462);//Errore sessione inesistente.
+            return ;
+        }
+        System.out.println("Sessione Bill: "+session.getId());
         if (action.equals("show")){
             List<Bill> list = bDao.getUnpaidBills();
             String res = gson.toJson(list);

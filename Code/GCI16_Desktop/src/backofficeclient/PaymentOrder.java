@@ -86,5 +86,9 @@ public class PaymentOrder {
         this.status = status;
     }
     
+    public void setProtocol(Integer protocol){
+        this.protocol = protocol;
+    }
+    
     
 }

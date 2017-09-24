@@ -26,8 +26,6 @@ public abstract class ServerConnection {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");  
 
-            connection.setUseCaches(false);
-            connection.setDoOutput(true);
             
             connection.connect();
             

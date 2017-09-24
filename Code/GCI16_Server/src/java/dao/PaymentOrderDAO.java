@@ -72,6 +72,24 @@ public class PaymentOrderDAO {
         return list;
     }
     
+    public int getProtocol(int idPaymentOrder){
+        String query = "SELECT PROTOCOL "
+                     + "FROM PAYMENTORDER "
+                     + "WHERE IDPAYMENTORDER = ?";
+        ArrayList<Object> params = new ArrayList<>();
+        params.add(idPaymentOrder);
+        int protocol = 0;
+        try{
+            ResultSet rs = db.Database.getInstance().execQuery(query, params);
+            if(rs != null && rs.next()){
+                protocol = rs.getInt("protocol");       
+            }
+        }catch (SQLException ex) {
+            Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return protocol;
+    }
+        
     public PaymentOrder getPaymentOrderByBill(int idBill){
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
@@ -133,7 +151,7 @@ public class PaymentOrderDAO {
     
     public boolean issuePaymentOrder(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT NOTIFIED'";
+        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT ISSUED'";
         params.add(idPaymentOrder);
         try {
             Database.getInstance().execQuery(query, params);

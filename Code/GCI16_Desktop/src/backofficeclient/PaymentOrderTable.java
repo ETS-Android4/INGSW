@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,11 +41,11 @@ import pdfgenerator.PDFGenerator;
  * @author carlo
  */
 public class PaymentOrderTable extends javax.swing.JFrame {
-    Map<String,String> mapVal;
     List<PaymentOrder> list;
-    public PaymentOrderTable() {
+    String session;
+    public PaymentOrderTable(String session) {
         initComponents();
-        
+        this.session = session;
     }
 
     /**
@@ -106,15 +108,20 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                int row = poTable.getSelectedRow();
+
+                int rowSel = poTable.getSelectedRow();
+                int row = -1;
+                System.out.println("Ciao: indice sel: "+rowSel);
+                if(rowSel != -1)
+                row = poTable.convertRowIndexToModel(rowSel);
                 deleteButton.setEnabled(false);
                 saveAsSuspendedButton.setEnabled(false);
                 saveAsPaidButton.setEnabled(false);
                 saveAsNotPertinentButton.setEnabled(false);
                 reissueButton.setEnabled(false);
                 issueButton.setEnabled(false);
-
-                if(row < list.size() && row>=0){
+                if(row == -1) return;
+                if(rowSel < poTable.getRowCount() && rowSel>=0){
 
                     Status status = list.get(row).getStatus();
                     if(status != null){
@@ -238,27 +245,21 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     jPanel1Layout.setHorizontalGroup(
         jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         .addGroup(jPanel1Layout.createSequentialGroup()
+            .addContainerGap()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addComponent(jLabel2)
+                    .addGap(20, 20, 20)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jLabel1))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jLabel3)))
-                    .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(debtorText)
+                        .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(yearList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addContainerGap()
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(jLabel2)
-                            .addGap(20, 20, 20)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(debtorText)
-                                .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(yearList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel1)
+                        .addComponent(jLabel3)
+                        .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(0, 0, Short.MAX_VALUE)))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addGap(63, 63, 63)
@@ -334,7 +335,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 24, Short.MAX_VALUE)
+                    .addGap(24, 24, 24)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(deleteButton)
                         .addComponent(createButton))
@@ -357,20 +358,30 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
-        BillTable billTable = new BillTable(this);
+        BillTable billTable = new BillTable(this,session);
         billTable.setTable();
         //this.dispose();
         billTable.setVisible(true);
     }//GEN-LAST:event_createButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
+         int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);
         try {
-            if(conn.getResponseCode() == 200){
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();
+            //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
+      
+            if(connection.getResponseCode() == 200){
+                System.out.println("Righe: "+poTable.getModel().getRowCount()+ "oppure: "+ poTable.getRowCount());
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
-                list.remove(row);    
+                System.out.println("Ciao");
+                System.out.println("Righe: "+poTable.getModel().getRowCount());
+                list.remove(row);
             }
+            poTable.getSelectionModel().clearSelection();
             
         } catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -379,68 +390,114 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void saveAsSuspendedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsSuspendedButtonActionPerformed
-        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+list.get(row).getId());
-
-        try {
-            if(conn.getResponseCode() == 200){
-                poTable.setValueAt("SUSPENDED", row, 5); /*Modifico la colonna relativa allo stato.*/
+        
+        int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);  
+        try{
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();
+ 
+            if(connection.getResponseCode() == 200){
+                poTable.setValueAt("SUSPENDED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.SUSPENDED);
             }
+            poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_saveAsSuspendedButtonActionPerformed
 
     private void saveAsPaidButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsPaidButtonActionPerformed
-        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsPaid&paymentOrder="+list.get(row).getId());
+        int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);
+        try{
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsPaid&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();    
 
-        try {
-            if(conn.getResponseCode() == 200){
-                poTable.setValueAt("PAID", row, 5); /*Modifico la colonna relativa allo stato.*/
+            if(connection.getResponseCode() == 200){
+                poTable.setValueAt("PAID", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.PAID);
             }
+            poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_saveAsPaidButtonActionPerformed
 
     private void saveAsNotPertinentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsNotPertinentButtonActionPerformed
-         int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=saveAsNotPertinent&paymentOrder="+list.get(row).getId());
-
+        int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);
+        
         try {
-            if(conn.getResponseCode() == 200){
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsNotPertinent&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect(); 
+            if(connection.getResponseCode() == 200){
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.NOTPERTINENT);
             }
+            poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_saveAsNotPertinentButtonActionPerformed
 
     private void reissueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reissueButtonActionPerformed
-        // TODO add your handling code here:
+        int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);
+        try{
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=reissue&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();    
+
+            if(connection.getResponseCode() == 200){
+                poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
+                PaymentOrder paymOrd = list.get(row);
+                paymOrd.setStatus(Status.ISSUED);
+            }
+            poTable.getSelectionModel().clearSelection();
+        } catch (IOException ex) {
+            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_reissueButtonActionPerformed
 
     private void issueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issueButtonActionPerformed
-        int row = poTable.convertRowIndexToModel(poTable.getSelectedRow());
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+list.get(row).getId());
+        int rowSel = poTable.getSelectedRow();
+        int row = poTable.convertRowIndexToModel(rowSel);
+        //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+list.get(row).getId());
         
         try {
-            if(conn.getResponseCode() == 200){
-                poTable.setValueAt("ISSUED", row, 5); /*Modifico la colonna relativa allo stato.*/
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+list.get(row).getId());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect(); 
+            if(connection.getResponseCode() == 200){
+                poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.ISSUED);
-                
+                InputStream is = connection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                line = rd.readLine();
+                rd.close();
+                Gson gson = new Gson();
+                int protocol = gson.fromJson(line, Integer.class);
+                paymOrd.setProtocol(protocol);
+                poTable.setValueAt(protocol, rowSel, 0);
                 /* Genera PDF */
                 PDFGenerator.generate(paymOrd);
-                
                 JOptionPane.showMessageDialog(null, "Payment order with protocol " + paymOrd.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
+                
+                poTable.getSelectionModel().clearSelection();
             }
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -463,7 +520,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         String status = statusText.getText();
         if(status.length() > 0)
             filters.add(RowFilter.regexFilter(status, 5));
-        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(poTable.getModel()); 
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(poTable.getModel()); 
         poTable.setRowSorter(sorter);
         sorter.setRowFilter(RowFilter.andFilter( filters ));
         
@@ -508,25 +565,29 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }
     
     public void setTable(){
-        HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=show");
-   
         
         try {
-            InputStream is = conn.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            line = rd.readLine();
-            rd.close();
-            
-            Gson gson = new Gson();
-            java.lang.reflect.Type POListType = new TypeToken<Collection< PaymentOrder> >(){}.getType();
-            list = gson.fromJson(line, POListType);
-            
-            Object[] values = new Object[6];
-            for(PaymentOrder p : list){
-                this.addPaymentOrderTable(p);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
+            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestProperty("Cookie", session);
+            connection.connect();
+            if(connection.getResponseCode() == 200){
+                InputStream is = connection.getInputStream();
+                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                String line;
+                line = rd.readLine();
+                rd.close();
+
+                Gson gson = new Gson();
+                java.lang.reflect.Type POListType = new TypeToken<Collection< PaymentOrder> >(){}.getType();
+                list = gson.fromJson(line, POListType);
+
+                Object[] values = new Object[6];
+                for(PaymentOrder p : list){
+                    this.addPaymentOrderTable(p);
+                }
             }
-            
+           
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -564,7 +625,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new PaymentOrderTable().setVisible(true);
+                new PaymentOrderTable(null).setVisible(true);
             }
         });
     }

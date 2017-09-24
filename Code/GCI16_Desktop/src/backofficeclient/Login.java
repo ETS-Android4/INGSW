@@ -7,6 +7,8 @@ package backofficeclient;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -176,23 +178,38 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_userFieldActionPerformed
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        HttpURLConnection conn= ServerConnection.executeGet("http://localhost:8081/GCI16/Login?user="+ userField.getText()+"&pass="+ passField.getText());
-        
+        URL url;
         try {
-            if(conn.getResponseCode() == 200){
-                System.out.println("ciao");
-                MainPage mPage = new MainPage();
+            url = new URL("http://localhost:8081/GCI16/Login?user="+ userField.getText()+"&pass="+ passField.getText());
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            String cookieNameMatch = "JSESSIONID";
+            String session = null;
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
+                String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
+                for (String s : cookieString.split(";")) {
+                    if (s.matches(cookieNameMatch+".*")){
+                        session = s;
+                        break;
+                    }
+                }
+                System.out.println("Sessione: "+session);
+                MainPage mPage = new MainPage(session);
                 mPage.setVisible(true);
                 this.dispose();
-                
+            }
+            else if(resCode == 461){
+                errorLabel.setText("Login Error! Insert valid entries.");
             }
             else{
-                errorLabel.setText("Login Error! Insert valid entries.");
-                
+                errorLabel.setText("Server not avalaible");
             }
             
         } catch (IOException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            errorLabel.setText("Server not avalaible");
         }
         
         

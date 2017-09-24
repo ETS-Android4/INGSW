@@ -19,6 +19,7 @@ import java.lang.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.servlet.http.HttpSession;
 
 
 @WebServlet(urlPatterns = {"/PaymentOrder"})
@@ -31,20 +32,21 @@ public class PaymentOrderServlet extends HttpServlet {
     @Override
     public void init(){
        pDao = new PaymentOrderDAO();
-       System.out.println("init");
     }
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response){
-        //TODO CONTROLLO ACCESSI
-       
-        System.out.println("service");
+        
         String paymentOrder,bill;
         int idBill,idPaymentOrder;
         String res;
-        /* Parameter 1 - action */
         
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            response.setStatus(462); //sessione inesistene.
+            return;
+        }
+        System.out.println("Sessione: "+session.getId());
         String action = request.getParameter("action");
-        System.out.println("action = " + action);   
         // TODO action se è null per avviare server da netbeans
         switch(action){
             case "show":
@@ -68,7 +70,6 @@ public class PaymentOrderServlet extends HttpServlet {
                     try {
                         PrintWriter pw = response.getWriter();
                         pw.print(res);
-                        System.out.println("stringaa "+ res);
                     } catch (IOException ex) {
                         Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -105,10 +106,17 @@ public class PaymentOrderServlet extends HttpServlet {
                 break;
             case "issue":
                 paymentOrder = request.getParameter("paymentOrder");
+                res = null;
                 if(paymentOrder != null){
                     idPaymentOrder = Integer.parseInt(paymentOrder);
-                     issuePaymentOrder(idPaymentOrder);
-                    
+                    res = issuePaymentOrder(idPaymentOrder);
+                    PrintWriter pw;
+                    try {
+                        pw = response.getWriter();
+                        pw.write(res);
+                    } catch (IOException ex) {
+                        Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 break;
             case "reissue":
@@ -136,7 +144,6 @@ public class PaymentOrderServlet extends HttpServlet {
         List<PaymentOrder> list = pDao.showPaymentOrders();
         Gson gson = new Gson();
         String string = gson.toJson(list);
-        System.out.println("GSON = " + string);
         return string;
        
     }
@@ -149,7 +156,6 @@ public class PaymentOrderServlet extends HttpServlet {
            string = gson.toJson(p);
            
         }
-        System.out.println("Stringa d ritorno: "+string);
         return string;
     }
     
@@ -169,8 +175,14 @@ public class PaymentOrderServlet extends HttpServlet {
         return pDao.saveAsSuspended(idPaymentOrder);
     }
     
-    private boolean issuePaymentOrder(int idPaymentOrder){
-        return pDao.issuePaymentOrder(idPaymentOrder);
+    private String issuePaymentOrder(int idPaymentOrder){
+        String ret = null;
+        if(pDao.issuePaymentOrder(idPaymentOrder)){
+            int protocol = pDao.getProtocol(idPaymentOrder);
+            Gson gson = new Gson();
+            ret = gson.toJson(protocol);
+        }
+        return ret;
     }
     
     private boolean reissuePaymentOrder(int idPaymentOrder){
