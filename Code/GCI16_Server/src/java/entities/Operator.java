@@ -10,12 +10,17 @@ package entities;
  * @author carlo
  */
 public class Operator {
+    public static final int TYPE_BACKOFFICE = 1;
+    public static final int TYPE_READINGS = 2;
     String user;
     String pass;
+    int type;
     
-    public Operator(String user,String pass){
+    public Operator(String user,String pass, int type){
+        if(type<1 || type>2) throw new IllegalArgumentException();
         this.user = user;
         this.pass = pass;
+        this.type = type;
     }
     
     public String getUser(){
