@@ -18,28 +18,29 @@ import java.util.logging.Logger;
  */
 public class OperatorDAO {
     
-    public static Operator getOperator(String user,String pass){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "select * from backOfficeOperator where username= ? AND pass= ?"; 
-        params.add(user);
+    public Boolean exists(String user, String pass, int type){
+        ArrayList<Object> params = new ArrayList<>(2);
+        String query = null;
+        System.out.println("type = "+type);
+        if(type==Operator.TYPE_BACKOFFICE){
+            query = "select * from GCI16.backOfficeOperator where username= ? AND pass= ?";
+            params.add(user);
+        }
+        else{
+            query = "select * from GCI16.READINGS_OPERATOR where operatorId=? AND pass=?";
+            params.add(Integer.parseInt(user));
+        }
+        
+        Boolean result = null;
+        
         params.add(pass);
-        ResultSet rs;
-        Operator op = null;
-        try {
-            System.err.println("ciaoo prima");
-            rs = db.Database.getInstance().execQuery(query, params);
-            System.err.println("ciaoo dopo");
-            
-            if(rs != null && rs.next()){
-                System.out.println("ciaoo");
-                op = new Operator(rs.getString("username"),rs.getString("pass"));
-                
-            }
-            
+        
+        try(ResultSet rs = db.Database.getInstance().execQuery(query, params)){
+            if(rs != null)
+                result = rs.next();
         } catch (SQLException ex) {
             Logger.getLogger(OperatorDAO.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
         }
-        return op;
+        return result;
     }
 }

@@ -1,17 +1,14 @@
 package server.mobile;
 
-import db.Database;
+import dao.OperatorDAO;
+import entities.Operator;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
 /**
  * Handles a ReadingsOperator request of opening a session.
  * Answers with response code 200 followed by a session cookie
@@ -23,6 +20,8 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "ReadingsOperatorLoginServlet", urlPatterns = {"/ReadingsOperatorLogin"})
 public class ReadingsOperatorLoginServlet extends HttpServlet {
+    OperatorDAO operatorDAO = new OperatorDAO();
+    
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
         //checks parameters
@@ -40,18 +39,11 @@ public class ReadingsOperatorLoginServlet extends HttpServlet {
             return;
         }
         
-        String query = "SELECT * FROM GCI16.READINGS_OPERATOR WHERE operatorId=? AND pass=?";
-        LinkedList<Object> params = new LinkedList<>();
-        params.add(operatorId);
-        params.add(password);
-        
-        boolean ok = false;
-        try (ResultSet result = Database.getInstance().execQuery(query, params)) {
-                ok = result.next();
-        } catch (SQLException ex){
-            Logger.getLogger(ReadingsOperatorLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
+        Boolean ok = operatorDAO.exists(operatorIdParameter, password, Operator.TYPE_READINGS);
+        if(ok==null){
+            response.sendError(500, "Internal server error");
+            return;
         }
-        
         if(ok){
             response.setStatus(200);
             // creates a new session
