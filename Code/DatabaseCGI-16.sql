@@ -136,17 +136,30 @@ end;
 
 /
 
-create or replace trigger SetProtocol
+create or replace TRIGGER beforeUpdatePaymentOrder
 before update on PaymentOrder
 for each row
 
 begin
-
-    if(:NEW.status = 'ISSUED') then
+    if( :NEW.status = 'ISSUED' AND :OLD.status = 'NOT ISSUED') then
         :NEW.protocol := giveProtocol.nextval;
     end if;
-    
 end;
+
+/
+
+create or replace trigger afterUpdatePaymentOrder
+after update on paymentOrder
+for each row
+begin
+IF (:NEW.status = 'PAID') THEN
+    UPDATE BILL
+    SET STATUS = 'PAID'
+    WHERE IDBILL = :NEW.BILL;
+ElSIF (:NEW.status = 'NOT PERTINENT') THEN
+    DELETE FROM BILL WHERE IDBILL = :NEW.BILL;
+END IF;    
+END;
 
 /
 
