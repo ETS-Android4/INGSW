@@ -34,7 +34,7 @@ public class PaymentOrderServlet extends HttpServlet {
        pDao = new PaymentOrderDAO();
     }
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response){
+    public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         
         String paymentOrder,bill;
         int idBill,idPaymentOrder;
@@ -42,7 +42,7 @@ public class PaymentOrderServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if(session == null){
-            response.setStatus(462); //sessione inesistene.
+            response.sendError(462,"No session!"); //sessione inesistene.
             return;
         }
         System.out.println("Sessione: "+session.getId());

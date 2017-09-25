@@ -41,6 +41,7 @@ public class LoginServlet extends HttpServlet {
         if(op != null){
             response.setStatus(200);
             HttpSession session = request.getSession(true);
+            session.setMaxInactiveInterval(43200);
             System.out.println("Sessione: "+session.getId());
         }else{
             response.setStatus(461);//Errore credenziali

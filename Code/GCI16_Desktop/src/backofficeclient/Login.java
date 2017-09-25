@@ -6,11 +6,13 @@
 package backofficeclient;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -190,7 +192,7 @@ public class Login extends javax.swing.JFrame {
             if(resCode == 200){
                 String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
                 for (String s : cookieString.split(";")) {
-                    if (s.matches(cookieNameMatch+".*")){
+                    if (s.contains(cookieNameMatch)){
                         session = s;
                         break;
                     }
@@ -203,13 +205,12 @@ public class Login extends javax.swing.JFrame {
             else if(resCode == 461){
                 errorLabel.setText("Login Error! Insert valid entries.");
             }
-            else{
-                errorLabel.setText("Server not avalaible");
-            }
+        
+        }catch(ConnectException ex){
+            JOptionPane.showMessageDialog(this,"Server not available");
             
-        } catch (IOException ex) {
+        }catch (IOException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-            errorLabel.setText("Server not avalaible");
         }
         
         

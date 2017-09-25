@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -163,7 +164,8 @@ public class BillTable extends javax.swing.JFrame {
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 InputStream is = connection.getInputStream();
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 String line;
@@ -172,6 +174,9 @@ public class BillTable extends javax.swing.JFrame {
                 Gson gson = new Gson();
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderTable.addPaymentOrder(p);
+            }
+            else if(resCode == 462){
+                JOptionPane.showMessageDialog(this,"Server not available");
             }
         }catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -184,13 +189,15 @@ public class BillTable extends javax.swing.JFrame {
     
    
     
-    public void setTable(){
+    public boolean setTable(){
         try{
             URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
-            if(connection.getResponseCode()==200){
+            int resCode = connection.getResponseCode();
+            if(resCode==200){
+                
                 InputStream is = connection.getInputStream();                
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 String line = rd.readLine();
@@ -210,13 +217,22 @@ public class BillTable extends javax.swing.JFrame {
                     bTable.setValueAt(b.getCost() , row, column++);
                     row++;
                 }
+                
                 createPoButton.setEnabled(false);
             }
+            else if (resCode == 462){
+                JOptionPane.showMessageDialog(this,"Server not available");
+                return false;
+            }
+            
         }catch (MalformedURLException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         } catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
+        return true;
     }
     
     

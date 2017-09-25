@@ -74,11 +74,11 @@ public class PaymentOrderTable extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         protocolText = new javax.swing.JTextField();
         debtorText = new javax.swing.JTextField();
-        statusText = new javax.swing.JTextField();
         filterButton = new javax.swing.JButton();
         yearList = new javax.swing.JComboBox<>();
         trimesterList = new javax.swing.JComboBox<>();
         clearFilterButton = new javax.swing.JButton();
+        statusList = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -109,18 +109,17 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             @Override
             public void valueChanged(ListSelectionEvent e) {
 
-                int rowSel = poTable.getSelectedRow();
-                int row = -1;
-                System.out.println("Ciao: indice sel: "+rowSel);
-                if(rowSel != -1)
-                row = poTable.convertRowIndexToModel(rowSel);
                 deleteButton.setEnabled(false);
                 saveAsSuspendedButton.setEnabled(false);
                 saveAsPaidButton.setEnabled(false);
                 saveAsNotPertinentButton.setEnabled(false);
                 reissueButton.setEnabled(false);
                 issueButton.setEnabled(false);
-                if(row == -1) return;
+                int rowSel = poTable.getSelectedRow();
+                int row;
+                if(rowSel != -1)
+                row = poTable.convertRowIndexToModel(rowSel);
+                else return;
                 if(rowSel < poTable.getRowCount() && rowSel>=0){
 
                     Status status = list.get(row).getStatus();
@@ -228,10 +227,10 @@ public class PaymentOrderTable extends javax.swing.JFrame {
             }
         });
 
-        yearList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No", "2001", "2002","2003","2004","2005","2006","2007","2008","2009",
+        yearList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "","2001", "2002","2003","2004","2005","2006","2007","2008","2009",
             "2010","2011","2012","2013","2014","2015","2016","2017","2018",}));
 
-trimesterList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No", "1", "2", "3", "4" }));
+trimesterList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "", "1", "2", "3", "4" }));
 
 clearFilterButton.setText("Clear");
 clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
@@ -239,6 +238,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         clearFilterButtonActionPerformed(evt);
     }
     });
+
+    statusList.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "", "NOT ISSUED", "ISSUED", "NOTIFIED","SUSPENDED" }));
 
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
@@ -248,31 +249,39 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             .addContainerGap()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addComponent(jLabel2)
-                    .addGap(20, 20, 20)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addGap(20, 20, 20))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel1))
+                            .addGap(18, 18, 18)))
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(debtorText)
-                        .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(yearList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel1)
-                        .addComponent(jLabel3)
-                        .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGap(18, 18, Short.MAX_VALUE)
+                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                    .addGap(63, 63, 63)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGap(28, 28, 28)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jLabel4)
                         .addComponent(jLabel6))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGap(27, 27, 27)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(statusText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(statusList, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(55, 55, 55)))))
             .addGap(76, 76, 76))
     );
     jPanel1Layout.setVerticalGroup(
@@ -283,21 +292,28 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                 .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(jLabel2))
             .addGap(18, 18, 18)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(debtorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jLabel1)
-                .addComponent(jLabel4)
-                .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGap(18, 18, 18)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(statusText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jLabel6)
-                .addComponent(jLabel3)
-                .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(filterButton)
-                .addComponent(clearFilterButton))
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(debtorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1))
+                    .addGap(18, 18, 18)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel3)
+                        .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(filterButton)
+                        .addComponent(clearFilterButton)))
+                .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(statusList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6))
+                    .addGap(18, 18, 18)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(trimesterList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4))
+                    .addGap(0, 0, Short.MAX_VALUE)))
             .addContainerGap())
     );
 
@@ -328,30 +344,28 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        .addGroup(layout.createSequentialGroup()
             .addContainerGap()
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(24, 24, 24)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(deleteButton)
-                        .addComponent(createButton))
+                        .addComponent(createButton)
+                        .addComponent(deleteButton))
                     .addGap(18, 18, 18)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(saveAsPaidButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(saveAsPaidButton)
                         .addComponent(saveAsSuspendedButton))
                     .addGap(18, 18, 18)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(saveAsNotPertinentButton)
                         .addComponent(reissueButton))
                     .addGap(18, 18, 18)
-                    .addComponent(issueButton)
-                    .addGap(39, 39, 39)))
+                    .addComponent(issueButton)))
+            .addGap(33, 33, 33)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addContainerGap())
+            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
 
     pack();
@@ -359,9 +373,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         BillTable billTable = new BillTable(this,session);
-        billTable.setTable();
-        //this.dispose();
-        billTable.setVisible(true);
+        if(billTable.setTable())
+            billTable.setVisible(true);
     }//GEN-LAST:event_createButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
@@ -373,15 +386,16 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.setRequestProperty("Cookie", session);
             connection.connect();
             //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
-      
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 System.out.println("Righe: "+poTable.getModel().getRowCount()+ "oppure: "+ poTable.getRowCount());
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
                 System.out.println("Ciao");
                 System.out.println("Righe: "+poTable.getModel().getRowCount());
                 list.remove(row);
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
-            poTable.getSelectionModel().clearSelection();
             
         } catch (IOException ex) {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -399,10 +413,13 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.setRequestProperty("Cookie", session);
             connection.connect();
  
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 poTable.setValueAt("SUSPENDED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.SUSPENDED);
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
             poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
@@ -419,10 +436,13 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.setRequestProperty("Cookie", session);
             connection.connect();    
 
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 poTable.setValueAt("PAID", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.PAID);
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
             poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
@@ -439,10 +459,13 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect(); 
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.NOTPERTINENT);
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
             poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
@@ -459,10 +482,13 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.setRequestProperty("Cookie", session);
             connection.connect();    
 
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.ISSUED);
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
             poTable.getSelectionModel().clearSelection();
         } catch (IOException ex) {
@@ -480,7 +506,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect(); 
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.ISSUED);
@@ -498,6 +525,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                 JOptionPane.showMessageDialog(null, "Payment order with protocol " + paymOrd.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
                 
                 poTable.getSelectionModel().clearSelection();
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -511,15 +540,14 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(protocol), 0));
         String debtor = debtorText.getText();
         if(debtor.length() > 0)
-            filters.add(RowFilter.regexFilter(debtor, 1));
+            filters.add(RowFilter.regexFilter("(?i)"+debtor, 1));
         int i;
         if( (i = yearList.getSelectedIndex())!=0)
             filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(yearList.getItemAt(i)), 2));
         if( (i = trimesterList.getSelectedIndex())!=0)
             filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(trimesterList.getItemAt(i)), 3));
-        String status = statusText.getText();
-        if(status.length() > 0)
-            filters.add(RowFilter.regexFilter(status, 5));
+        if ((i = statusList.getSelectedIndex() ) != 0)
+            filters.add( RowFilter.regexFilter( "^"+statusList.getItemAt(i)+"$",5));
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(poTable.getModel()); 
         poTable.setRowSorter(sorter);
         sorter.setRowFilter(RowFilter.andFilter( filters ));
@@ -542,7 +570,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         debtorText.setText("");
         yearList.setSelectedIndex(0);
         trimesterList.setSelectedIndex(0);
-        statusText.setText("");
+        statusList.setSelectedIndex(0);
     }//GEN-LAST:event_clearFilterButtonActionPerformed
 
  
@@ -554,7 +582,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         values[2] = p.getYear();
         values[3] = p.getTrimester();
         values[4] = p.getAmount();
-        values[5] = p.getStatus();
+        String status = p.getStatus().toString();
+        if(status.equals("NOTISSUED"))
+            status = "NOT ISSUED";
+        values[5] = status;
         ((DefaultTableModel)poTable.getModel()).addRow(values);
     }
     
@@ -571,7 +602,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
-            if(connection.getResponseCode() == 200){
+            int resCode = connection.getResponseCode();
+            if(resCode == 200){
                 InputStream is = connection.getInputStream();
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 String line;
@@ -586,6 +618,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                 for(PaymentOrder p : list){
                     this.addPaymentOrderTable(p);
                 }
+            }else if (resCode == 462){
+              JOptionPane.showMessageDialog(this,"Server not available"); 
             }
            
         } catch (IOException ex) {
@@ -650,7 +684,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     private javax.swing.JButton saveAsNotPertinentButton;
     private javax.swing.JButton saveAsPaidButton;
     private javax.swing.JButton saveAsSuspendedButton;
-    private javax.swing.JTextField statusText;
+    private javax.swing.JComboBox<String> statusList;
     private javax.swing.JComboBox<String> trimesterList;
     private javax.swing.JComboBox<String> yearList;
     // End of variables declaration//GEN-END:variables

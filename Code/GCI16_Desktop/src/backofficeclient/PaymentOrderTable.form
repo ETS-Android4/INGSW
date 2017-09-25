@@ -52,22 +52,19 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jPanel1" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="deleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="createButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="deleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="saveAsPaidButton" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                          <Component id="saveAsPaidButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="saveAsSuspendedButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -77,11 +74,11 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="issueButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="237" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -96,7 +93,7 @@
       <SubComponents>
         <Component class="javax.swing.JTable" name="poTable">
           <Properties>
-            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor" postCode="poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {&#xa;            @Override&#xa;            public void valueChanged(ListSelectionEvent e) {&#xa;                &#xa;                int rowSel = poTable.getSelectedRow();&#xa;                int row = -1;&#xa;                System.out.println(&quot;Ciao: indice sel: &quot;+rowSel);&#xa;                if(rowSel != -1)&#xa;                    row = poTable.convertRowIndexToModel(rowSel);&#xa;                deleteButton.setEnabled(false);&#xa;                saveAsSuspendedButton.setEnabled(false);&#xa;                saveAsPaidButton.setEnabled(false);&#xa;                saveAsNotPertinentButton.setEnabled(false);&#xa;                reissueButton.setEnabled(false);&#xa;                issueButton.setEnabled(false);&#xa;                if(row == -1) return;&#xa;                if(rowSel &lt; poTable.getRowCount() &amp;&amp; rowSel&gt;=0){&#xa;                    &#xa;                    Status status = list.get(row).getStatus();&#xa;                    if(status != null){    &#xa;                        String stat = status.toString();&#xa;&#xa;                        if(stat.equals(&quot;NOTIFIED&quot;)){&#xa;                            saveAsSuspendedButton.setEnabled(true);&#xa;                            saveAsPaidButton.setEnabled(true);&#xa;                        }&#xa;                        else if(stat.equals(&quot;NOTISSUED&quot;)){&#xa;                            deleteButton.setEnabled(true);&#xa;                            issueButton.setEnabled(true);&#xa;                        }&#xa;                        else if(stat.equals(&quot;SUSPENDED&quot;)){&#xa;                            reissueButton.setEnabled(true);&#xa;                            saveAsNotPertinentButton.setEnabled(true);&#xa;                        }&#xa;                    }&#xa;                }&#xa;            }&#xa;        });">
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor" postCode="poTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {&#xa;            @Override&#xa;            public void valueChanged(ListSelectionEvent e) {&#xa;                &#xa;                &#xa;                deleteButton.setEnabled(false);&#xa;                saveAsSuspendedButton.setEnabled(false);&#xa;                saveAsPaidButton.setEnabled(false);&#xa;                saveAsNotPertinentButton.setEnabled(false);&#xa;                reissueButton.setEnabled(false);&#xa;                issueButton.setEnabled(false);&#xa;                int rowSel = poTable.getSelectedRow();&#xa;                int row;&#xa;                if(rowSel != -1)&#xa;                    row = poTable.convertRowIndexToModel(rowSel);&#xa;                else return;&#xa;                if(rowSel &lt; poTable.getRowCount() &amp;&amp; rowSel&gt;=0){&#xa;                    &#xa;                    Status status = list.get(row).getStatus();&#xa;                    if(status != null){    &#xa;                        String stat = status.toString();&#xa;&#xa;                        if(stat.equals(&quot;NOTIFIED&quot;)){&#xa;                            saveAsSuspendedButton.setEnabled(true);&#xa;                            saveAsPaidButton.setEnabled(true);&#xa;                        }&#xa;                        else if(stat.equals(&quot;NOTISSUED&quot;)){&#xa;                            deleteButton.setEnabled(true);&#xa;                            issueButton.setEnabled(true);&#xa;                        }&#xa;                        else if(stat.equals(&quot;SUSPENDED&quot;)){&#xa;                            reissueButton.setEnabled(true);&#xa;                            saveAsNotPertinentButton.setEnabled(true);&#xa;                        }&#xa;                    }&#xa;                }&#xa;            }&#xa;        });">
               <Table columnCount="6" rowCount="0">
                 <Column editable="false" title="Protocol" type="java.lang.Integer"/>
                 <Column editable="false" title="Debtor" type="java.lang.String"/>
@@ -230,39 +227,52 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="debtorText" max="32767" attributes="0"/>
-                              <Component id="protocolText" min="-2" pref="59" max="-2" attributes="0"/>
-                              <Component id="yearList" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Component id="protocolText" min="-2" pref="59" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              </Group>
+                              <Component id="yearList" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="clearFilterButton" alignment="0" min="-2" pref="65" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="clearFilterButton" min="-2" pref="65" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <EmptySpace type="separate" max="32767" attributes="0"/>
+                          <Component id="filterButton" min="-2" pref="173" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace min="27" pref="27" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="trimesterList" min="-2" pref="59" max="-2" attributes="0"/>
-                              <Component id="statusText" min="-2" pref="59" max="-2" attributes="0"/>
+                              <Component id="statusList" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="trimesterList" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="55" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                      </Group>
-                      <Group type="102" alignment="1" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="filterButton" min="-2" pref="173" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace min="-2" pref="76" max="-2" attributes="0"/>
@@ -278,23 +288,35 @@
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="debtorText" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="trimesterList" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="statusText" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="yearList" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="31" max="32767" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="filterButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="clearFilterButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="debtorText" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="yearList" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="31" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="filterButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="clearFilterButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="statusList" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="trimesterList" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -338,8 +360,6 @@
         </Component>
         <Component class="javax.swing.JTextField" name="debtorText">
         </Component>
-        <Component class="javax.swing.JTextField" name="statusText">
-        </Component>
         <Component class="javax.swing.JButton" name="filterButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="Filter"/>
@@ -351,7 +371,7 @@
         <Component class="javax.swing.JComboBox" name="yearList">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;No&quot;, &quot;2001&quot;, &quot;2002&quot;,&quot;2003&quot;,&quot;2004&quot;,&quot;2005&quot;,&quot;2006&quot;,&quot;2007&quot;,&quot;2008&quot;,&quot;2009&quot;,&#xa;    &quot;2010&quot;,&quot;2011&quot;,&quot;2012&quot;,&quot;2013&quot;,&quot;2014&quot;,&quot;2015&quot;,&quot;2016&quot;,&quot;2017&quot;,&quot;2018&quot;,})" type="code"/>
+              <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;&quot;,&quot;2001&quot;, &quot;2002&quot;,&quot;2003&quot;,&quot;2004&quot;,&quot;2005&quot;,&quot;2006&quot;,&quot;2007&quot;,&quot;2008&quot;,&quot;2009&quot;,&#xa;    &quot;2010&quot;,&quot;2011&quot;,&quot;2012&quot;,&quot;2013&quot;,&quot;2014&quot;,&quot;2015&quot;,&quot;2016&quot;,&quot;2017&quot;,&quot;2018&quot;,})" type="code"/>
             </Property>
           </Properties>
           <AuxValues>
@@ -361,7 +381,7 @@
         <Component class="javax.swing.JComboBox" name="trimesterList">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;No&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot; })" type="code"/>
+              <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot; })" type="code"/>
             </Property>
           </Properties>
           <AuxValues>
@@ -375,6 +395,16 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearFilterButtonActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JComboBox" name="statusList">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="new javax.swing.DefaultComboBoxModel&lt;&gt;(new String[] { &quot;&quot;, &quot;NOT ISSUED&quot;, &quot;ISSUED&quot;, &quot;NOTIFIED&quot;,&quot;SUSPENDED&quot; })" type="code"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

@@ -49,7 +49,7 @@ public class BillServlet extends HttpServlet {
         Gson gson = new Gson();
         HttpSession session = request.getSession(false);
         if(session == null){
-            response.setStatus(462);//Errore sessione inesistente.
+            response.sendError(462,"No session!");//Errore sessione inesistente.
             return ;
         }
         System.out.println("Sessione Bill: "+session.getId());
