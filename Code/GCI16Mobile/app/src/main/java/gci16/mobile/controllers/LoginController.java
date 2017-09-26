@@ -95,7 +95,7 @@ public class LoginController extends AppCompatActivity {
         pref = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
         String session = pref.getString("session", null);
         if(session!=null && operatorId>0) //sessione salvata
-            startReadingController(operatorId, session);
+            startReadingsController(operatorId, session);
     }
 
 
@@ -148,10 +148,10 @@ public class LoginController extends AppCompatActivity {
         try {
             responseCode = asyncTask.get();
         } catch (InterruptedException e) {
-            Log.d("Interrupted", e.getMessage());
+            Log.e("Interrupted", e.getMessage());
             return;
         } catch (ExecutionException e) {
-            Log.d("Execution", e.getMessage());
+            Log.e("Execution", e.getMessage());
             return;
         }
 
@@ -176,7 +176,7 @@ public class LoginController extends AppCompatActivity {
                 .putString("password", password)
                 .apply();
 
-        startReadingController(operatorId, session);
+        startReadingsController(operatorId, session);
     }
 
     /**
@@ -186,7 +186,7 @@ public class LoginController extends AppCompatActivity {
      * @param operatorId the id of the operator logged
      * @param session session cookie for the operator
      */
-    private void startReadingController(int operatorId, String session){
+    private void startReadingsController(int operatorId, String session){
         SharedPreferences sharedPreferences = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.putString("session", session).apply();

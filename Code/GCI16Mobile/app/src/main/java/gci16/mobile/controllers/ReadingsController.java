@@ -242,7 +242,7 @@ public class ReadingsController extends AppCompatActivity{
 
                         // updates the UI and reset the selectedItem
                         ((ListView) findViewById(R.id.assignment_table)).performItemClick(null, -1, 0);
-                        ((Button) findViewById(R.id.send_readings_button)).setEnabled(true);
+                        findViewById(R.id.send_readings_button).setEnabled(true);
                         selectedItem = -1;
                         dialog.cancel();
                     }
@@ -334,7 +334,7 @@ public class ReadingsController extends AppCompatActivity{
                 .apply();
 
         // manages changes on UI
-        ((Button)findViewById(R.id.send_readings_button)).setEnabled(false);
+        findViewById(R.id.send_readings_button).setEnabled(false);
         AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
         builder.setMessage("Readings successfully sent!")
                 .setPositiveButton("OK", null);
@@ -402,7 +402,6 @@ public class ReadingsController extends AppCompatActivity{
                     connection.setRequestMethod("GET");
                     connection.setRequestProperty("Cookie", session);
                     connection.setDoOutput(false);
-                    Log.d("DEBUG", url.toString());
                     connection.connect();
                     responseCode = connection.getResponseCode();
                     if (responseCode == 200) {

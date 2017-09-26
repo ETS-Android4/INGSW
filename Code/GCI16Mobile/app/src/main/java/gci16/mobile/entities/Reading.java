@@ -19,6 +19,7 @@ public class Reading {
     public int getMeterId(){
         return meterId;
     }
+
     public java.util.Date getDate(){
         return date;
     }
