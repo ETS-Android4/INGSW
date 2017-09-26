@@ -14,19 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.RowFilter.ComparisonType;
 import javax.swing.event.ListSelectionEvent;
@@ -37,8 +31,9 @@ import javax.swing.table.TableRowSorter;
 import pdfgenerator.PDFGenerator;
 
 /**
- *
- * @author carlo
+ * The window where is possible to manage payment orders.
+ * 
+ * @author GCI16_25
  */
 public class PaymentOrderTable extends javax.swing.JFrame {
     List<PaymentOrder> list;
@@ -209,11 +204,6 @@ public class PaymentOrderTable extends javax.swing.JFrame {
 
         jLabel6.setText("Status");
 
-        protocolText.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                protocolTextActionPerformed(evt);
-            }
-        });
         protocolText.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 protocolTextKeyTyped(evt);
@@ -261,9 +251,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(debtorText)
                         .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(protocolText, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(yearList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(0, 0, Short.MAX_VALUE))))
                 .addGroup(jPanel1Layout.createSequentialGroup()
                     .addComponent(clearFilterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(0, 0, Short.MAX_VALUE)))
@@ -371,12 +362,20 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Handles the click of createButton.
+     * @param evt 
+     */
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         BillTable billTable = new BillTable(this,session);
         if(billTable.setTable())
             billTable.setVisible(true);
     }//GEN-LAST:event_createButtonActionPerformed
 
+    /**
+     * Handles the click of deleteButton.
+     * @param evt 
+     */
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
          int rowSel = poTable.getSelectedRow();
         int row = poTable.convertRowIndexToModel(rowSel);
@@ -403,6 +402,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         
     }//GEN-LAST:event_deleteButtonActionPerformed
 
+    /**
+     * Handles the click of saveAsSuspendedButton.
+     * @param evt 
+     */
     private void saveAsSuspendedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsSuspendedButtonActionPerformed
         
         int rowSel = poTable.getSelectedRow();
@@ -427,6 +430,11 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_saveAsSuspendedButtonActionPerformed
 
+    /**
+     * Handles the click of saveAsPaidButton.
+     * @param evt 
+     */
+    
     private void saveAsPaidButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsPaidButtonActionPerformed
         int rowSel = poTable.getSelectedRow();
         int row = poTable.convertRowIndexToModel(rowSel);
@@ -450,6 +458,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_saveAsPaidButtonActionPerformed
 
+    /**
+     * Handles the click of saveAsNotPertinentButton.
+     * @param evt 
+     */
     private void saveAsNotPertinentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsNotPertinentButtonActionPerformed
         int rowSel = poTable.getSelectedRow();
         int row = poTable.convertRowIndexToModel(rowSel);
@@ -473,6 +485,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_saveAsNotPertinentButtonActionPerformed
 
+    /**
+     * Handles the click of reissueButton.
+     * @param evt 
+     */
     private void reissueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reissueButtonActionPerformed
         int rowSel = poTable.getSelectedRow();
         int row = poTable.convertRowIndexToModel(rowSel);
@@ -496,6 +512,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_reissueButtonActionPerformed
 
+    /**
+     * Handles the click of issueButton.
+     * @param evt 
+     */
     private void issueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issueButtonActionPerformed
         int rowSel = poTable.getSelectedRow();
         int row = poTable.convertRowIndexToModel(rowSel);
@@ -533,9 +553,15 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }//GEN-LAST:event_issueButtonActionPerformed
 
+    /**
+     * Handles the click of filterButton.
+     * @param evt 
+     */
     private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
+        /*Creates a set of filters*/
         List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>();
         String protocol = protocolText.getText();
+        
         if(protocol.length() > 0 )
             filters.add( RowFilter.numberFilter(ComparisonType.EQUAL,Integer.parseInt(protocol), 0));
         String debtor = debtorText.getText();
@@ -550,21 +576,25 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             filters.add( RowFilter.regexFilter( "^"+statusList.getItemAt(i)+"$",5));
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(poTable.getModel()); 
         poTable.setRowSorter(sorter);
-        sorter.setRowFilter(RowFilter.andFilter( filters ));
-        
-       
+        /*AND of all set filters.*/
+        sorter.setRowFilter(RowFilter.andFilter( filters ));   
     }//GEN-LAST:event_filterButtonActionPerformed
 
-    private void protocolTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_protocolTextActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_protocolTextActionPerformed
-
+    /**
+     * Handles the insertion of characters in protocolText.
+     * It allows to insert only numbers.
+     * @param evt 
+     */
     private void protocolTextKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_protocolTextKeyTyped
        int c = evt.getKeyChar();
        if( (c < '0' || c > '9') && c!=KeyEvent.VK_BACKSPACE )
            evt.consume();
     }//GEN-LAST:event_protocolTextKeyTyped
 
+    /**
+     * Handles the click of clearFilterButton.
+     * @param evt 
+     */
     private void clearFilterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearFilterButtonActionPerformed
         protocolText.setText("");
         debtorText.setText("");
@@ -574,7 +604,10 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }//GEN-LAST:event_clearFilterButtonActionPerformed
 
  
-    
+    /**
+     * Adds a row in the payment orders table. 
+     * @param p is the payment order to insert in the table.
+     */
     private void addPaymentOrderTable(PaymentOrder p){
         Object[] values = new Object[6];
         values[0] = p.getProtocol();
@@ -589,12 +622,19 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         ((DefaultTableModel)poTable.getModel()).addRow(values);
     }
     
+    /**
+     * Adds payment order in the list of payment orders, and then in the table.
+     * @param p 
+     */
     public void addPaymentOrder(PaymentOrder p){
         list.add(p);
         this.addPaymentOrderTable(p);
         
     }
     
+    /**
+     * Shows the table of payment orders, after asking the server.
+     */
     public void setTable(){
         
         try {
@@ -627,42 +667,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         }
     }
     
-    
-    
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(PaymentOrderTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(PaymentOrderTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(PaymentOrderTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(PaymentOrderTable.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new PaymentOrderTable(null).setVisible(true);
-            }
-        });
-    }
+  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearFilterButton;

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dao;
 
 import entities.Bill;
@@ -15,11 +10,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author carlo
+ * Provides database-hiding methods for Bill class.
+ * @author GCI16_25
  */
 public class BillDAO {
     
+    /**
+     * Retrieves unpaid bills (after three months);
+     * @return null if an error occurs, the list of unpaid bills otherwise.
+     */
     public List<Bill> getUnpaidBills() {
         String query = "select idBill, year, trimester,name,surname,amount "
                     +  "from bill b join customer c on c.idcustomer = b.customer " +
@@ -43,20 +42,4 @@ public class BillDAO {
         }
         return list;
     }
-    
-    
-    
-   /* public Bill getBill(int id){
-        String query = "select * from bill where id = ?";
-        ArrayList<Object> params = new ArrayList<>();
-        params.add(id);
-        try {
-            ResultSet rs = db.Database.getInstance().execQuery(query, params);
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(BillDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
-    */
 }

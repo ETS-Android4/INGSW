@@ -13,11 +13,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author carlo
+ * Provides database-hiding methods for Assingment class.
+ * @author GCI16_25
  */
 public class OperatorDAO {
     
+    /**
+     * Verify that exists an operator with given user and pass.
+     * 
+     * @param user
+     * @param pass
+     * @param type operator type (see operator constant).
+     * @return 
+     */
     public Boolean exists(String user, String pass, int type){
         ArrayList<Object> params = new ArrayList<>(2);
         String query = null;

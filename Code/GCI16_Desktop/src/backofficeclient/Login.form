@@ -102,7 +102,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="104" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="2" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="loginButton" alignment="2" max="32767" attributes="0"/>
                   <Group type="102" alignment="2" attributes="0">
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -112,9 +112,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="18" pref="18" max="18" attributes="0"/>
-                      <Component id="userField" pref="188" max="32767" attributes="0"/>
+                      <Component id="userField" pref="214" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="errorLabel" max="32767" attributes="0"/>
+                  <Component id="errorLabel" alignment="2" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="105" max="-2" attributes="0"/>
           </Group>
@@ -160,9 +160,6 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="userField">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="userFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="loginButton">
       <Properties>
@@ -176,9 +173,6 @@
       </Events>
     </Component>
     <Component class="javax.swing.JPasswordField" name="passField">
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="passFieldActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="errorLabel">
       <Properties>

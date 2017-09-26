@@ -7,8 +7,8 @@ package backofficeclient;
 
 
 /**
- *
- * @author carlo
+ * Represents entity bill.
+ * @author GCI16_25
  */
 public class Bill {
     private int id;
@@ -17,12 +17,6 @@ public class Bill {
     private int year;
     private int trimester;
     
-    public Bill(int id, Customer customer, double cost){
-        this.id = id;
-        this.customer = customer;
-        this.cost = cost;
-        
-    }
     
     public Bill(Customer customer,double cost,int year,int trimester){
         this.customer = customer;

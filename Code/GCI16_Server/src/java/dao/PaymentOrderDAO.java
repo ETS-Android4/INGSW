@@ -16,18 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.*;
+
 /**
- *
- * @author carlo
+ * Provides database-hiding methods for PaymentOrder class.
+ * @author GCI16_25
  */
 public class PaymentOrderDAO {
 
-    public List<PaymentOrder> showPaymentOrders(){//TODO CAMBIARE PREZZO INGIUNZIONE!!!
+    /**
+     * Retrieves the list of payment orders.
+     * @return list of payment orders
+     */
+    public List<PaymentOrder> showPaymentOrders(){
         
         List <PaymentOrder> list = new ArrayList<>();
         ArrayList<Object> params = new ArrayList<>();
         
+        /* Retrieves informations about payment orders, associated with corresponding bill and customer.*/  
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
                 + "WHERE P.STATUS NOT IN (?,?)";
@@ -53,15 +58,7 @@ public class PaymentOrderDAO {
                     if(stat.equals("NOT ISSUED"))
                         stat = "NOTISSUED";
                     status = Status.valueOf(stat); 
-                    
                     PaymentOrder p = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getInt("protocol"),status,b,rs.getDouble("pamount"));
-                    
-                    
-                       
-/*
-                    paymentOrder = new PaymentOrder(rs.getInt("idPaymentOrder"),rs.getString("debtor"), rs.getInt("protocol"),
-                                                    rs.getInt("year"), rs.getInt("trimester"),
-                                                    rs.getDouble("amount"), status);*/
                     list.add(p);
                 }
             }
@@ -72,6 +69,11 @@ public class PaymentOrderDAO {
         return list;
     }
     
+    /**
+     * Retrieves protocol number of a payment order
+     * @param idPaymentOrder
+     * @return protocol number
+     */
     public int getProtocol(int idPaymentOrder){
         String query = "SELECT PROTOCOL "
                      + "FROM PAYMENTORDER "
@@ -90,6 +92,11 @@ public class PaymentOrderDAO {
         return protocol;
     }
         
+    /**
+     * Retrieves a payment order from a bill's id
+     * @param idBill
+     * @return a payment order 
+     */
     public PaymentOrder getPaymentOrderByBill(int idBill){
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
@@ -119,6 +126,11 @@ public class PaymentOrderDAO {
         return p;
     }
     
+    /**
+     * Inserts payment order into database
+     * @param idBill
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean createPaymentOrder(int idBill){
         
         ArrayList<Object> params = new ArrayList<>();
@@ -136,6 +148,11 @@ public class PaymentOrderDAO {
         
     }
     
+    /**
+     * Deletes a payment order
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean deletePaymentOrder(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "DELETE FROM PAYMENTORDER WHERE IDPAYMENTORDER = ?";
@@ -149,6 +166,11 @@ public class PaymentOrderDAO {
         return true;
     }
     
+    /**
+     * Issues payment order.
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean issuePaymentOrder(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT ISSUED'";
@@ -162,6 +184,11 @@ public class PaymentOrderDAO {
         return true;
     }
     
+    /**
+     * Reissues payment order.
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean reissuePaymentOrder(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
@@ -174,6 +201,12 @@ public class PaymentOrderDAO {
         }
         return true;
     }
+    
+    /**
+     * Saves as paid payment order.
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean saveAsPaid(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'PAID' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
@@ -187,6 +220,11 @@ public class PaymentOrderDAO {
         return true;
     }
     
+    /**
+     * Issues a payment order.
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean saveAsSuspended(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'SUSPENDED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
@@ -200,6 +238,11 @@ public class PaymentOrderDAO {
         return true;
     }
     
+    /**
+     * Saves as not pertinent a payment order.
+     * @param idPaymentOrder
+     * @return false if an error occurs, true otherwise.
+     */
     public boolean saveAsNotPertinent(int idPaymentOrder){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'NOT PERTINENT' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";

@@ -1,8 +1,8 @@
 package backofficeclient;
 
 /**
- *
- * @author Riccardo
+ * Represents entity customer.
+ * @author GCI16_25
  */
 public class Customer {
     private String name;
