@@ -194,7 +194,9 @@ public class ReadingsController extends AppCompatActivity{
                         String text = input.getText().toString();
                         if (text.length()>0){
                             dialog.cancel();
-                            saveReading(Float.valueOf(text));
+                            try {
+                                saveReading(Float.valueOf(text));
+                            }catch(NumberFormatException e){}
                         }
                     }
                 });
@@ -218,7 +220,7 @@ public class ReadingsController extends AppCompatActivity{
         ((TextView)recap.findViewById(R.id.address_value)).setText(a.getAddress());
         ((TextView)recap.findViewById(R.id.customer_value)).setText(a.getCustomer());
         ((TextView)recap.findViewById(R.id.consumption_value)).setText(String.valueOf(consumption));
-        builder.setView(recap)
+        builder.setView(recap).setTitle("Confirm Reading")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override

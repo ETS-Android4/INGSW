@@ -26,7 +26,7 @@ public class ReadingDAO {
         if(readings==null) throw new IllegalArgumentException("Argument is null");
         if(readings.isEmpty())return true;
         
-        String query = "INSERT INTO READINGS(operator, meter, date, consumption)VALUES(?,?,?,?)";
+        String query = "INSERT INTO READING(operatorid, meterid, readingdate, consumption)VALUES(?,?,?,?)";
         List<Object> params = new ArrayList<>(4);
         Database db = Database.getInstance();
         

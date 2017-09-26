@@ -161,7 +161,7 @@ public class LoginController extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             if(responseCode==null)
                 builder.setView(R.layout.error_no_connection_layout).setTitle("Connectivity Problems");
-            else if (responseCode==402)
+            else if (responseCode==462)
                 builder.setView(R.layout.error_login_layout).setTitle("Login error");
             else
                 builder.setView(R.layout.error_unknown_layout);
@@ -176,7 +176,7 @@ public class LoginController extends AppCompatActivity {
                 .putString("password", password)
                 .apply();
 
-        startReadingController(operatorId, password);
+        startReadingController(operatorId, session);
     }
 
     /**

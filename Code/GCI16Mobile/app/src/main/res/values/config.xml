@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="connection_timeout">10000</integer>
-    <string name="server_address">192.168.1.8</string>
+    <integer name="connection_timeout">5000</integer>
+    <string name="server_address">10.0.2.2</string>
     <integer name="server_port">8081</integer>
     <string name="session_cookie_name">JSESSIONID</string>
-    <integer name="server_ok">200</integer>
-    <integer name="server_unauthorized">403</integer>
 </resources>

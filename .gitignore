@@ -4,3 +4,9 @@ Doc/Design/~$Design.docx
 Doc/~$c_GCI16.docx
 /Code/CGI16_Server/nbproject/private/
 Code/CGI16_Server/build.xml
+*.class
+*.class
+*.class
+Code/GCI16_Desktop/build/classes/.netbeans_update_resources
+*.class
+Code/GCI16_Desktop/build/classes/backofficeclient/Login$3.class
