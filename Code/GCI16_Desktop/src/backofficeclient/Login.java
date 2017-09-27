@@ -200,6 +200,9 @@ public class Login extends javax.swing.JFrame {
             else if(resCode == 461){
                 errorLabel.setText("Login Error! Insert valid entries.");
             }
+            else if(resCode == 463){
+                errorLabel.setText("Login Error! Missing username or password.");
+            }
         
         }catch(ConnectException ex){
             JOptionPane.showMessageDialog(this,"Server not available");

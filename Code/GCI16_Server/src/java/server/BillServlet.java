@@ -10,7 +10,6 @@ import dao.BillDAO;
 import entities.Bill;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,9 +51,9 @@ public class BillServlet extends HttpServlet {
             response.sendError(462,"No session!");//Errore sessione inesistente.
             return ;
         }
-        System.out.println("Sessione Bill: "+session.getId());
         if (action.equals("show")){
             List<Bill> list = bDao.getUnpaidBills();
+            /*Return the list in json format.*/
             String res = gson.toJson(list);
             try {
                 PrintWriter pw = response.getWriter();
