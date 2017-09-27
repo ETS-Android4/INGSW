@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package server;
 
 import dao.OperatorDAO;
@@ -41,7 +36,8 @@ public class LoginServlet extends HttpServlet {
             return;
         }
         
-        Boolean log = operatorDAO.exists(user, pass, Operator.TYPE_BACKOFFICE);
+        Operator op = new Operator(user, pass, Operator.TYPE_BACKOFFICE);
+        Boolean log = operatorDAO.exists(op);
         if(log==null){
             response.sendError(500, "Internal server error");
             return;

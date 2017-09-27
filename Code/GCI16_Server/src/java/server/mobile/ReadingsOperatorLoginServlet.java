@@ -38,8 +38,8 @@ public class ReadingsOperatorLoginServlet extends HttpServlet {
             response.sendError(464, "Bad parameter value");
             return;
         }
-        
-        Boolean ok = operatorDAO.exists(operatorIdParameter, password, Operator.TYPE_READINGS);
+        Operator op = new Operator(operatorIdParameter, password, Operator.TYPE_READINGS);
+        Boolean ok = operatorDAO.exists(op);
         if(ok==null){
             response.sendError(500, "Internal server error");
             return;

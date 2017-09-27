@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dao;
 
 import entities.Operator;
@@ -21,16 +16,15 @@ public class OperatorDAO {
     /**
      * Verify that exists an operator with given user and pass.
      * 
-     * @param user
-     * @param pass
-     * @param type operator type (see operator constant).
-     * @return 
+     * @param op the operator of which to control the existence
+     * @return null if a Database access error occurs, true or false respectively
+     *  if the operator is or not in the database otherwise.
      */
-    public Boolean exists(String user, String pass, int type){
+    public Boolean exists(Operator op){
+        String user = op.getIdentifier();
         ArrayList<Object> params = new ArrayList<>(2);
         String query = null;
-        System.out.println("type = "+type);
-        if(type==Operator.TYPE_BACKOFFICE){
+        if(op.getType()==Operator.TYPE_BACKOFFICE){
             query = "select * from GCI16.backOfficeOperator where username= ? AND pass= ?";
             params.add(user);
         }
@@ -38,11 +32,9 @@ public class OperatorDAO {
             query = "select * from GCI16.READINGS_OPERATOR where operatorId=? AND pass=?";
             params.add(Integer.parseInt(user));
         }
+        params.add(op.getPass());
         
         Boolean result = null;
-        
-        params.add(pass);
-        
         try(ResultSet rs = db.Database.getInstance().execQuery(query, params)){
             if(rs != null)
                 result = rs.next();

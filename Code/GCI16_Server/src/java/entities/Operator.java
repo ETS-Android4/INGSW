@@ -1,33 +1,41 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package entities;
 
 /**
- *
+ * Represents a operator of the company.
+ * 
  * @author carlo
  */
 public class Operator {
     public static final int TYPE_BACKOFFICE = 1;
     public static final int TYPE_READINGS = 2;
-    String user;
+    String identifier;
     String pass;
     int type;
     
-    public Operator(String user,String pass, int type){
+    /**
+     * Creates a new instance of the class.
+     * 
+     * @param identifier username or id of the operator
+     * @param pass password of the operator
+     * @param type type from class constant values
+     * @throws IllegalArgumentException if type is not taken from classe's constant values
+     */
+    public Operator(String identifier, String pass, int type){
         if(type<1 || type>2) throw new IllegalArgumentException();
-        this.user = user;
+        this.identifier = identifier;
         this.pass = pass;
         this.type = type;
     }
     
-    public String getUser(){
-        return user;
+    public String getIdentifier(){
+        return identifier;
     }
     
     public String getPass(){
         return pass;
+    }
+
+    public int getType() {
+        return type;
     }
 }
