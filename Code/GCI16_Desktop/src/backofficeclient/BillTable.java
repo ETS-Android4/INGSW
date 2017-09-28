@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package backofficeclient;
 
 import com.google.gson.Gson;
@@ -21,6 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -59,56 +55,7 @@ public class BillTable extends javax.swing.JFrame {
         });
         bTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "ID", "Debtor", "Year", "Trimester", "Amount"
@@ -125,6 +72,7 @@ public class BillTable extends javax.swing.JFrame {
         jScrollPane1.setViewportView(bTable);
 
         createPoButton.setText("Create payment order");
+        createPoButton.setEnabled(false);
         createPoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 createPoButtonActionPerformed(evt);
@@ -160,7 +108,6 @@ public class BillTable extends javax.swing.JFrame {
     private void createPoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPoButtonActionPerformed
         System.out.println(bTable.getValueAt(bTable.getSelectedRow(),0));
         try{
-            //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
@@ -186,9 +133,18 @@ public class BillTable extends javax.swing.JFrame {
         
     }//GEN-LAST:event_createPoButtonActionPerformed
 
-    
+    /*Adds a row in the bill table*/
+    private void addBill(Bill b){
+        Object[] values = new Object[5];
+        values[0] = b.getId();
+        values[1] = b.getDebtor();
+        values[2] = b.getYear();
+        values[3] = b.getTrimester();
+        values[4] = b.getCost();
+        ((DefaultTableModel)bTable.getModel()).addRow(values);
+    }
    
-    
+    /*Shows the table of all unpaid bills after three months*/ 
     public boolean setTable(){
         try{
             URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
@@ -209,16 +165,9 @@ public class BillTable extends javax.swing.JFrame {
                 int row = 0;
                 int column;
                 for(Bill b : list){
-                    column=0;
-                    bTable.setValueAt(b.getId() , row, column++);
-                    bTable.setValueAt(b.getDebtor() , row, column++);
-                    bTable.setValueAt(b.getYear() , row, column++);
-                    bTable.setValueAt(b.getTrimester() , row, column++);
-                    bTable.setValueAt(b.getCost() , row, column++);
-                    row++;
+                    addBill(b);
                 }
                 
-                createPoButton.setEnabled(false);
             }
             else if (resCode == 462){
                 JOptionPane.showMessageDialog(this,"Server not available");

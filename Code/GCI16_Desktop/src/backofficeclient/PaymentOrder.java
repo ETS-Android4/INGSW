@@ -12,6 +12,7 @@ public class PaymentOrder {
     private Bill bill;
     private double amount;
     
+    /*Enumeration of possible payment order status.*/
     public enum Status{
         NOTISSUED, ISSUED, SUSPENDED, PAID, NOTPERTINENT, NOTIFIED;
     }

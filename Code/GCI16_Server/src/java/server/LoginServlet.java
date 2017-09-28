@@ -11,8 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /**
- *
- * @author carlo
+ * Handles request of login.
+ * Answers with response code 200 followed by a session cookie in case of
+ * succesful login.
+ * Instead return 461 in case of inexistent user, or 463 in case of missing parameters.
+ * Finally it could return 500 if there is an internal server error.
+ * 
+ * @author GCI16_25
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/Login"})
 public class LoginServlet extends HttpServlet {

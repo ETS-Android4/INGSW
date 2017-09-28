@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package backofficeclient;
 
 import backofficeclient.PaymentOrder.Status;
@@ -384,13 +379,9 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
-            //HttpURLConnection conn = ServerConnection.executeGet("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
             int resCode = connection.getResponseCode();
             if(resCode == 200){
-                System.out.println("Righe: "+poTable.getModel().getRowCount()+ "oppure: "+ poTable.getRowCount());
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
-                System.out.println("Ciao");
-                System.out.println("Righe: "+poTable.getModel().getRowCount());
                 list.remove(row);
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(this,"Server not available"); 
@@ -418,7 +409,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
  
             int resCode = connection.getResponseCode();
             if(resCode == 200){
-                poTable.setValueAt("SUSPENDED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
+                poTable.setValueAt("SUSPENDED", rowSel, 5);
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.SUSPENDED);
             }else if (resCode == 462){
@@ -473,6 +464,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.connect(); 
             int resCode = connection.getResponseCode();
             if(resCode == 200){
+                /* Removes that payment order from the table*/
                 ((DefaultTableModel)poTable.getModel()).removeRow(row);
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.NOTPERTINENT);
@@ -500,9 +492,11 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
 
             int resCode = connection.getResponseCode();
             if(resCode == 200){
-                poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
+                /*Sets issued the selected payment order */
+                poTable.setValueAt("ISSUED", rowSel, 5); 
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.ISSUED);
+                /*In this case there is no creation of a new PDF*/
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(this,"Server not available"); 
             }
@@ -528,9 +522,11 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             connection.connect(); 
             int resCode = connection.getResponseCode();
             if(resCode == 200){
+                /*Set issued the selected payment order */
                 poTable.setValueAt("ISSUED", rowSel, 5); /*Modifico la colonna relativa allo stato.*/
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.ISSUED);
+                /*Server returns all informations about the issued payment order*/
                 InputStream is = connection.getInputStream();
                 BufferedReader rd = new BufferedReader(new InputStreamReader(is));
                 String line;
@@ -539,8 +535,9 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                 Gson gson = new Gson();
                 int protocol = gson.fromJson(line, Integer.class);
                 paymOrd.setProtocol(protocol);
+                /*Sets number protocol of payment order in the table*/ 
                 poTable.setValueAt(protocol, rowSel, 0);
-                /* Genera PDF */
+                /* Generates PDF */
                 PDFGenerator.generate(paymOrd);
                 JOptionPane.showMessageDialog(null, "Payment order with protocol " + paymOrd.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
                 
@@ -615,7 +612,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         values[2] = p.getYear();
         values[3] = p.getTrimester();
         values[4] = p.getAmount();
-        String status = p.getStatus().toString();
+        String status = p.getStatus().toString();        
         if(status.equals("NOTISSUED"))
             status = "NOT ISSUED";
         values[5] = status;
@@ -649,7 +646,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                 String line;
                 line = rd.readLine();
                 rd.close();
-
+                
                 Gson gson = new Gson();
                 java.lang.reflect.Type POListType = new TypeToken<Collection< PaymentOrder> >(){}.getType();
                 list = gson.fromJson(line, POListType);

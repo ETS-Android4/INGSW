@@ -1,28 +1,41 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package entities;
+package backofficeclient;
 
 /**
- *
- * @author carlo
+ * Represents a operator of the company.
+ * 
+ * @author GCI16_25
  */
 public class Operator {
-    String user;
+    public static final int TYPE_BACKOFFICE = 1;
+    public static final int TYPE_READINGS = 2;
+    String identifier;
     String pass;
+    int type;
     
-    public Operator(String user,String pass){
-        this.user = user;
+    /**
+     * Creates a new instance of the class.
+     * 
+     * @param identifier username or id of the operator
+     * @param pass password of the operator
+     * @param type type from class constant values
+     * @throws IllegalArgumentException if type is not taken from classe's constant values
+     */
+    public Operator(String identifier, String pass, int type){
+        if(type<1 || type>2) throw new IllegalArgumentException();
+        this.identifier = identifier;
         this.pass = pass;
+        this.type = type;
     }
     
-    public String getUser(){
-        return user;
+    public String getIdentifier(){
+        return identifier;
     }
     
     public String getPass(){
         return pass;
+    }
+
+    public int getType() {
+        return type;
     }
 }

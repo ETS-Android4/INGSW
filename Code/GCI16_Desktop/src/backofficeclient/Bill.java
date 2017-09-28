@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package backofficeclient;
 
 
@@ -18,7 +14,8 @@ public class Bill {
     private int trimester;
     
     
-    public Bill(Customer customer,double cost,int year,int trimester){
+    public Bill(int id, Customer customer,double cost,int year,int trimester){
+        this.id = id;
         this.customer = customer;
         this.cost = cost;
         this.year = year;
