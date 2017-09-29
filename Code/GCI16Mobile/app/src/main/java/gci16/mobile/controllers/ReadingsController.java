@@ -103,8 +103,39 @@ public class ReadingsController extends AppCompatActivity{
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedItem<0 || selectedItem>assignmentsLeft.size()) return;
-                saveReading();
+				if(selectedItem<0 || selectedItem>assignmentsLeft.size()) return;
+				AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+
+				// input for float values
+				final EditText input = new EditText(builder.getContext());
+				input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+				input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View view, boolean hasFocus) {
+						if (!hasFocus) {
+							InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+							inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+						}
+					}
+				});
+
+				// shows consumption input popup
+				builder.setMessage("Insert water consumption\n(cubic meters)")
+						.setView(input)
+						.setNegativeButton("Cancel", null)
+						.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int i) {
+								String text = input.getText().toString();
+								if (text.length()>0){
+									dialog.cancel();
+									try {
+										saveReading(Float.valueOf(text), assignmentsLeft.get(selectedItem));
+									}catch(NumberFormatException e){}
+								}
+							}
+						});
+				builder.create().show();
             }
         });
 
@@ -165,45 +196,6 @@ public class ReadingsController extends AppCompatActivity{
     }
 
     /**
-     * Shows the user the input form to submit the reading.
-     */
-    private void saveReading(){
-        if(selectedItem<0 || selectedItem>assignmentsLeft.size()) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        // input for float values
-        final EditText input = new EditText(builder.getContext());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean hasFocus) {
-                if (!hasFocus) {
-                    InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-            }
-        });
-
-        // shows consumption input popup
-        builder.setMessage("Insert water consumption\n(cubic meters)")
-                .setView(input)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        String text = input.getText().toString();
-                        if (text.length()>0){
-                            dialog.cancel();
-                            try {
-                                saveReading(Float.valueOf(text));
-                            }catch(NumberFormatException e){}
-                        }
-                    }
-                });
-        builder.create().show();
-    }
-
-    /**
      * Saves the reading in phone's storage.
      * The method uses the assignment selected by the user
      * to create the reading.
@@ -212,8 +204,7 @@ public class ReadingsController extends AppCompatActivity{
      *
      * @param consumption the amount of water consumed
      */
-    private void saveReading(final float consumption){
-        final Assignment a = assignmentsLeft.get(selectedItem);
+    private void saveReading(final float consumption, final Assignment a){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View recap  = getLayoutInflater().inflate(R.layout.reading_recap_layout, null);
         ((TextView)recap.findViewById(R.id.meterid_value)).setText(String.valueOf(a.getMeterId()));
