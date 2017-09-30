@@ -128,9 +128,10 @@ public class ReadingsController extends AppCompatActivity{
 							public void onClick(DialogInterface dialog, int i) {
 								String text = input.getText().toString();
 								if (text.length()>0){
-									dialog.cancel();
 									try {
-										saveReading(Float.valueOf(text), assignmentsLeft.get(selectedItem));
+										float consumption = Float.valueOf(text);
+										dialog.cancel();
+										saveReading(consumption, assignmentsLeft.get(selectedItem));
 									}catch(NumberFormatException e){}
 								}
 							}
