@@ -1,16 +1,23 @@
 package backofficeclient;
 
+import backofficeclient.controllers.LoginController;
+import backofficeclient.controllers.PaymentOrderController;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+
 /**
- * This class represents the page where an user can select what to manage.
+ * The page where an user can select what to manage.
  * In this application an user can select only to manage payment orders.
  * @author GCI16_25
  */
 public class MainPage extends javax.swing.JFrame {
     
     String session;
-    public MainPage(String session) {
+    LoginController loginController;
+    public MainPage(String session, LoginController loginController) {
         initComponents();
         this.session = session;
+        this.loginController = loginController;
     }
 
     /**
@@ -26,6 +33,7 @@ public class MainPage extends javax.swing.JFrame {
         PaymentOrdersButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        logoutButton = new javax.swing.JButton();
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -51,24 +59,35 @@ public class MainPage extends javax.swing.JFrame {
 
         jButton3.setText("CUSTOMERS");
 
+        logoutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/backofficeclient/logout.jpg"))); // NOI18N
+        logoutButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(170, 170, 170)
+                .addGap(20, 20, 20)
+                .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(89, 89, 89)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(PaymentOrdersButton, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(170, Short.MAX_VALUE))
+                .addContainerGap(176, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(42, 42, 42)
-                .addComponent(PaymentOrdersButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(32, 32, 32)
+                .addGap(36, 36, 36)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(PaymentOrdersButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -83,10 +102,33 @@ public class MainPage extends javax.swing.JFrame {
      * @param evt 
      */
     private void PaymentOrdersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PaymentOrdersButtonActionPerformed
-        PaymentOrderTable paymOrdTable =  new PaymentOrderTable(session);
+        PaymentOrderController paymOrdController = new PaymentOrderController(session);
+        paymOrdController.start();
+        /*PaymentOrderTable paymOrdTable =  new PaymentOrderTable(session);//TODO.
         paymOrdTable.setTable();
+        paymOrdTable.addWindowListener( new WindowListener() {
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                setVisible(true);
+            }
+            public void windowClosing(WindowEvent e) {}
+            public void windowOpened(WindowEvent e) {}
+            public void windowIconified(WindowEvent e) {}
+            public void windowDeiconified(WindowEvent e) {}
+            public void windowActivated(WindowEvent e) {}
+            public void windowDeactivated(WindowEvent e) {}
+
+        });    
         paymOrdTable.setVisible(true);
+        this.setVisible(false);*/
     }//GEN-LAST:event_PaymentOrdersButtonActionPerformed
+
+    private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
+        Login login = new Login(loginController);
+        this.dispose();
+        login.setVisible(true);
+    }//GEN-LAST:event_logoutButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -94,5 +136,6 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton logoutButton;
     // End of variables declaration//GEN-END:variables
 }

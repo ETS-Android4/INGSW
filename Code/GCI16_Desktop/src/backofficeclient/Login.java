@@ -1,5 +1,7 @@
 package backofficeclient;
 
+
+import backofficeclient.controllers.LoginController;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
@@ -11,6 +13,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * Login.
@@ -24,8 +28,11 @@ public class Login extends javax.swing.JFrame {
     /**
      * Creates new form Login
      */
-    public Login() {
+    LoginController loginController;
+    public Login(LoginController loginController) {
         initComponents();
+        
+        this.loginController = loginController;
     }
 
     /**
@@ -170,7 +177,11 @@ public class Login extends javax.swing.JFrame {
      * @param evt  
      */
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
-        URL url;
+        String user = userField.getText();
+        String pass = passField.getText();
+        loginController.login(user, pass);
+        
+        /*URL url;
         try {
             url = new URL("http://localhost:8081/GCI16/Login?user="+ userField.getText()+"&pass="+ passField.getText());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -187,7 +198,6 @@ public class Login extends javax.swing.JFrame {
                         break;
                     }
                 }
-                System.out.println("Sessione: "+session);
                 MainPage mPage = new MainPage(session);
                 mPage.setVisible(true);
                 this.dispose();
@@ -204,49 +214,10 @@ public class Login extends javax.swing.JFrame {
             
         }catch (IOException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
+        }*/
     }//GEN-LAST:event_loginButtonActionPerformed
 
-    /**
-     * Shows login form.
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Login.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Login login = new Login();
-                login.setTitle("Login");
-                login.setVisible(true);
-                
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errorLabel;

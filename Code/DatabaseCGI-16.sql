@@ -221,7 +221,10 @@ insert into Bill(Customer,trimester,year,amount) values (4,4,2016,85.40);
 insert into Bill(Customer,trimester,year,amount) values (4,1,2017,98.10);
 insert into Bill(Customer,trimester,year,amount) values (4,2,2017,100.20);
 
-insert into paymentOrder (protocol,status,bill) values (5,'NOTIFIED',22); 
+INSERT INTO PAYMENTORDER(BILL,STATUS,PROTOCOL) VALUES(5,'NOTIFIED',500);
+INSERT INTO PAYMENTORDER(BILL,STATUS,PROTOCOL) VALUES(8,'NOTIFIED',501);
+INSERT INTO PAYMENTORDER(BILL,STATUS,PROTOCOL) VALUES(2,'NOTIFIED',502);
+INSERT INTO PAYMENTORDER(BILL,STATUS,PROTOCOL) VALUES(10,'NOTIFIED',503);
 
 /*------------------ MOBILE -------------*/
 CREATE TABLE GCI16.READINGS_OPERATOR

@@ -29,7 +29,7 @@ public class BillDAO {
         List<Bill> list = new ArrayList<>();
         
         try {
-            ResultSet rs = db.Database.getInstance().execQuery(query, params);
+            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
             if(rs!= null){
                 while(rs.next()){
                     Customer c = new Customer(rs.getString("name"), rs.getString("surname"));

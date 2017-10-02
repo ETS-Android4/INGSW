@@ -1,6 +1,5 @@
 package dao;
 
-import db.Database;
 import entities.Reading;
 import java.sql.ResultSet;
 import java.sql.SQLException;

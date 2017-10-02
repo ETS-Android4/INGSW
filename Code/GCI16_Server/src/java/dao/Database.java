@@ -1,4 +1,4 @@
-package db;
+package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,7 +19,6 @@ public class Database {
     private static Database instance;
     private OracleDataSource ods;
     private final LinkedBlockingQueue<Connection> freeConnections;
-    //private final HashMap<Thread,Connection> occupiedConnections;
     private static final int MAXCONNECTIONS = 5;
     private String host = "127.0.0.1";
     private String service = "xe";
@@ -27,21 +26,22 @@ public class Database {
     private String user = "GCI16";
     private String password = "GCI16";
     private Connection conn;
+    private final int connections; //total number of connections.
     
     
-    private Database(){
-
+    private Database() {
+        int n=0;
         freeConnections = new LinkedBlockingQueue<>(MAXCONNECTIONS);
         for(int i = 0;i < MAXCONNECTIONS;i++){
             try {
                 conn = createConnection();
                 freeConnections.put(conn);
+                n++;
             } catch (SQLException | InterruptedException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
+            } 
         }
-        //occupiedConnections = new HashMap<Thread,Connection>();
+        connections = n;
     }
 
     private Connection createConnection() throws SQLException{
@@ -71,10 +71,12 @@ public class Database {
     
     private Connection getConnection(){
         Connection c = null;
-        try {
-            c = freeConnections.take();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+        if(connections != 0){
+            try {
+                c = freeConnections.take();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return c;
     }

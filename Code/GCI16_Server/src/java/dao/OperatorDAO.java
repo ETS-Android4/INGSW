@@ -3,6 +3,7 @@ package dao;
 import entities.Operator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,13 +34,15 @@ public class OperatorDAO {
             params.add(Integer.parseInt(user));
         }
         params.add(op.getPass());
-        
         Boolean result = null;
-        try(ResultSet rs = db.Database.getInstance().execQuery(query, params)){
+        try{
+            Database db = dao.Database.getInstance();
+            ResultSet rs = db.execQuery(query, params);
             if(rs != null)
                 result = rs.next();
         } catch (SQLException ex) {
             Logger.getLogger(OperatorDAO.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         return result;
     }

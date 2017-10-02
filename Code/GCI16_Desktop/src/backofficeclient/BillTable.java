@@ -1,5 +1,6 @@
 package backofficeclient;
 
+import backofficeclient.controllers.PaymentOrderController;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
@@ -23,12 +24,11 @@ import javax.swing.table.DefaultTableModel;
  * @author carlo
  */
 public class BillTable extends javax.swing.JFrame {
-    
-    PaymentOrderTable paymentOrderTable;
+    PaymentOrderController paymOrdController;
     String session;
-    public BillTable( PaymentOrderTable paymentOrderTable, String session ) {
+    public BillTable( PaymentOrderController paymOrdController, String session ) {
         initComponents();
-        this.paymentOrderTable = paymentOrderTable; 
+        this.paymOrdController = paymOrdController; 
         this.session = session;
     }
 
@@ -45,7 +45,7 @@ public class BillTable extends javax.swing.JFrame {
         bTable = new javax.swing.JTable();
         createPoButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         bTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -105,8 +105,13 @@ public class BillTable extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public int getTableSelectedRow(){
+        return bTable.getSelectedRow();
+    }
+        
     private void createPoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPoButtonActionPerformed
-        System.out.println(bTable.getValueAt(bTable.getSelectedRow(),0));
+        paymOrdController.createPaymentOrderByBill();
+        /*if( !ConfirmPanel.showConfirm(this)) return;
         try{
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -121,6 +126,7 @@ public class BillTable extends javax.swing.JFrame {
                 Gson gson = new Gson();
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderTable.addPaymentOrder(p);
+                ConfirmPanel.showSuccess(this);
             }
             else if(resCode == 462){
                 JOptionPane.showMessageDialog(this,"Server not available");
@@ -129,7 +135,7 @@ public class BillTable extends javax.swing.JFrame {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
         }
     
-        this.dispose();
+        this.dispose();*/
         
     }//GEN-LAST:event_createPoButtonActionPerformed
 
@@ -145,8 +151,11 @@ public class BillTable extends javax.swing.JFrame {
     }
    
     /*Shows the table of all unpaid bills after three months*/ 
-    public boolean setTable(){
-        try{
+    public void setTable(List<Bill> list){
+        for(Bill b : list){
+            addBill(b);
+        }
+        /*try{
             URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
@@ -159,7 +168,7 @@ public class BillTable extends javax.swing.JFrame {
                 String line = rd.readLine();
                 rd.close();
                 Gson gson = new Gson();
-                /* Da JSON a collections CLIENT */
+                /* Da JSON a collections CLIENT 
                 java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
                 List<Bill> list = gson.fromJson(line, BillListType);
                 int row = 0;
@@ -181,7 +190,7 @@ public class BillTable extends javax.swing.JFrame {
             Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-        return true;
+        return true;*/
     }
     
     

@@ -5,7 +5,6 @@
  */
 package dao;
 
-import db.Database;
 import entities.Bill;
 import entities.Customer;
 import entities.PaymentOrder;
@@ -82,7 +81,7 @@ public class PaymentOrderDAO {
         params.add(idPaymentOrder);
         int protocol = 0;
         try{
-            ResultSet rs = db.Database.getInstance().execQuery(query, params);
+            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
             if(rs != null && rs.next()){
                 protocol = rs.getInt("protocol");       
             }
@@ -105,7 +104,7 @@ public class PaymentOrderDAO {
         params.add(idBill);
         PaymentOrder p = null;
         try {
-            ResultSet rs = db.Database.getInstance().execQuery(query, params);
+            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
             if(rs!=null){
             
                 if(rs.next()){
