@@ -9,3 +9,9 @@ Code/CGI16_Server/build.xml
 *.class
 Code/GCI16_Desktop/build/classes/.netbeans_update_resources
 Code/GCI16_Desktop/build/classes/backofficeclient/Login$3.class
+*.properties
+Code/GCI16_Desktop/nbproject/project.properties
+Code/GCI16_Server/build/web/WEB-INF/classes/dao/PaymentOrderDAO.class
+Code/GCI16_Server/build/*
+Code/GCI16_Server/build/*/*
+Code/GCI16_Server/build/*/*/*
