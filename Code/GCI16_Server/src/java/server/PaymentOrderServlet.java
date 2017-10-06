@@ -1,3 +1,5 @@
+//TODO CONTROLLI JSON!!!!!
+
 package server;
 
 import com.google.gson.*;
@@ -35,10 +37,12 @@ public class PaymentOrderServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if(session == null){
-            response.sendError(462,"No session!"); //sessione inesistene.
+            response.sendError(462,"No session!"); 
             return;
         }
         String action = request.getParameter("action");
+        System.out.println("AZIONE: "+action);
+        
         switch(action){
             case "show":
                 res = showPaymentOrders();
@@ -54,9 +58,9 @@ public class PaymentOrderServlet extends HttpServlet {
             case "create":
                 
                 bill = request.getParameter("bill");
+                
                 if(bill != null){
-                    idBill = Integer.parseInt(bill);
-                    res  = createPaymentOrder(idBill);
+                    res  = createPaymentOrder(bill);
                     try {
                         PrintWriter pw = response.getWriter();
                         pw.print(res);
@@ -69,41 +73,35 @@ public class PaymentOrderServlet extends HttpServlet {
             case "delete":
                 paymentOrder = request.getParameter("paymentOrder");
                 if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    deletePaymentOrder(idPaymentOrder);
+                    deletePaymentOrder(paymentOrder);
                 }
                 break;
                 
             case "saveAsPaid":
                 paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    saveAsPaid(idPaymentOrder);
-                }
+                if(paymentOrder != null)
+                    saveAsPaid(paymentOrder);
                 break;
                 
             case "saveAsNotPertinent":
                 paymentOrder = request.getParameter("paymentOrder");
                 if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    saveAsNotPertinent(idPaymentOrder);
+                    saveAsNotPertinent(paymentOrder);
                 }
                 break;
                 
             case "saveAsSuspended":
                 paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    saveAsSuspended(idPaymentOrder);
-                }
+                if(paymentOrder != null)
+                    saveAsSuspended(paymentOrder);
+                
                 break;
                 
             case "issue":
                 paymentOrder = request.getParameter("paymentOrder");
                 res = null;
                 if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    res = issuePaymentOrder(idPaymentOrder);
+                    res = issuePaymentOrder(paymentOrder);
                     PrintWriter pw;
                     try {
                         pw = response.getWriter();
@@ -117,8 +115,7 @@ public class PaymentOrderServlet extends HttpServlet {
             case "reissue":
                 paymentOrder = request.getParameter("paymentOrder");
                 if(paymentOrder != null){
-                    idPaymentOrder = Integer.parseInt(paymentOrder);
-                    reissuePaymentOrder(idPaymentOrder);
+                    reissuePaymentOrder(paymentOrder);
                 }
                 break;
             default:
@@ -145,32 +142,37 @@ public class PaymentOrderServlet extends HttpServlet {
      * @param idBill
      * @return 
      */
-    private String createPaymentOrder(int idBill){
-        String string = null;
-        if(pDao.createPaymentOrder(idBill)){
-           PaymentOrder p = pDao.getPaymentOrderByBill(idBill);
-           Gson gson = new Gson();
+    private String createPaymentOrder(String bill){
+        String res = null;
+        Gson gson = new Gson();
+        Bill b = gson.fromJson(bill, Bill.class);
+        if(pDao.createPaymentOrder(b)){
+           PaymentOrder p = pDao.getPaymentOrderByBill(b);
            /*Payment order in JSON format.*/
-           string = gson.toJson(p);
+           res = gson.toJson(p);
            
         }
-        return string;
+        return res;
     }
     
-    private boolean deletePaymentOrder(int idPaymentOrder){
-        return pDao.deletePaymentOrder(idPaymentOrder);
+    private boolean deletePaymentOrder(String paymentOrder){
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        return pDao.deletePaymentOrder(p);
     }
     
-    private boolean saveAsPaid(int idPaymentOrder){
-        return pDao.saveAsPaid(idPaymentOrder);
+    private boolean saveAsPaid(String paymentOrder){
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        return pDao.saveAsPaid(p);
     }
     
-    private boolean saveAsNotPertinent(int idPaymentOrder){
-        return pDao.saveAsNotPertinent(idPaymentOrder);
+    private boolean saveAsNotPertinent(String paymentOrder){
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        return pDao.saveAsNotPertinent(p);
     }
     
-    private boolean saveAsSuspended(int idPaymentOrder){
-        return pDao.saveAsSuspended(idPaymentOrder);
+    private boolean saveAsSuspended(String paymentOrder){
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        return pDao.saveAsSuspended(p);
     }
     
     /**
@@ -178,18 +180,22 @@ public class PaymentOrderServlet extends HttpServlet {
      * @param idPaymentOrder
      * @return the payment order in JSON format.
      */
-    private String issuePaymentOrder(int idPaymentOrder){
+    private String issuePaymentOrder(String paymentOrder){
         String ret = null;
-        if(pDao.issuePaymentOrder(idPaymentOrder)){
-            int protocol = pDao.getProtocol(idPaymentOrder);
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        if(pDao.issuePaymentOrder(p)){
+            System.out.println("Protocol: ");
+            int protocol = pDao.getProtocol(p);
+            System.out.print(protocol);
             Gson gson = new Gson();
             ret = gson.toJson(protocol);
         }
         return ret;
     }
     
-    private boolean reissuePaymentOrder(int idPaymentOrder){
-        return pDao.reissuePaymentOrder(idPaymentOrder);
+    private boolean reissuePaymentOrder(String paymentOrder){
+        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+        return pDao.reissuePaymentOrder(p);
     }
     
 }

@@ -73,12 +73,12 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return protocol number
      */
-    public int getProtocol(int idPaymentOrder){
+    public int getProtocol(PaymentOrder p){
         String query = "SELECT PROTOCOL "
                      + "FROM PAYMENTORDER "
                      + "WHERE IDPAYMENTORDER = ?";
         ArrayList<Object> params = new ArrayList<>();
-        params.add(idPaymentOrder);
+        params.add(p);
         int protocol = 0;
         try{
             ResultSet rs = dao.Database.getInstance().execQuery(query, params);
@@ -93,23 +93,23 @@ public class PaymentOrderDAO {
         
     /**
      * Retrieves a payment order from a bill's id
-     * @param idBill
+     * @param b
      * @return a payment order 
      */
-    public PaymentOrder getPaymentOrderByBill(int idBill){
+    public PaymentOrder getPaymentOrderByBill(Bill b){
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
                 + "WHERE P.BILL = ?";
         ArrayList<Object> params = new ArrayList<>();
-        params.add(idBill);
+        params.add(b.getId());
         PaymentOrder p = null;
         try {
             ResultSet rs = dao.Database.getInstance().execQuery(query, params);
             if(rs!=null){
             
                 if(rs.next()){
-                    Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
-                    Bill b = new Bill(c,rs.getDouble("bamount"),rs.getInt("year"),rs.getInt("trimester"));
+                    /*Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
+                    Bill b = new Bill(c,rs.getDouble("bamount"),rs.getInt("year"),rs.getInt("trimester"));*/
 
                     String stat = rs.getString("status");
                     if(stat.equals("NOT ISSUED"))
@@ -130,12 +130,12 @@ public class PaymentOrderDAO {
      * @param idBill
      * @return false if an error occurs, true otherwise.
      */
-    public boolean createPaymentOrder(int idBill){
+    public boolean createPaymentOrder(Bill b){
         
         ArrayList<Object> params = new ArrayList<>();
         String query = "INSERT INTO PAYMENTORDER (STATUS,BILL) VALUES(?,?)";
         params.add("NOT ISSUED");
-        params.add(idBill);
+        params.add(b.getId());
         try {
             ResultSet rs = Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -152,10 +152,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean deletePaymentOrder(int idPaymentOrder){
+    public boolean deletePaymentOrder(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "DELETE FROM PAYMENTORDER WHERE IDPAYMENTORDER = ?";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -170,10 +170,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean issuePaymentOrder(int idPaymentOrder){
+    public boolean issuePaymentOrder(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT ISSUED'";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -188,10 +188,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean reissuePaymentOrder(int idPaymentOrder){
+    public boolean reissuePaymentOrder(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -206,10 +206,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean saveAsPaid(int idPaymentOrder){
+    public boolean saveAsPaid(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'PAID' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -224,10 +224,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean saveAsSuspended(int idPaymentOrder){
+    public boolean saveAsSuspended(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'SUSPENDED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {
@@ -242,10 +242,10 @@ public class PaymentOrderDAO {
      * @param idPaymentOrder
      * @return false if an error occurs, true otherwise.
      */
-    public boolean saveAsNotPertinent(int idPaymentOrder){
+    public boolean saveAsNotPertinent(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'NOT PERTINENT' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
-        params.add(idPaymentOrder);
+        params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
         } catch (SQLException ex) {

@@ -39,6 +39,7 @@ public class Database {
                 n++;
             } catch (SQLException | InterruptedException ex) {
                 Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                System.err.println(ex.getMessage());
             } 
         }
         connections = n;

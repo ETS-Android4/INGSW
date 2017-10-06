@@ -10,6 +10,7 @@ import backofficeclient.PaymentOrderTable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import pdfgenerator.PDFGenerator;
 
@@ -112,10 +112,18 @@ public class PaymentOrderController {
         int row = billFrame.getTableSelectedRow();
         Bill b = billList.get(row);
         int id = b.getId();
+        Gson gson = new Gson();
+        String gsonString = gson.toJson(b);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=create&");
+            
+            wr.writeBytes("bill="+gsonString);
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 InputStream is = connection.getInputStream();
@@ -123,7 +131,6 @@ public class PaymentOrderController {
                 String line;
                 line = rd.readLine();     
                 rd.close();
-                Gson gson = new Gson();
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderFrame.addPaymentOrder(p);
                 list.add(p);
@@ -142,13 +149,20 @@ public class PaymentOrderController {
     public void deletePaymentOrder(){
         //Ask confirm operation
         int row = paymentOrderFrame.getTableSelectedRow();
-        int id = list.get(row).getId();
+        PaymentOrder p = list.get(row);
+        int id = p.getId();
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        String gson = new Gson().toJson(p);
         try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             //Set JSESSIONID
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=delete&");
+            wr.writeBytes("paymentOrder="+gson);
             connection.connect();
             int resCode = connection.getResponseCode();
             if(resCode == 200){                
@@ -170,12 +184,18 @@ public class PaymentOrderController {
     public void saveAsSuspendedPaymentOrder(){
        //Ask confirm operation
         int row = paymentOrderFrame.getTableSelectedRow();
-        int id = list.get(row).getId();
+        PaymentOrder p = list.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
+        String gson = new Gson().toJson(p);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=saveAsSuspended&");
+            wr.writeBytes("paymentOrder="+gson);
             connection.connect();
  
             int resCode = connection.getResponseCode();
@@ -196,12 +216,18 @@ public class PaymentOrderController {
     
     public void saveAsPaidPaymentOrder(){
         int row = paymentOrderFrame.getTableSelectedRow();
-        int id = list.get(row).getId();
+        PaymentOrder p = list.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
+        String gson = new Gson().toJson(p);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsPaid&paymentOrder="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=saveAsPaid&");
+            wr.writeBytes("paymentOrder="+gson);
             connection.connect();   
             int resCode = connection.getResponseCode();
             if(resCode == 200){
@@ -225,10 +251,16 @@ public class PaymentOrderController {
         int id = p.getId();
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        String gson = new Gson().toJson(p);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsNotPertinent&paymentOrder="+list.get(row).getId());
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=saveAsNotPertinent&");
+            wr.writeBytes("paymentOrder="+gson);
             connection.connect(); 
             int resCode = connection.getResponseCode();
             if(resCode == 200){
@@ -253,10 +285,17 @@ public class PaymentOrderController {
         int id = p.getId();
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        Gson gson = new Gson();
+        String gsonString = gson.toJson(p);
         try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=issue&");
+            wr.writeBytes("paymentOrder="+gsonString);
             connection.connect(); 
             int resCode = connection.getResponseCode();
             if(resCode == 200){
@@ -269,7 +308,6 @@ public class PaymentOrderController {
                 String line;
                 line = rd.readLine();
                 rd.close();
-                Gson gson = new Gson();
                 int protocol = gson.fromJson(line, Integer.class);
                 p.setProtocol(protocol);
                 //Sets number protocol of payment order in the table 
@@ -296,10 +334,16 @@ public class PaymentOrderController {
         int id = p.getId();
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        String gson = new Gson().toJson(p);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=reissue&paymentOrder="+id);
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.writeBytes("action=reissue&");
+            wr.writeBytes("paymentOrder="+gson);
             connection.connect();    
 
             int resCode = connection.getResponseCode();
