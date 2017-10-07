@@ -1,6 +1,6 @@
 package pdfgenerator;
 
-import backofficeclient.PaymentOrder;
+import backofficeclient.entities.PaymentOrder;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public class PDFGenerator {
     
-    /* Costanti di vari font, grandezze e colori */
+    /* Font and color constants */
     private static final Font FONT1 = new Font(Font.FontFamily.COURIER, 30, Font.NORMAL, new BaseColor(90,131,219));
     private static final Font FONT2 = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD, new BaseColor(120,120,120));
     private static final Font FONT3 = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL, new BaseColor(0,0,0));
@@ -33,11 +33,11 @@ public class PDFGenerator {
      * @param paym 
      */
     public static void generate(PaymentOrder paym) {
-        /* Creo oggetto documento */
+        if(paym == null) return;
+        /* Creates document */
         Document document = new Document(PageSize.A4);
         document.addTitle("PaymentOrder " + paym.getProtocol());
         document.addCreationDate();
-        System.out.println("Documento PDF creato con successo");
         
         try{
             PdfWriter.getInstance(document, new FileOutputStream("PaymentOrder " + paym.getProtocol() + ".pdf"));
@@ -54,10 +54,10 @@ public class PDFGenerator {
             int trim = paym.getTrimester();
             String trimester = null;
             switch (trim) {
-                case 1: trimester = "Gennaio - Marzo"; break;
-                case 2: trimester = "Aprile - Giugno"; break;
-                case 3: trimester = "Luglio - Settembre"; break;
-                case 4: trimester = "Ottobre - Dicembre"; break;
+                case 1: trimester = "January - March"; break;
+                case 2: trimester = "April - June"; break;
+                case 3: trimester = "July - September"; break;
+                case 4: trimester = "October - December"; break;
             }
             document.add( new Paragraph("Trimester:    " + trimester, FONT3) );
             document.add( new Paragraph("Year:    " + paym.getYear(), FONT3) );
@@ -67,7 +67,6 @@ public class PDFGenerator {
             document.add(Chunk.NEWLINE);
             document.add(Chunk.NEWLINE);
             document.add(Chunk.NEWLINE);
-            document.add( new Paragraph("Goodbye!", FONT3) );
             
         }catch(FileNotFoundException | DocumentException exc){
             Logger.getLogger(PDFGenerator.class.getName()).log(Level.SEVERE, null, exc);

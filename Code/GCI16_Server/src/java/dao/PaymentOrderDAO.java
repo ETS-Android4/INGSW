@@ -26,7 +26,7 @@ public class PaymentOrderDAO {
      * Retrieves the list of payment orders.
      * @return list of payment orders
      */
-    public List<PaymentOrder> showPaymentOrders(){
+    public List<PaymentOrder> getPaymentOrders(){
         
         List <PaymentOrder> list = new ArrayList<>();
         ArrayList<Object> params = new ArrayList<>();
@@ -70,7 +70,8 @@ public class PaymentOrderDAO {
     
     /**
      * Retrieves protocol number of a payment order
-     * @param idPaymentOrder
+     * 
+     * @param p
      * @return protocol number
      */
     public int getProtocol(PaymentOrder p){
@@ -78,7 +79,7 @@ public class PaymentOrderDAO {
                      + "FROM PAYMENTORDER "
                      + "WHERE IDPAYMENTORDER = ?";
         ArrayList<Object> params = new ArrayList<>();
-        params.add(p);
+        params.add(p.getId());
         int protocol = 0;
         try{
             ResultSet rs = dao.Database.getInstance().execQuery(query, params);
@@ -245,6 +246,27 @@ public class PaymentOrderDAO {
     public boolean saveAsNotPertinent(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "UPDATE PAYMENTORDER SET STATUS = 'NOT PERTINENT' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
+        params.add(p.getId());
+        try {
+            Database.getInstance().execQuery(query, params);
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean update(PaymentOrder p, Status newStatus){
+        ArrayList<Object> params = new ArrayList<>();
+        String status = null;
+        String query = "UPDATE PAYMENTORDER SET STATUS = ? WHERE IDPAYMENTORDER = ?";
+        if(newStatus.equals(Status.NOTISSUED))
+            status = "NOT ISSUED";
+        else if(newStatus.equals(Status.NOTPERTINENT))
+            status = "NOT PERTINENT";
+        else
+            status = newStatus.toString();
+        params.add(status);
         params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);

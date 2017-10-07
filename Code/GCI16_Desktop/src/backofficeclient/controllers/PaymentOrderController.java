@@ -1,14 +1,18 @@
 
 package backofficeclient.controllers;
 
-import backofficeclient.Bill;
-import backofficeclient.BillTable;
+import backofficeclient.entities.Bill;
+import backofficeclient.views.BillForm;
 import backofficeclient.ConfirmPanel;
-import backofficeclient.PaymentOrder;
-import backofficeclient.PaymentOrder.Status;
-import backofficeclient.PaymentOrderTable;
+import backofficeclient.entities.PaymentOrder;
+import backofficeclient.entities.PaymentOrder.Status;
+import backofficeclient.views.MainForm;
+import backofficeclient.views.PaymentOrderForm;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,18 +35,25 @@ import pdfgenerator.PDFGenerator;
 
 
 public class PaymentOrderController {
-    PaymentOrderTable paymentOrderFrame; 
-    String session;
-    List<PaymentOrder> list;
-    BillTable billFrame;
-    List<Bill> billList;
+    private PaymentOrderForm paymentOrderFrame; 
+    private String session;
+    private List<PaymentOrder> list;
+    private BillForm billFrame;
+    private List<Bill> billList;
     
     public PaymentOrderController(String session){
         this.session = session;
     }
     
     public void start(){
-        paymentOrderFrame = new PaymentOrderTable(session, this);
+        paymentOrderFrame = new PaymentOrderForm(this);
+        paymentOrderFrame.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new MainController(session).start();
+            }
+        });
         URL url;
         try {
             url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
@@ -74,7 +85,7 @@ public class PaymentOrderController {
     }
      
     public void createPaymentOrder(){
-        billFrame = new BillTable(this,session);
+        billFrame = new BillForm(this);
         try{
             URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -209,7 +220,7 @@ public class PaymentOrderController {
             }
             
         } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         paymentOrderFrame.clearSelectionTable();
     }
@@ -236,6 +247,10 @@ public class PaymentOrderController {
                 ConfirmPanel.showSuccess(paymentOrderFrame);
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+            }else if (resCode == 464){
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Bad parameter values"); 
+            }else if (resCode == 465){
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Not practicable operation"); 
             }
         } catch (MalformedURLException ex) {
                 Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -248,7 +263,7 @@ public class PaymentOrderController {
     public void saveAsNotPertinentPaymentOrder() {
         int row = paymentOrderFrame.getTableSelectedRow();
         PaymentOrder p = list.get(row);
-        int id = p.getId();
+        System.out.println("Stato: "+p.getStatus());
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         String gson = new Gson().toJson(p);
@@ -270,6 +285,8 @@ public class PaymentOrderController {
                 ConfirmPanel.showSuccess(paymentOrderFrame);
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+            }else if (resCode == 465){
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Not practicable operation"); 
             }
         }catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -323,7 +340,7 @@ public class PaymentOrderController {
         }catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         paymentOrderFrame.clearSelectionTable();
     }
@@ -357,7 +374,7 @@ public class PaymentOrderController {
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }
         } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
         }
         paymentOrderFrame.clearSelectionTable();
     }

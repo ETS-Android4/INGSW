@@ -5,6 +5,7 @@ package server;
 import com.google.gson.*;
 import dao.PaymentOrderDAO;
 import entities.*;
+import entities.PaymentOrder.Status;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -32,8 +33,12 @@ public class PaymentOrderServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         
         String paymentOrder,bill;
-        int idBill,idPaymentOrder;
+        int idBill,idPaymentOrder,protocol=0;
         String res;
+        PaymentOrder p=null;
+        PaymentOrder.Status newStatus=null;
+        Gson gson = new Gson();
+        PrintWriter pw = response.getWriter();
         
         HttpSession session = request.getSession(false);
         if(session == null){
@@ -41,34 +46,19 @@ public class PaymentOrderServlet extends HttpServlet {
             return;
         }
         String action = request.getParameter("action");
-        System.out.println("AZIONE: "+action);
-        
+        System.out.println(action);
         switch(action){
             case "show":
-                res = showPaymentOrders();
-                try {
-                    PrintWriter pw = response.getWriter();
-                    pw.print(res);
-                } catch (IOException ex) {
-                    Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-        
+                res = getPaymentOrders();
+                pw.print(res);
                 break;
             
             case "create":
-                
                 bill = request.getParameter("bill");
-                
                 if(bill != null){
                     res  = createPaymentOrder(bill);
-                    try {
-                        PrintWriter pw = response.getWriter();
-                        pw.print(res);
-                    } catch (IOException ex) {
-                        Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    pw.print(res);
                 }
-                
                 break;
             case "delete":
                 paymentOrder = request.getParameter("paymentOrder");
@@ -76,8 +66,66 @@ public class PaymentOrderServlet extends HttpServlet {
                     deletePaymentOrder(paymentOrder);
                 }
                 break;
+            
+            default:
+                paymentOrder = request.getParameter("paymentOrder");
+                p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+                System.out.println("ID: "+p.getId()+" Protocol: "+p.getProtocol());
+                switch(action){
+                    case "saveAsPaid":
+                        newStatus = Status.PAID;
+                        break;
+                        
+                    case "saveAsSuspended":
+                        newStatus = Status.SUSPENDED;
+                        break;
+                        
+                    case "issue": 
+                        if(!p.getStatus().equals(Status.NOTISSUED)){
+                            response.sendError(465,"Not practicable operation");
+                            return;
+                        }
+                        newStatus = Status.ISSUED;
+                        break;
+                        
+                    case "reissue":
+                        if(!p.getStatus().equals(Status.SUSPENDED)){
+                            response.sendError(465,"Not practicable operation");
+                            return;
+                        }
+                        newStatus = Status.ISSUED;
+                        break;
+                        
+                    case "saveAsNotPertinent":
+                        newStatus = Status.NOTPERTINENT;
+                        break;
+                        
+                    default:
+                       response.sendError(464,"Bad parameter value");
+                       return;
+                }
+                if(p.isNextStatus(newStatus)){
+                    if(!pDao.update(p,newStatus)){
+                        response.sendError(500,"Internal server error");
+                        return;
+                    }
+                    else{
+                        if(p.getStatus().equals(Status.NOTISSUED) && newStatus.equals(Status.ISSUED)){
+                            protocol = pDao.getProtocol(p);
+                            pw.write(gson.toJson(protocol));
+                        }
+                    }
+                }
+                else{
+                    response.sendError(465,"Not practicable operation");
+                    return;
+                }
+                break;
+            }
+        
                 
-            case "saveAsPaid":
+           
+                /*case "saveAsPaid":
                 paymentOrder = request.getParameter("paymentOrder");
                 if(paymentOrder != null)
                     saveAsPaid(paymentOrder);
@@ -118,18 +166,12 @@ public class PaymentOrderServlet extends HttpServlet {
                     reissuePaymentOrder(paymentOrder);
                 }
                 break;
-            default:
-                try {
-                    response.sendError(0, "BAD ACTION"); //TODO
-                } catch (IOException ex) {
-                    Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-                }
-        }
+            */
     }
     
   
-    private String showPaymentOrders(){
-        List<PaymentOrder> list = pDao.showPaymentOrders();
+    private String getPaymentOrders(){
+        List<PaymentOrder> list = pDao.getPaymentOrders();
         Gson gson = new Gson();
         /*List of payment orders in JSON format.*/
         String string = gson.toJson(list);
@@ -160,42 +202,6 @@ public class PaymentOrderServlet extends HttpServlet {
         return pDao.deletePaymentOrder(p);
     }
     
-    private boolean saveAsPaid(String paymentOrder){
-        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        return pDao.saveAsPaid(p);
-    }
     
-    private boolean saveAsNotPertinent(String paymentOrder){
-        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        return pDao.saveAsNotPertinent(p);
-    }
-    
-    private boolean saveAsSuspended(String paymentOrder){
-        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        return pDao.saveAsSuspended(p);
-    }
-    
-    /**
-     * Issues a payment order, and then return its protocol number.  
-     * @param idPaymentOrder
-     * @return the payment order in JSON format.
-     */
-    private String issuePaymentOrder(String paymentOrder){
-        String ret = null;
-        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        if(pDao.issuePaymentOrder(p)){
-            System.out.println("Protocol: ");
-            int protocol = pDao.getProtocol(p);
-            System.out.print(protocol);
-            Gson gson = new Gson();
-            ret = gson.toJson(protocol);
-        }
-        return ret;
-    }
-    
-    private boolean reissuePaymentOrder(String paymentOrder){
-        PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        return pDao.reissuePaymentOrder(p);
-    }
     
 }

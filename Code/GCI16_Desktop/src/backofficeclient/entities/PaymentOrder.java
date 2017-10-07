@@ -1,4 +1,5 @@
-package entities;
+package backofficeclient.entities;
+
 
 /**
  * Represents entity paymentOrder
@@ -16,43 +17,18 @@ public class PaymentOrder {
         NOTISSUED, ISSUED, SUSPENDED, PAID, NOTPERTINENT, NOTIFIED;
     }
     
-    /**
-     * Creates a new instance of payment order
-     * 
-     * @param id payment order's id.
-     * @param protocol protocol number.
-     * @param status indicates the status.
-     * @param bill indicates the corresponding bill.
-     * @param amount payment order's amount.
-     */
     public PaymentOrder(int id, Integer protocol, Status status, Bill bill,double amount){
-        this.protocol = protocol;
-        this.status = status;
-        this.bill = bill;
+        this(protocol, status, bill);
         this.id = id;
         this.amount = amount;
     }
     
-    public boolean isNextStatus(Status newStatus){
-        switch (newStatus){
-            case ISSUED:
-                if(status.equals(Status.NOTISSUED)) return true;
-            
-            case PAID:
-                if(status.equals(Status.NOTIFIED)) return true;
-                
-            case SUSPENDED:
-                if(status.equals(Status.NOTIFIED)) return true;
-            
-            case NOTIFIED:
-                if(status.equals(Status.ISSUED)) return true;
-            
-            case NOTPERTINENT:
-                if(status.equals(Status.SUSPENDED)) return true;
-        }
-        return false;
+    public PaymentOrder(Integer protocol, Status status, Bill bill){
+        this.protocol = protocol;
+        this.status = status;
+        this.bill = bill;
+        
     }
-    
     
     public Bill getBill(){
         return bill;
@@ -98,4 +74,6 @@ public class PaymentOrder {
     public void setProtocol(Integer protocol){
         this.protocol = protocol;
     }
+    
+    
 }
