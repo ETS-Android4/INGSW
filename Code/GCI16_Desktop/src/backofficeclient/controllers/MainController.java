@@ -7,15 +7,15 @@ import backofficeclient.views.MainForm;
  * @author cdevi
  */
 public class MainController {
+    private String session;
+    private MainForm mainPage;
     
-    String session;
-    MainForm mainPage;
     public MainController(String session){
         this.session = session;
     } 
+    
     public void start(){
-        MainForm mainPage = new MainForm(this);
-        this.mainPage = mainPage;
+        mainPage = new MainForm(this);
         mainPage.setVisible(true);
     }
     
@@ -28,6 +28,5 @@ public class MainController {
     public void logout(){
         mainPage.dispose();
         new BackOfficeLoginController().start();
-        
     }
 }

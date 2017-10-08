@@ -1,8 +1,6 @@
 package backofficeclient.views;
 
-import backofficeclient.controllers.BackOfficeLoginController;
 import backofficeclient.controllers.MainController;
-import backofficeclient.controllers.PaymentOrderController;
 
 /**
  * The page where an user can select what to manage.
@@ -10,16 +8,17 @@ import backofficeclient.controllers.PaymentOrderController;
  * @author GCI16_25
  */
 public class MainForm extends javax.swing.JFrame {
-    
     private MainController mainController;
+    
     public MainForm(MainController mainController) {
-        initComponents();
         this.mainController = mainController;
+        initComponents();
     }
     
+    @Override
     public void dispose(){
-        super.dispose();
         this.mainController = null;
+        super.dispose();
     }
 
     /**

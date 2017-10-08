@@ -27,7 +27,6 @@ public class PaymentOrder {
         this.protocol = protocol;
         this.status = status;
         this.bill = bill;
-        
     }
     
     public Bill getBill(){
@@ -38,13 +37,10 @@ public class PaymentOrder {
         return id;
     }
             
-    
     public Integer getProtocol(){
         return protocol;
     }
-    
-
-    
+        
     public Status getStatus(){
         return status;
     }
@@ -74,6 +70,4 @@ public class PaymentOrder {
     public void setProtocol(Integer protocol){
         this.protocol = protocol;
     }
-    
-    
 }

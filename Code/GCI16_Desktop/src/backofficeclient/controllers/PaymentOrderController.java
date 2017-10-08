@@ -6,13 +6,11 @@ import backofficeclient.views.BillForm;
 import backofficeclient.ConfirmPanel;
 import backofficeclient.entities.PaymentOrder;
 import backofficeclient.entities.PaymentOrder.Status;
-import backofficeclient.views.MainForm;
 import backofficeclient.views.PaymentOrderForm;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,8 +30,6 @@ import pdfgenerator.PDFGenerator;
  *
  * @author cdevi
  */
-
-
 public class PaymentOrderController {
     private PaymentOrderForm paymentOrderFrame; 
     private String session;
@@ -48,18 +44,18 @@ public class PaymentOrderController {
     public void start(){
         paymentOrderFrame = new PaymentOrderForm(this);
         paymentOrderFrame.addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosing(WindowEvent e) {
                 new MainController(session).start();
             }
         });
-        URL url;
+
         try {
-            url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 InputStream is = connection.getInputStream();
@@ -114,8 +110,7 @@ public class PaymentOrderController {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        }      
     }
     
     public void createPaymentOrderByBill(){
@@ -133,8 +128,10 @@ public class PaymentOrderController {
             connection.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes("action=create&");
-            
             wr.writeBytes("bill="+gsonString);
+            //TODO controlla
+            wr.close();
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 InputStream is = connection.getInputStream();
@@ -175,6 +172,7 @@ public class PaymentOrderController {
             wr.writeBytes("action=delete&");
             wr.writeBytes("paymentOrder="+gson);
             connection.connect();
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){                
                 list.remove(row);
@@ -217,8 +215,7 @@ public class PaymentOrderController {
                 ConfirmPanel.showSuccess(paymentOrderFrame);
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
-            }
-            
+            }       
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -239,7 +236,8 @@ public class PaymentOrderController {
             DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes("action=saveAsPaid&");
             wr.writeBytes("paymentOrder="+gson);
-            connection.connect();   
+            connection.connect();
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 list.remove(row);
@@ -277,6 +275,7 @@ public class PaymentOrderController {
             wr.writeBytes("action=saveAsNotPertinent&");
             wr.writeBytes("paymentOrder="+gson);
             connection.connect(); 
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 //Removes that payment order from the table
@@ -314,6 +313,7 @@ public class PaymentOrderController {
             wr.writeBytes("action=issue&");
             wr.writeBytes("paymentOrder="+gsonString);
             connection.connect(); 
+            
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 //Set issued the selected payment order 
@@ -331,8 +331,7 @@ public class PaymentOrderController {
                 paymentOrderFrame.setProtocolNumberByRow(row, protocol);
                 // Generates PDF 
                 PDFGenerator.generate(p);
-                JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
-                
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");      
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }
@@ -348,12 +347,11 @@ public class PaymentOrderController {
     public void reissuePaymentOrder(){
         int row = paymentOrderFrame.getTableSelectedRow();
         PaymentOrder p = list.get(row);
-        int id = p.getId();
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         String gson = new Gson().toJson(p);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?");
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.setRequestMethod("POST");

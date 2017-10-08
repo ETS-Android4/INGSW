@@ -1,6 +1,5 @@
 package backofficeclient.entities;
 
-
 /**
  * Represents entity bill.
  * @author GCI16_25
@@ -11,7 +10,6 @@ public class Bill {
     private double cost;
     private int year;
     private int trimester;
-    
     
     public Bill(int id, Customer customer,double cost,int year,int trimester){
         this.id = id;

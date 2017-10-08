@@ -1,13 +1,11 @@
 package backofficeclient.controllers;
 
 import backofficeclient.views.BackOfficeLoginForm;
-import backofficeclient.views.MainForm;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -20,7 +18,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author cdevi
  */
 public class BackOfficeLoginController {
-    JFrame login;
+    private JFrame login;
     
     public static void main(String arg[]){
         try {
@@ -33,9 +31,7 @@ public class BackOfficeLoginController {
     }
     
     public void start(){
-        
-        BackOfficeLoginForm login = new BackOfficeLoginForm(this);
-        this.login = login;
+        login = new BackOfficeLoginForm(this);
         login.setVisible(true);
     }
     
@@ -72,9 +68,7 @@ public class BackOfficeLoginController {
                 JOptionPane.showMessageDialog(login,"Server not avalaible");
             }
         }catch(ConnectException | SocketTimeoutException ex){
-            System.out.println("CIAO");
-            JOptionPane.showMessageDialog(login,"Server not available");
-            
+            JOptionPane.showMessageDialog(login,"Server not available");      
         }catch (IOException ex) {
             Logger.getLogger(BackOfficeLoginForm.class.getName()).log(Level.SEVERE, null, ex);
         }

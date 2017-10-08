@@ -1,20 +1,6 @@
 package backofficeclient.views;
 
-
 import backofficeclient.controllers.BackOfficeLoginController;
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * Login.
@@ -24,20 +10,20 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author GCI16_25 
  */
 public class BackOfficeLoginForm extends javax.swing.JFrame {
+    private BackOfficeLoginController loginController;
 
     /**
      * Creates new form Login
      */
-    BackOfficeLoginController loginController;
     public BackOfficeLoginForm(BackOfficeLoginController loginController) {
-        initComponents();
         this.loginController = loginController;
+        initComponents();
     }
     
     @Override
     public void dispose(){
-        super.dispose();
         loginController = null;
+        super.dispose();
     }
     
     /**
@@ -176,7 +162,6 @@ public class BackOfficeLoginForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
     /**
      * Handles the click of loginButton.
      * @param evt  
@@ -185,44 +170,7 @@ public class BackOfficeLoginForm extends javax.swing.JFrame {
         String user = userField.getText();
         String pass = passField.getText();
         loginController.login(user, pass);
-        
-        /*URL url;
-        try {
-            url = new URL("http://localhost:8081/GCI16/Login?user="+ userField.getText()+"&pass="+ passField.getText());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            String cookieNameMatch = "JSESSIONID";
-            String session = null;
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
-                for (String s : cookieString.split(";")) {
-                    if (s.contains(cookieNameMatch)){
-                        session = s;
-                        break;
-                    }
-                }
-                MainPage mPage = new MainPage(session);
-                mPage.setVisible(true);
-                this.dispose();
-            }
-            else if(resCode == 461){
-                errorLabel.setText("Login Error! Insert valid entries.");
-            }
-            else if(resCode == 463){
-                errorLabel.setText("Login Error! Missing username or password.");
-            }
-        
-        }catch(ConnectException ex){
-            JOptionPane.showMessageDialog(this,"Server not available");
-            
-        }catch (IOException ex) {
-            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_loginButtonActionPerformed
-
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errorLabel;

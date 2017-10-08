@@ -2,20 +2,7 @@ package backofficeclient.views;
 
 import backofficeclient.entities.Bill;
 import backofficeclient.controllers.PaymentOrderController;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -28,14 +15,14 @@ public class BillForm extends javax.swing.JFrame {
     private PaymentOrderController paymOrdController;
     
     public BillForm( PaymentOrderController paymOrdController) {
-        initComponents();
         this.paymOrdController = paymOrdController; 
+        initComponents();
     }
     
     @Override
     public void dispose(){
-        super.dispose();
         paymOrdController = null;
+        super.dispose();
     }
 
     /**
@@ -116,33 +103,7 @@ public class BillForm extends javax.swing.JFrame {
     }
         
     private void createPoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createPoButtonActionPerformed
-        paymOrdController.createPaymentOrderByBill();
-        /*if( !ConfirmPanel.showConfirm(this)) return;
-        try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=create&bill="+bTable.getValueAt(bTable.getSelectedRow(),0));
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                line = rd.readLine();     
-                rd.close();
-                Gson gson = new Gson();
-                PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
-                paymentOrderTable.addPaymentOrder(p);
-                ConfirmPanel.showSuccess(this);
-            }
-            else if(resCode == 462){
-                JOptionPane.showMessageDialog(this,"Server not available");
-            }
-        }catch (IOException ex) {
-            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    
-        this.dispose();*/
-        
+        paymOrdController.createPaymentOrderByBill();   
     }//GEN-LAST:event_createPoButtonActionPerformed
 
     /*Adds a row in the bill table*/
@@ -158,45 +119,8 @@ public class BillForm extends javax.swing.JFrame {
    
     /*Shows the table of all unpaid bills after three months*/ 
     public void setTable(List<Bill> list){
-        for(Bill b : list){
+        for(Bill b : list)
             addBill(b);
-        }
-        /*try{
-            URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();
-            int resCode = connection.getResponseCode();
-            if(resCode==200){
-                
-                InputStream is = connection.getInputStream();                
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line = rd.readLine();
-                rd.close();
-                Gson gson = new Gson();
-                /* Da JSON a collections CLIENT 
-                java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
-                List<Bill> list = gson.fromJson(line, BillListType);
-                int row = 0;
-                int column;
-                for(Bill b : list){
-                    addBill(b);
-                }
-                
-            }
-            else if (resCode == 462){
-                JOptionPane.showMessageDialog(this,"Server not available");
-                return false;
-            }
-            
-        }catch (MalformedURLException ex) {
-            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        } catch (IOException ex) {
-            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        return true;*/
     }
     
     

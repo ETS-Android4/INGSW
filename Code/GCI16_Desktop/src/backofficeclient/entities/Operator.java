@@ -8,9 +8,9 @@ package backofficeclient.entities;
 public class Operator {
     public static final int TYPE_BACKOFFICE = 1;
     public static final int TYPE_READINGS = 2;
-    String identifier;
-    String pass;
-    int type;
+    private String identifier;
+    private String pass;
+    private int type;
     
     /**
      * Creates a new instance of the class.

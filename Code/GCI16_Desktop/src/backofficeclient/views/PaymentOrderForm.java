@@ -20,15 +20,17 @@ import javax.swing.table.TableRowSorter;
  * @author GCI16_25
  */
 public class PaymentOrderForm extends javax.swing.JFrame {
-    PaymentOrderController paymOrdController;
+    private PaymentOrderController paymOrdController;
+    
     public PaymentOrderForm(PaymentOrderController paymOrdController) {
-        initComponents();
         this.paymOrdController = paymOrdController;
+        initComponents();
     }
     
+    @Override
     public void dispose(){
-        super.dispose();
         this.paymOrdController = null;
+        super.dispose();
     }
     
     /**
@@ -351,17 +353,12 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }// </editor-fold>//GEN-END:initComponents
 
     
-    
-    
     /**
      * Handles the click of createButton.
      * @param evt 
      */
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         paymOrdController.createPaymentOrder();
-        /*BillTable billTable = new BillTable(this,session);
-        if(billTable.setTable())
-            billTable.setVisible(true);*/
     }//GEN-LAST:event_createButtonActionPerformed
 
     /**
@@ -369,31 +366,7 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
      * @param evt 
      */
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        
-        paymOrdController.deletePaymentOrder();
-        /*int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=delete&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            //Set JSESSIONID
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                list.remove(row);
-                ((DefaultTableModel)poTable.getModel()).removeRow(row);
-                ConfirmPanel.showSuccess(this);
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-            
-        } catch (IOException ex) {
-            Logger.getLogger(BillTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        
+        paymOrdController.deletePaymentOrder();   
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     /**
@@ -402,29 +375,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
      */
     private void saveAsSuspendedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsSuspendedButtonActionPerformed
         paymOrdController.saveAsSuspendedPaymentOrder();
-        /*int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);  
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsSuspended&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();
- 
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                poTable.setValueAt("SUSPENDED", rowSel, 5);
-                PaymentOrder paymOrd = list.get(row);
-                paymOrd.setStatus(Status.SUSPENDED);
-                ConfirmPanel.showSuccess(this);
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-            poTable.getSelectionModel().clearSelection();
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_saveAsSuspendedButtonActionPerformed
 
     /**
@@ -434,29 +384,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     
     private void saveAsPaidButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsPaidButtonActionPerformed
         paymOrdController.saveAsPaidPaymentOrder();
-        /*int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsPaid&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();    
-
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                poTable.setValueAt("PAID", rowSel, 5); //Modifico la colonna relativa allo stato.
-                PaymentOrder paymOrd = list.get(row);
-                paymOrd.setStatus(Status.PAID);
-                ConfirmPanel.showSuccess(this);
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-            poTable.getSelectionModel().clearSelection();
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_saveAsPaidButtonActionPerformed
 
     /**
@@ -465,29 +392,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
      */
     private void saveAsNotPertinentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsNotPertinentButtonActionPerformed
        paymOrdController.saveAsNotPertinentPaymentOrder();
-        /* int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=saveAsNotPertinent&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect(); 
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                //Removes that payment order from the table
-                ((DefaultTableModel)poTable.getModel()).removeRow(row);
-                PaymentOrder paymOrd = list.get(row);
-                paymOrd.setStatus(Status.NOTPERTINENT);
-                ConfirmPanel.showSuccess(this);
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-            poTable.getSelectionModel().clearSelection();
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_saveAsNotPertinentButtonActionPerformed
 
     /**
@@ -496,31 +400,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
      */
     private void reissueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reissueButtonActionPerformed
         paymOrdController.reissuePaymentOrder();
-        /*int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try{
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=reissue&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();    
-
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                //Sets issued the selected payment order 
-                poTable.setValueAt("ISSUED", rowSel, 5); 
-                PaymentOrder paymOrd = list.get(row);
-                paymOrd.setStatus(Status.ISSUED);
-                ConfirmPanel.showSuccess(this);
-                //In this case there is no creation of a new PDF
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-            poTable.getSelectionModel().clearSelection();
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_reissueButtonActionPerformed
 
     /**
@@ -529,43 +408,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
      */
     private void issueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_issueButtonActionPerformed
         paymOrdController.issuePaymentOrder();
-        /*int rowSel = poTable.getSelectedRow();
-        int row = poTable.convertRowIndexToModel(rowSel);
-        //Confirm operation
-        if(!ConfirmPanel.showConfirm(this)) return;
-        try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=issue&paymentOrder="+list.get(row).getId());
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect(); 
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                //Set issued the selected payment order 
-                poTable.setValueAt("ISSUED", rowSel, 5); //*Modifico la colonna relativa allo stato.
-                PaymentOrder paymOrd = list.get(row);
-                paymOrd.setStatus(Status.ISSUED);
-                //Server returns all informations about the issued payment order
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                line = rd.readLine();
-                rd.close();
-                Gson gson = new Gson();
-                int protocol = gson.fromJson(line, Integer.class);
-                paymOrd.setProtocol(protocol);
-                //Sets number protocol of payment order in the table 
-                poTable.setValueAt(protocol, rowSel, 0);
-                // Generates PDF 
-                PDFGenerator.generate(paymOrd);
-                JOptionPane.showMessageDialog(null, "Payment order with protocol " + paymOrd.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");
-                
-                poTable.getSelectionModel().clearSelection();
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
     }//GEN-LAST:event_issueButtonActionPerformed
 
     /**
@@ -618,7 +460,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         statusList.setSelectedIndex(0);
     }//GEN-LAST:event_clearFilterButtonActionPerformed
 
- 
     /**
      * Adds a row in the payment orders table. 
      * @param p is the payment order to insert in the table.
@@ -644,7 +485,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     public void addPaymentOrder(PaymentOrder p){
         this.addPaymentOrderTable(p);
     }
-    
     
     public void removePaymentOrderByRow(int row){
         ((DefaultTableModel)poTable.getModel()).removeRow(row);
@@ -674,39 +514,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         for(PaymentOrder p : list){
             this.addPaymentOrderTable(p);
         }
-        /*try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestProperty("Cookie", session);
-            connection.connect();
-            int resCode = connection.getResponseCode();
-            if(resCode == 200){
-                InputStream is = connection.getInputStream();
-                BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                String line;
-                line = rd.readLine();
-                rd.close();
-                
-                Gson gson = new Gson();
-                java.lang.reflect.Type POListType = new TypeToken<Collection< PaymentOrder> >(){}.getType();
-                list = gson.fromJson(line, POListType);
-
-                Object[] values = new Object[6];
-                for(PaymentOrder p : list){
-                    this.addPaymentOrderTable(p);
-                }
-            }else if (resCode == 462){
-              JOptionPane.showMessageDialog(this,"Server not available"); 
-            }
-           
-        } catch (IOException ex) {
-            Logger.getLogger(PaymentOrderTable.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-        
     }
     
-  
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearFilterButton;
     private javax.swing.JButton createButton;
