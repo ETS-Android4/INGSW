@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
  * @author GCI16_25
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/Login"})
-public class LoginServlet extends HttpServlet {
+public class BackOfficeLoginServlet extends HttpServlet {
     OperatorDAO operatorDAO = new OperatorDAO();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
