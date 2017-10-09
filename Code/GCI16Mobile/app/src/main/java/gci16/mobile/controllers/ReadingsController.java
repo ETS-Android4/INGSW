@@ -46,7 +46,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import gci16.mobile.R;
 import gci16.mobile.entities.Assignment;
@@ -248,18 +247,19 @@ public class ReadingsController extends AppCompatActivity{
      */
     private void sendReadings(){
         if(readingsDone.isEmpty()) return;
+        final Button sendButton = (Button) findViewById(R.id.send_readings_button);
+        sendButton.setEnabled(false);
         // this task sends the request to the server
-        // it returns null on connection error, the response code otherwise
-        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>(){
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>(){
             @Override
-            protected Integer doInBackground(Void... voids) {
+            protected Void doInBackground(Void... voids) {
                 Gson gson = new Gson();
                 String json = gson.toJson(readingsDone);
                 Integer responseCode = null;
+                String ip = getResources().getString(R.string.server_address);
+                int port = getResources().getInteger(R.integer.server_port);
+                String formatString = "http://%s:%d/GCI16/Readings";
                 try {
-                    String ip = getResources().getString(R.string.server_address);
-                    int port = getResources().getInteger(R.integer.server_port);
-                    String formatString = "http://%s:%d/GCI16/Readings";
                     URL url = new URL(String.format(Locale.getDefault(),formatString, ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
@@ -282,55 +282,64 @@ public class ReadingsController extends AppCompatActivity{
                 } catch (IOException e) {
                     Log.e("Connection error", e.getMessage());
                 }
-                return responseCode;
-            }
-        };
 
-        // executes the task
-        asyncTask.execute();
-        Integer responseCode = null;
-        try {
-            responseCode = asyncTask.get();
-        } catch (InterruptedException | ExecutionException e) {
-            Log.e("TaskError", e.getMessage()); return;
-        }
+                // error
+                if(responseCode==null || responseCode!=200){
+                    final Integer badResponse = responseCode;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sendButton.setEnabled(true);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this).setCancelable(false);
+                            if(badResponse==null)
+                                builder.setView(R.layout.error_no_connection_layout);
+                            else if(badResponse==462)
+                                builder.setView(R.layout.error_session_expired_layout);
+                            else {
+                                builder.setView(R.layout.error_unknown_layout);
+                                Log.e("Error", "Unmanaged response code " + badResponse);
+                            }
 
-        if(responseCode==null || responseCode!=200){ // shows error messages
-            AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false);
-            if(responseCode==null)
-                builder.setView(R.layout.error_no_connection_layout);
-            else if(responseCode==462)
-                builder.setView(R.layout.error_session_expired_layout);
-            else
-                builder.setView(R.layout.error_unknown_layout);
-            if(responseCode!=null && responseCode==462)
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            if(badResponse!=null && badResponse==462)
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        disconnect();
+                                        dialog.cancel();
+                                    }
+                                });
+                            else
+                                builder.setPositiveButton("OK", null);
+                            builder.create().show();
+                        }
+                    });
+                    return null;
+                }
+
+                // success
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        disconnect();
-                        dialog.cancel();
+                    public void run() {
+                        // resets the collections and erases them from preferences
+                        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+                        readingsDone.clear();
+                        assignmentsCompleted.clear();
+                        editor.remove("readingsDone"+operatorId)
+                                .remove("assignmentsCompleted"+operatorId)
+                                .apply();
+
+                        // shows success message
+                        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
+                        builder.setMessage("Readings successfully sent!")
+                                .setPositiveButton("OK", null);
+                        builder.create().show();
                     }
                 });
-            else
-                builder.setPositiveButton("OK", null);
-            builder.create().show();
-            return;
-        }
 
-        // resets the collections and erases them from preferences
-        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        readingsDone.clear();
-        assignmentsCompleted.clear();
-        editor.remove("readingsDone"+operatorId)
-                .remove("assignmentsCompleted"+operatorId)
-                .apply();
-
-        // manages changes on UI
-        findViewById(R.id.send_readings_button).setEnabled(false);
-        AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this);
-        builder.setMessage("Readings successfully sent!")
-                .setPositiveButton("OK", null);
-        builder.create().show();
+                return null;
+            }
+        };
+        asyncTask.execute();
     }
 
     /**
@@ -373,21 +382,19 @@ public class ReadingsController extends AppCompatActivity{
      * the session has expired.
      */
     private void updateAssignments() {
-        // this buffer contains the json string returned by the server
-        // the StringBuffer has been used because it is thread-safe and
-        // can contain a string which can be edited without the buffer
-        // reference being modified
-        final StringBuffer buffer = new StringBuffer();
+        final Button updateButton = (Button) findViewById(R.id.update_button);
+        updateButton.setEnabled(false);
         // this task sends the request to the server and returns
         // it returns null on connection error, the response code otherwise
-        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Integer doInBackground(Void... voids) {
+            protected Void doInBackground(Void... voids) {
                 Integer responseCode = null;
+                StringBuilder builder = new StringBuilder();
+                String ip = getResources().getString(R.string.server_address);
+                int port = getResources().getInteger(R.integer.server_port);
+                String formatString = "http://%s:%d/GCI16/Assignments";
                 try {
-                    String ip = getResources().getString(R.string.server_address);
-                    int port = getResources().getInteger(R.integer.server_port);
-                    String formatString = "http://%s:%d/GCI16/Assignments";
                     URL url = new URL(String.format(Locale.getDefault(),formatString,ip, port));
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
@@ -401,7 +408,7 @@ public class ReadingsController extends AppCompatActivity{
                         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                         for (String s = reader.readLine(); s != null; s = reader.readLine())
-                            buffer.append(s);
+                            builder.append(s);
                         reader.close();
                     }
                 } catch (SocketTimeoutException e) {
@@ -411,60 +418,73 @@ public class ReadingsController extends AppCompatActivity{
                 } catch (IOException e) {
                     Log.e("Connection", e.getMessage());
                 }
-                return responseCode;
-            }
-        };
 
-        //gets the response from server
-        asyncTask.execute();
-        Integer responseCode = null;
-        try {
-            responseCode = asyncTask.get();
-        } catch (InterruptedException | ExecutionException e) {
-            Log.e("TaskError", e.getMessage()); return;
-        }
-        //shows error messages
-        if(responseCode == null || responseCode!=200){
-            AlertDialog.Builder builder = new AlertDialog.Builder(this).setCancelable(false);
-            if(responseCode==null)
-                builder.setView(R.layout.error_no_connection_layout);
-            else if(responseCode==462)
-                builder.setView(R.layout.error_session_expired_layout);
-            else {
-                builder.setView(R.layout.error_unknown_layout);
-                Log.e("ServerResponse", "Response code : " + responseCode);
-            }
-
-            if(responseCode!=null && responseCode==462)
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                // reanable update button
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        disconnect();
-                        dialog.cancel();
+                    public void run() {
+                        updateButton.setEnabled(true);
                     }
                 });
-            else
-                builder.setPositiveButton("OK", null);
-            builder.create().show();
-            return;
-        }
 
-        // gets the assignments from the json string
-        String json = buffer.toString();
-        Gson gson = new Gson();
-        Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
-        Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
+                //error
+                if(responseCode==null || responseCode!=200) {
+                    final Integer badResponse = responseCode;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ReadingsController.this).setCancelable(false);
+                            if (badResponse == null)
+                                builder.setView(R.layout.error_no_connection_layout);
+                            else if (badResponse == 462)
+                                builder.setView(R.layout.error_session_expired_layout);
+                            else {
+                                builder.setView(R.layout.error_unknown_layout);
+                                Log.e("Error", "Response code : " + badResponse);
+                            }
 
-        // filters only the assingments which have not been completed
-        downloadedAssignments.removeAll(assignmentsCompleted);
-        downloadedAssignments.removeAll(assignmentsLeft);
+                            if (badResponse != null && badResponse == 462)
+                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        disconnect();
+                                        dialog.cancel();
+                                    }
+                                });
+                            else
+                                builder.setPositiveButton("OK", null);
+                            builder.create().show();
+                        }
+                    });
+                    return null;
+                }
 
-        // adds to the ones left
-        if (!downloadedAssignments.isEmpty()) {
-            assignmentTableAdapter.addAll(downloadedAssignments);
-            SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-            editor.putString("assignmentsLeft"+operatorId, gson.toJson(assignmentsLeft)).apply();
-        }
+                // success
+                final String json = builder.toString();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // gets the assignments from the json string
+                        Gson gson = new Gson();
+                        Type type = new TypeToken<HashSet<Assignment>>(){}.getType();
+                        Set<Assignment> downloadedAssignments = gson.fromJson(json, type);
+
+                        // filters only the assingments which have not been completed
+                        downloadedAssignments.removeAll(assignmentsCompleted);
+                        downloadedAssignments.removeAll(assignmentsLeft);
+
+                        // adds to the ones left
+                        if (!downloadedAssignments.isEmpty()) {
+                            assignmentTableAdapter.addAll(downloadedAssignments);
+                            SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+                            editor.putString("assignmentsLeft" + operatorId, gson.toJson(assignmentsLeft)).apply();
+                        }
+                    }
+                });
+                return null;
+            }
+        };
+        asyncTask.execute();
     }
 
     /**
