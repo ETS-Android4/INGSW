@@ -32,7 +32,7 @@ import pdfgenerator.PDFGenerator;
  */
 public class PaymentOrderController {
     private PaymentOrderForm paymentOrderFrame; 
-    private String session;
+    private final String session;
     private List<PaymentOrder> list;
     private BillForm billFrame;
     private List<Bill> billList;
@@ -117,7 +117,6 @@ public class PaymentOrderController {
         if( !ConfirmPanel.showConfirm(billFrame)) return;
         int row = billFrame.getTableSelectedRow();
         Bill b = billList.get(row);
-        int id = b.getId();
         Gson gson = new Gson();
         String gsonString = gson.toJson(b);
         try{
@@ -129,8 +128,8 @@ public class PaymentOrderController {
             DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes("action=create&");
             wr.writeBytes("bill="+gsonString);
-            //TODO controlla
             wr.close();
+            connection.connect();
             
             int resCode = connection.getResponseCode();
             if(resCode == 200){
@@ -142,7 +141,8 @@ public class PaymentOrderController {
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderFrame.addPaymentOrder(p);
                 list.add(p);
-                ConfirmPanel.showSuccess(billFrame);
+                JOptionPane.showMessageDialog(billFrame, "Operation successfully completed!");
+
                 billFrame.dispose();
             }
             else if(resCode == 462){
@@ -178,7 +178,7 @@ public class PaymentOrderController {
                 list.remove(row);
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 //Operation completed
-                ConfirmPanel.showSuccess(paymentOrderFrame);
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }
@@ -212,7 +212,7 @@ public class PaymentOrderController {
                 paymentOrderFrame.setPaymentOrderStatus(row, "SUSPENDED");
                 PaymentOrder paymOrd = list.get(row);
                 paymOrd.setStatus(Status.SUSPENDED);
-                ConfirmPanel.showSuccess(paymentOrderFrame);
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }       
@@ -242,7 +242,7 @@ public class PaymentOrderController {
             if(resCode == 200){
                 list.remove(row);
                 paymentOrderFrame.removePaymentOrderByRow(row);
-                ConfirmPanel.showSuccess(paymentOrderFrame);
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }else if (resCode == 464){
@@ -281,7 +281,7 @@ public class PaymentOrderController {
                 //Removes that payment order from the table
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 list.remove(row);
-                ConfirmPanel.showSuccess(paymentOrderFrame);
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }else if (resCode == 465){
@@ -366,7 +366,7 @@ public class PaymentOrderController {
                 //Sets issued the selected payment order 
                 paymentOrderFrame.setPaymentOrderStatus(row,"ISSUED");
                 p.setStatus(Status.ISSUED);
-                ConfirmPanel.showSuccess(paymentOrderFrame);
+                JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
                 //In this case there is no creation of a new PDF
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 

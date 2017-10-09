@@ -168,7 +168,9 @@ public class BackOfficeLoginForm extends javax.swing.JFrame {
      */
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
         String user = userField.getText();
-        String pass = passField.getText();
+        char[] passw = passField.getPassword();
+        if(passw == null || passw.length ==0) return;
+        String pass = String.copyValueOf(passw);
         loginController.login(user, pass);
     }//GEN-LAST:event_loginButtonActionPerformed
 
