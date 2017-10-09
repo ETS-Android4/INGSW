@@ -32,7 +32,7 @@ public class PDFGenerator {
      * Generates PDF from a payment order.
      * @param paym 
      */
-    public static void generate(PaymentOrder paym) {
+    public void generate(PaymentOrder paym) {
         if(paym == null) return;
         /* Creates document */
         Document document = new Document(PageSize.A4);

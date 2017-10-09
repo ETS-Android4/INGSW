@@ -459,12 +459,12 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
         trimesterList.setSelectedIndex(0);
         statusList.setSelectedIndex(0);
     }//GEN-LAST:event_clearFilterButtonActionPerformed
-
+    
     /**
-     * Adds a row in the payment orders table. 
-     * @param p is the payment order to insert in the table.
+     * Adds a payment order in the table.
+     * @param p 
      */
-    private void addPaymentOrderTable(PaymentOrder p){
+    public void addPaymentOrder(PaymentOrder p){
         Object[] values = new Object[6];
         values[0] = p.getProtocol();
         values[1] = p.getDebtor();
@@ -476,14 +476,6 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
             status = "NOT ISSUED";
         values[5] = status;
         ((DefaultTableModel)poTable.getModel()).addRow(values);
-    }
-    
-    /**
-     * Adds payment order in the list of payment orders, and then in the table.
-     * @param p 
-     */
-    public void addPaymentOrder(PaymentOrder p){
-        this.addPaymentOrderTable(p);
     }
     
     public void removePaymentOrderByRow(int row){
@@ -507,13 +499,13 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
     }
     
     /**
+     * //TODO
      * Shows the table of payment orders, after asking the server.
+     * @param list
      */
     public void setTable(List<PaymentOrder> list ){
-        Object[] values = new Object[6];
-        for(PaymentOrder p : list){
-            this.addPaymentOrderTable(p);
-        }
+        for(PaymentOrder p : list)
+            this.addPaymentOrder(p);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
