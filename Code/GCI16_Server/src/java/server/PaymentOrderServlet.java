@@ -122,51 +122,6 @@ public class PaymentOrderServlet extends HttpServlet {
                 }
                 break;
             }
-        
-                
-           
-                /*case "saveAsPaid":
-                paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null)
-                    saveAsPaid(paymentOrder);
-                break;
-                
-            case "saveAsNotPertinent":
-                paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null){
-                    saveAsNotPertinent(paymentOrder);
-                }
-                break;
-                
-            case "saveAsSuspended":
-                paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null)
-                    saveAsSuspended(paymentOrder);
-                
-                break;
-                
-            case "issue":
-                paymentOrder = request.getParameter("paymentOrder");
-                res = null;
-                if(paymentOrder != null){
-                    res = issuePaymentOrder(paymentOrder);
-                    PrintWriter pw;
-                    try {
-                        pw = response.getWriter();
-                        pw.write(res);
-                    } catch (IOException ex) {
-                        Logger.getLogger(PaymentOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-                break;
-                
-            case "reissue":
-                paymentOrder = request.getParameter("paymentOrder");
-                if(paymentOrder != null){
-                    reissuePaymentOrder(paymentOrder);
-                }
-                break;
-            */
     }
     
   

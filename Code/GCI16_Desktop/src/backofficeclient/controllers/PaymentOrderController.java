@@ -296,11 +296,10 @@ public class PaymentOrderController {
     }
     
     public void issuePaymentOrder() {
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
-        int id = p.getId();
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = list.get(row);
         Gson gson = new Gson();
         String gsonString = gson.toJson(p);
         try {

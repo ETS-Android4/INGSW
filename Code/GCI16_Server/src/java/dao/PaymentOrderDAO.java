@@ -43,11 +43,7 @@ public class PaymentOrderDAO {
         String stat;
         Status status;
         try {
-            System.out.println("PRIMA");
             rs = Database.getInstance().execQuery(query,params);
-            System.out.println("DOPO");
-            
-            PaymentOrder paymentOrder;
             if(rs != null){
                 while(rs.next()){
                     Customer c = new Customer(rs.getString("name"),rs.getString("surname"));
@@ -128,7 +124,7 @@ public class PaymentOrderDAO {
     
     /**
      * Inserts payment order into database
-     * @param idBill
+     * @param b
      * @return false if an error occurs, true otherwise.
      */
     public boolean createPaymentOrder(Bill b){
@@ -156,96 +152,6 @@ public class PaymentOrderDAO {
     public boolean deletePaymentOrder(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "DELETE FROM PAYMENTORDER WHERE IDPAYMENTORDER = ?";
-        params.add(p.getId());
-        try {
-            Database.getInstance().execQuery(query, params);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Issues payment order.
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
-    public boolean issuePaymentOrder(PaymentOrder p){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOT ISSUED'";
-        params.add(p.getId());
-        try {
-            Database.getInstance().execQuery(query, params);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Reissues payment order.
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
-    public boolean reissuePaymentOrder(PaymentOrder p){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'ISSUED' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
-        params.add(p.getId());
-        try {
-            Database.getInstance().execQuery(query, params);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Saves as paid payment order.
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
-    public boolean saveAsPaid(PaymentOrder p){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'PAID' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
-        params.add(p.getId());
-        try {
-            Database.getInstance().execQuery(query, params);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Issues a payment order.
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
-    public boolean saveAsSuspended(PaymentOrder p){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'SUSPENDED' WHERE IDPAYMENTORDER = ? AND STATUS = 'NOTIFIED'";
-        params.add(p.getId());
-        try {
-            Database.getInstance().execQuery(query, params);
-        } catch (SQLException ex) {
-            System.err.println(ex.getMessage());
-            return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Saves as not pertinent a payment order.
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
-    public boolean saveAsNotPertinent(PaymentOrder p){
-        ArrayList<Object> params = new ArrayList<>();
-        String query = "UPDATE PAYMENTORDER SET STATUS = 'NOT PERTINENT' WHERE IDPAYMENTORDER = ? AND STATUS = 'SUSPENDED'";
         params.add(p.getId());
         try {
             Database.getInstance().execQuery(query, params);
