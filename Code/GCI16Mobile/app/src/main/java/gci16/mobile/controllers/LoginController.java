@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import gci16.mobile.R;
 
@@ -92,7 +91,7 @@ public class LoginController extends AppCompatActivity {
             }
         });
 
-        pref = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
+        pref = getSharedPreferences("session_preferences", Context.MODE_PRIVATE);
         String session = pref.getString("session", null);
         if(session!=null && operatorId>0) //sessione salvata
             startReadingsController(operatorId, session);
@@ -106,14 +105,15 @@ public class LoginController extends AppCompatActivity {
      * @param operatorId the id of the operator who want to login
      * @param password the password of the operator
      */
-    private void login(final int operatorId, final String password) {
-        final StringBuffer buffer = new StringBuffer();
-        AsyncTask<Void, Void, Integer> asyncTask = new AsyncTask<Void, Void, Integer>() {
+    private void login(final int operatorId, final String password){
+        findViewById(R.id.login_button).setEnabled(false);
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Integer doInBackground(Void... strings) {
+            protected Void doInBackground(Void... strings) {
                 String ip = getResources().getString(R.string.server_address);
                 int port = getResources().getInteger(R.integer.server_port);
                 Integer responseCode = null;
+                StringBuilder builder = new StringBuilder();
                 try {
                     String formatString = "http://%s:%d/GCI16/ReadingsOperatorLogin?operatorId=%d&password=%s";
                     String urlString = String.format(Locale.getDefault(), formatString, ip, port, operatorId, password);
@@ -128,11 +128,12 @@ public class LoginController extends AppCompatActivity {
                         String cookieString = connection.getHeaderField("Set-Cookie").replaceAll("\\s", "");
                         for (String s : cookieString.split(";")) {
                             if (s.contains(cookieName)) {
-                                buffer.append(s);
+                                builder.append(s);
                                 break;
                             }
                         }
                     }
+                    connection.disconnect();
                 } catch (MalformedURLException e) {
                     Log.e("Malformed URL", String.format("%s/%d", R.string.server_address, R.integer.server_port));
                 } catch (SocketTimeoutException e) {
@@ -140,43 +141,50 @@ public class LoginController extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.e("IOException", e.getMessage());
                 }
-                return responseCode;
+
+                final String session = builder.toString();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.login_button).setEnabled(true);
+                    }
+                });
+
+                if(responseCode==null || responseCode!=200 || session.isEmpty()){
+                    final Integer badCode = responseCode;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            findViewById(R.id.login_button).setEnabled(true);
+                            AlertDialog.Builder builder = new AlertDialog.Builder(LoginController.this);
+                            if(badCode==null)
+                                builder.setView(R.layout.error_no_connection_layout).setTitle("Connectivity Problems");
+                            else if (badCode==461)
+                                builder.setView(R.layout.error_login_layout).setTitle("Login error");
+                            else {
+                                builder.setView(R.layout.error_unknown_layout);
+                                Log.e("Login", "Response code = "+badCode);
+                            }
+                            builder.setPositiveButton("OK", null);
+                            builder.create().show();
+                        }
+                    });
+                    return null;
+                }
+
+                // saves last login credentials
+                SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+                editor.putInt("operatorId",operatorId)
+                        .putString("password", password)
+                        .apply();
+
+                startReadingsController(operatorId, session);
+
+                return null;
             }
         };
         asyncTask.execute();
-        Integer responseCode = null;
-        try {
-            responseCode = asyncTask.get();
-        } catch (InterruptedException e) {
-            Log.e("Interrupted", e.getMessage());
-            return;
-        } catch (ExecutionException e) {
-            Log.e("Execution", e.getMessage());
-            return;
-        }
-
-        // shows error message
-        String session = buffer.toString();
-        if (responseCode==null || responseCode!=200 || session.length()<=0){
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            if(responseCode==null)
-                builder.setView(R.layout.error_no_connection_layout).setTitle("Connectivity Problems");
-            else if (responseCode==462)
-                builder.setView(R.layout.error_login_layout).setTitle("Login error");
-            else
-                builder.setView(R.layout.error_unknown_layout);
-            builder.setPositiveButton("OK", null);
-            builder.create().show();
-            return;
-        }
-
-        // saves last login credentials
-        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putInt("operatorId",operatorId)
-                .putString("password", password)
-                .apply();
-
-        startReadingsController(operatorId, session);
     }
 
     /**
@@ -187,7 +195,7 @@ public class LoginController extends AppCompatActivity {
      * @param session session cookie for the operator
      */
     private void startReadingsController(int operatorId, String session){
-        SharedPreferences sharedPreferences = getSharedPreferences("session_preference", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("session_preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor sharedPrefEditor = sharedPreferences.edit();
         sharedPrefEditor.putString("session", session).apply();
 
