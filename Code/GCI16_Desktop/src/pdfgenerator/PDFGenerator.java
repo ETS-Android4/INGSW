@@ -32,8 +32,7 @@ public class PDFGenerator {
      * Generates PDF from a payment order.
      * @param paym 
      */
-    public void generate(PaymentOrder paym) {
-        if(paym == null) return;
+    public boolean generate(PaymentOrder paym) {
         /* Creates document */
         Document document = new Document(PageSize.A4);
         document.addTitle("PaymentOrder " + paym.getProtocol());
@@ -85,7 +84,9 @@ public class PDFGenerator {
             
         }catch(FileNotFoundException | DocumentException exc){
             Logger.getLogger(PDFGenerator.class.getName()).log(Level.SEVERE, null, exc);
+            return false;
         }
         document.close();
+        return true;
     }
 }
