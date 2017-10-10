@@ -33,7 +33,7 @@ import pdfgenerator.PDFGenerator;
 public class PaymentOrderController {
     private PaymentOrderForm paymentOrderFrame; 
     private final String session;
-    private List<PaymentOrder> list;
+    private List<PaymentOrder> paymOrdList;
     private BillForm billFrame;
     private List<Bill> billList;
     
@@ -65,8 +65,8 @@ public class PaymentOrderController {
                 rd.close();
                 Gson gson = new Gson();
                 java.lang.reflect.Type POListType = new TypeToken<Collection< PaymentOrder> >(){}.getType();
-                list = gson.fromJson(line, POListType);
-                paymentOrderFrame.setTable(list);
+                paymOrdList = gson.fromJson(line, POListType);
+                paymentOrderFrame.setTable(paymOrdList);
                 paymentOrderFrame.setVisible(true);
             }
             else if(resCode == 462){
@@ -140,7 +140,7 @@ public class PaymentOrderController {
                 rd.close();
                 PaymentOrder p = gson.fromJson(line, PaymentOrder.class);
                 paymentOrderFrame.addPaymentOrder(p);
-                list.add(p);
+                paymOrdList.add(p);
                 JOptionPane.showMessageDialog(billFrame, "Operation successfully completed!");
 
                 billFrame.dispose();
@@ -157,7 +157,7 @@ public class PaymentOrderController {
     public void deletePaymentOrder(){
         //Ask confirm operation
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         int id = p.getId();
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         String gson = new Gson().toJson(p);
@@ -175,7 +175,7 @@ public class PaymentOrderController {
             
             int resCode = connection.getResponseCode();
             if(resCode == 200){                
-                list.remove(row);
+                paymOrdList.remove(row);
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 //Operation completed
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
@@ -193,7 +193,7 @@ public class PaymentOrderController {
     public void saveAsSuspendedPaymentOrder(){
        //Ask confirm operation
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
         String gson = new Gson().toJson(p);
         try{
@@ -210,7 +210,7 @@ public class PaymentOrderController {
             int resCode = connection.getResponseCode();
             if(resCode == 200){
                 paymentOrderFrame.setPaymentOrderStatus(row, "SUSPENDED");
-                PaymentOrder paymOrd = list.get(row);
+                PaymentOrder paymOrd = paymOrdList.get(row);
                 paymOrd.setStatus(Status.SUSPENDED);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
@@ -224,7 +224,7 @@ public class PaymentOrderController {
     
     public void saveAsPaidPaymentOrder(){
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
         String gson = new Gson().toJson(p);
         try{
@@ -240,7 +240,7 @@ public class PaymentOrderController {
             
             int resCode = connection.getResponseCode();
             if(resCode == 200){
-                list.remove(row);
+                paymOrdList.remove(row);
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
@@ -260,7 +260,7 @@ public class PaymentOrderController {
     
     public void saveAsNotPertinentPaymentOrder() {
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         System.out.println("Stato: "+p.getStatus());
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
@@ -280,7 +280,7 @@ public class PaymentOrderController {
             if(resCode == 200){
                 //Removes that payment order from the table
                 paymentOrderFrame.removePaymentOrderByRow(row);
-                list.remove(row);
+                paymOrdList.remove(row);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
@@ -299,7 +299,7 @@ public class PaymentOrderController {
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         Gson gson = new Gson();
         String gsonString = gson.toJson(p);
         try {
@@ -346,7 +346,7 @@ public class PaymentOrderController {
     
     public void reissuePaymentOrder(){
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = list.get(row);
+        PaymentOrder p = paymOrdList.get(row);
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         String gson = new Gson().toJson(p);
@@ -378,6 +378,6 @@ public class PaymentOrderController {
     }
     
     public PaymentOrder getPaymentOrderByRow(int row){
-        return list.get(row);
+        return paymOrdList.get(row);
     } 
 }
