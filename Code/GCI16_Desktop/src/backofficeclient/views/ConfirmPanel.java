@@ -1,4 +1,4 @@
-package backofficeclient;
+package backofficeclient.views;
 
 import java.awt.Component;
 import javax.swing.JOptionPane;

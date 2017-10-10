@@ -3,7 +3,7 @@ package backofficeclient.controllers;
 
 import backofficeclient.entities.Bill;
 import backofficeclient.views.BillForm;
-import backofficeclient.ConfirmPanel;
+import backofficeclient.views.ConfirmPanel;
 import backofficeclient.entities.PaymentOrder;
 import backofficeclient.entities.PaymentOrder.Status;
 import backofficeclient.views.PaymentOrderForm;
@@ -330,8 +330,10 @@ public class PaymentOrderController {
                 paymentOrderFrame.setProtocolNumberByRow(row, protocol);
                 // Generates PDF 
                 PDFGenerator pdfGen = new PDFGenerator();
-                pdfGen.generate(p);
-                JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");      
+                if(pdfGen.generate(p))
+                    JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");      
+                else
+                    JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued, but the relative PDF could not be created.");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
             }
