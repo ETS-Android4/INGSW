@@ -91,8 +91,7 @@ public class BillForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(createPoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(74, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE))
         );
 
         pack();
@@ -110,7 +109,7 @@ public class BillForm extends javax.swing.JFrame {
     private void addBill(Bill b){
         Object[] values = new Object[5];
         values[0] = b.getId();
-        values[1] = b.getDebtor();
+        values[1] = b.getName() + " " + b.getSurname();
         values[2] = b.getYear();
         values[3] = b.getTrimester();
         values[4] = b.getCost();

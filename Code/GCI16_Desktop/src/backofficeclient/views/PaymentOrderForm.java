@@ -344,9 +344,8 @@ clearFilterButton.addActionListener(new java.awt.event.ActionListener() {
                         .addComponent(reissueButton))
                     .addGap(18, 18, 18)
                     .addComponent(issueButton)))
-            .addGap(33, 33, 33)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE))
     );
 
     pack();

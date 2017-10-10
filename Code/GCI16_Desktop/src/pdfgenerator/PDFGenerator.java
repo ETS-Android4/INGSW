@@ -32,25 +32,36 @@ public class PDFGenerator {
      * Generates PDF from a payment order.
      * @param paym 
      */
-    public static void generate(PaymentOrder paym) {
+    public void generate(PaymentOrder paym) {
         if(paym == null) return;
         /* Creates document */
         Document document = new Document(PageSize.A4);
         document.addTitle("PaymentOrder " + paym.getProtocol());
         document.addCreationDate();
-        
+        Paragraph p = null;
         try{
-            PdfWriter.getInstance(document, new FileOutputStream("PaymentOrder " + paym.getProtocol() + ".pdf"));
+            PdfWriter.getInstance(document, new FileOutputStream("PaymentOrders/PaymentOrder-" + paym.getProtocol() + ".pdf"));
             document.open();
             
             document.add( new Paragraph("GCI16", FONT1) );
             document.add(Chunk.NEWLINE);
             document.add(Chunk.NEWLINE);
-            document.add( new Paragraph("Payment order issued", FONT2) );
             document.add(Chunk.NEWLINE);
-            // TODO paym.getBill()
-            document.add( new Paragraph("Protocol:    " + paym.getProtocol(), FONT3) );
-            document.add( new Paragraph("Debtor:    " + paym.getDebtor(), FONT3) );
+            document.add( new Paragraph("Due to lack of payment it has been issued"
+                                      + " the following payment order.", FONT2) );
+            document.add(Chunk.NEWLINE);
+            p=new Paragraph("Protocol:    ");
+            p.setFont(FONT3);
+            p.add(String.valueOf(paym.getProtocol()));
+            document.add(p);
+            p = new Paragraph("Debtor:      ");
+            p.setFont(FONT3);
+            p.add(paym.getDebtor());
+            document.add(p);
+            p = new Paragraph("Bill:            ");
+            p.setFont(FONT3);
+            p.add(String.valueOf(paym.getId()));
+            document.add(p);
             int trim = paym.getTrimester();
             String trimester = null;
             switch (trim) {
@@ -59,14 +70,18 @@ public class PDFGenerator {
                 case 3: trimester = "July - September"; break;
                 case 4: trimester = "October - December"; break;
             }
-            document.add( new Paragraph("Trimester:    " + trimester, FONT3) );
-            document.add( new Paragraph("Year:    " + paym.getYear(), FONT3) );
-            document.add( new Paragraph("Amount:    " + paym.getAmount(), FONT3) );
-            document.add(Chunk.NEWLINE);
-            document.add(Chunk.NEWLINE);
-            document.add(Chunk.NEWLINE);
-            document.add(Chunk.NEWLINE);
-            document.add(Chunk.NEWLINE);
+            p = new Paragraph("Trimester:  "); 
+            p.setFont(FONT3);
+            p.add(trimester);
+            document.add(p);
+            p = new Paragraph("Year:         "); 
+            p.setFont(FONT3);
+            p.add(String.valueOf(paym.getYear()));
+            document.add(p);
+            p = new Paragraph("Amount:    "); 
+            p.setFont(FONT3);
+            p.add(String.valueOf(paym.getAmount()));
+            document.add(p);
             
         }catch(FileNotFoundException | DocumentException exc){
             Logger.getLogger(PDFGenerator.class.getName()).log(Level.SEVERE, null, exc);

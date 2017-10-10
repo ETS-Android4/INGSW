@@ -47,7 +47,4 @@ public class Bill {
         return customer.getSurname();
     }
     
-    public String getDebtor(){
-        return (getName() + " " + getSurname());
-    }
 }

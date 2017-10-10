@@ -31,7 +31,7 @@ public class MainForm extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        PaymentOrdersButton = new javax.swing.JButton();
+        paymentOrdersButton = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         logoutButton = new javax.swing.JButton();
@@ -49,10 +49,10 @@ public class MainForm extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        PaymentOrdersButton.setText("PAYMENT ORDERS");
-        PaymentOrdersButton.addActionListener(new java.awt.event.ActionListener() {
+        paymentOrdersButton.setText("PAYMENT ORDERS");
+        paymentOrdersButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PaymentOrdersButtonActionPerformed(evt);
+                paymentOrdersButtonActionPerformed(evt);
             }
         });
 
@@ -77,7 +77,7 @@ public class MainForm extends javax.swing.JFrame {
                 .addGap(89, 89, 89)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(PaymentOrdersButton, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+                    .addComponent(paymentOrdersButton, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
                     .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(176, Short.MAX_VALUE))
         );
@@ -86,7 +86,7 @@ public class MainForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(PaymentOrdersButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(paymentOrdersButton, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(27, 27, 27)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -102,9 +102,9 @@ public class MainForm extends javax.swing.JFrame {
      * Handles the click of paymentOrderButton.
      * @param evt 
      */
-    private void PaymentOrdersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PaymentOrdersButtonActionPerformed
+    private void paymentOrdersButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paymentOrdersButtonActionPerformed
         mainController.managePaymentOrders();
-    }//GEN-LAST:event_PaymentOrdersButtonActionPerformed
+    }//GEN-LAST:event_paymentOrdersButtonActionPerformed
 
     private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
         mainController.logout();
@@ -112,10 +112,10 @@ public class MainForm extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton PaymentOrdersButton;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton logoutButton;
+    private javax.swing.JButton paymentOrdersButton;
     // End of variables declaration//GEN-END:variables
 }

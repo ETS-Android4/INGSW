@@ -36,7 +36,7 @@ public class BackOfficeLoginServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String user = request.getParameter("user");
         String pass = request.getParameter("pass");
-        if(user==null || pass==null){
+        if(user==null || user.length() ==0 || pass==null || pass.length() == 0){
             response.sendError(463, "Missing parameter");
             return;
         }

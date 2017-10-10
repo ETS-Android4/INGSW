@@ -329,7 +329,8 @@ public class PaymentOrderController {
                 //Sets number protocol of payment order in the table 
                 paymentOrderFrame.setProtocolNumberByRow(row, protocol);
                 // Generates PDF 
-                PDFGenerator.generate(p);
+                PDFGenerator pdfGen = new PDFGenerator();
+                pdfGen.generate(p);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued.\nA PDF, with all the information, was created correctly");      
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
