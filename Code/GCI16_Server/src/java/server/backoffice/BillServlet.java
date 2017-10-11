@@ -50,7 +50,11 @@ public class BillServlet extends HttpServlet {
             response.sendError(462,"No session!");//Errore sessione inesistente.
             return ;
         }
-        if (action.equals("show")){
+        if(action==null){
+            response.sendError(463, "Missing parameter");
+            return;
+        }
+        if (action.equals("get")){
             List<Bill> list = billDAO.getUnpaidBills();
             /*Return the list in json format.*/
             String res = gson.toJson(list);
@@ -62,8 +66,9 @@ public class BillServlet extends HttpServlet {
             }
             
         }
+        else{
+            response.sendError(464, "Bad parameter");
+        }
         
     }
-
-
 }
