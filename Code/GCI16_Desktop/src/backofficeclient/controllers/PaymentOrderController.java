@@ -116,7 +116,7 @@ public class PaymentOrderController {
     public void createPaymentOrderByBill(){
         if( !ConfirmPanel.showConfirm(billFrame)) return;
         int row = billFrame.getTableSelectedRow();
-        Bill b = billList.get(row);
+        Bill b = getBillByRow(row);
         Gson gson = new Gson();
         String gsonString = gson.toJson(b);
         try{
@@ -156,10 +156,9 @@ public class PaymentOrderController {
     
     public void deletePaymentOrder(){
         //Ask confirm operation
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
-        int id = p.getId();
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = getPaymentOrderByRow(row);
         String gson = new Gson().toJson(p);
         try {
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
@@ -192,9 +191,9 @@ public class PaymentOrderController {
 
     public void saveAsSuspendedPaymentOrder(){
        //Ask confirm operation
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = getPaymentOrderByRow(row);
         String gson = new Gson().toJson(p);
         try{
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
@@ -223,9 +222,9 @@ public class PaymentOrderController {
     }
     
     public void saveAsPaidPaymentOrder(){
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = getPaymentOrderByRow(row);
         String gson = new Gson().toJson(p);
         try{
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
@@ -259,11 +258,10 @@ public class PaymentOrderController {
     }
     
     public void saveAsNotPertinentPaymentOrder() {
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
-        System.out.println("Stato: "+p.getStatus());
-        //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = getPaymentOrderByRow(row);
+        //Confirm operation
         String gson = new Gson().toJson(p);
         try{
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
@@ -299,7 +297,7 @@ public class PaymentOrderController {
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
+        PaymentOrder p = getPaymentOrderByRow(row);
         Gson gson = new Gson();
         String gsonString = gson.toJson(p);
         try {
@@ -347,10 +345,10 @@ public class PaymentOrderController {
     }
     
     public void reissuePaymentOrder(){
-        int row = paymentOrderFrame.getTableSelectedRow();
-        PaymentOrder p = paymOrdList.get(row);
-        //Confirm operation
+        //Confirm operation.
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
+        int row = paymentOrderFrame.getTableSelectedRow();
+        PaymentOrder p = getPaymentOrderByRow(row);
         String gson = new Gson().toJson(p);
         try{
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
@@ -382,4 +380,8 @@ public class PaymentOrderController {
     public PaymentOrder getPaymentOrderByRow(int row){
         return paymOrdList.get(row);
     } 
+    
+    public Bill getBillByRow(int row){
+        return billList.get(row);
+    }
 }

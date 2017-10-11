@@ -38,7 +38,6 @@ public class BackOfficeLoginController {
     public void login(String user, String pass){
         URL url;
         try {
-            System.out.println(1);
             url = new URL("http://localhost:8081/GCI16/Login?user="+user+"&pass="+pass);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
