@@ -264,11 +264,11 @@ public class ReadingsController extends AppCompatActivity{
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
                     connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
                     connection.setRequestProperty("Cookie", session);
                     // scrive nel messaggio le letture effettuate in formato json
                     connection.setDoOutput(true);
                     DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
+                    writer.write("readings=".getBytes());
                     writer.write(json.getBytes());
                     writer.close();
 

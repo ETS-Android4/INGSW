@@ -1,7 +1,7 @@
 package server.mobile;
 
 import com.google.gson.Gson;
-import dao.AssignmentDAO;
+import dao.interfaces.AssignmentDAO;
 import entities.Assignment;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,7 +24,16 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "AssignmentServlet", urlPatterns = {"/Assignments"})
 public class AssignmentServlet extends HttpServlet {
-    private final AssignmentDAO assignmentDAO = new AssignmentDAO();
+    private volatile AssignmentDAO assignmentDAO;
+    
+    @Override
+    public void init(){
+        setAssignmentDao(new dao.concrete.oraclesql.AssignmentDAOOracleSQL());
+    }
+    
+    public void setAssignmentDao(AssignmentDAO assignmentDAO){
+        this.assignmentDAO = assignmentDAO;
+    }
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{

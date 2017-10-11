@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package dao;
+package dao.concrete.oraclesql;
 
+import dao.interfaces.PaymentOrderDAO;
 import entities.Bill;
 import entities.Customer;
 import entities.PaymentOrder;
@@ -20,12 +16,9 @@ import java.util.logging.Logger;
  * Provides database-hiding methods for PaymentOrder class.
  * @author GCI16_25
  */
-public class PaymentOrderDAO {
+public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
 
-    /**
-     * Retrieves the list of payment orders.
-     * @return list of payment orders
-     */
+    @Override
     public List<PaymentOrder> getPaymentOrders(){
         
         List <PaymentOrder> list = new ArrayList<>();
@@ -39,7 +32,6 @@ public class PaymentOrderDAO {
         params.add("NOT PERTINENT");
         params.add("PAID");
         ResultSet rs = null;
-        String ret = null;
         String stat;
         Status status;
         try {
@@ -58,18 +50,13 @@ public class PaymentOrderDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PaymentOrderDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         return list;
     }
     
-    /**
-     * Retrieves protocol number of a payment order
-     * 
-     * @param p
-     * @return protocol number
-     */
+    @Override
     public int getProtocol(PaymentOrder p){
         String query = "SELECT PROTOCOL "
                      + "FROM PAYMENTORDER "
@@ -78,21 +65,17 @@ public class PaymentOrderDAO {
         params.add(p.getId());
         int protocol = 0;
         try{
-            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
+            ResultSet rs = Database.getInstance().execQuery(query, params);
             if(rs != null && rs.next()){
                 protocol = rs.getInt("protocol");       
             }
         }catch (SQLException ex) {
-            Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PaymentOrderDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return protocol;
     }
         
-    /**
-     * Retrieves a payment order from a bill's id
-     * @param b
-     * @return a payment order 
-     */
+    @Override
     public PaymentOrder getPaymentOrderByBill(Bill b){
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
                 + "FROM (PAYMENTORDER P JOIN BILL B ON P.BILL = B.IDBILL) JOIN CUSTOMER C ON B.CUSTOMER = C.IDCUSTOMER "
@@ -101,7 +84,7 @@ public class PaymentOrderDAO {
         params.add(b.getId());
         PaymentOrder p = null;
         try {
-            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
+            ResultSet rs = Database.getInstance().execQuery(query, params);
             if(rs!=null){
             
                 if(rs.next()){
@@ -117,16 +100,12 @@ public class PaymentOrderDAO {
                 }
             }     
         }catch(SQLException ex){
-                Logger.getLogger(PaymentOrderDAO.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PaymentOrderDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
             }
         return p;
     }
     
-    /**
-     * Inserts payment order into database
-     * @param b
-     * @return false if an error occurs, true otherwise.
-     */
+    @Override
     public boolean createPaymentOrder(Bill b){
         
         ArrayList<Object> params = new ArrayList<>();
@@ -141,14 +120,9 @@ public class PaymentOrderDAO {
         }
         
         return true;
-        
     }
     
-    /**
-     * Deletes a payment order
-     * @param idPaymentOrder
-     * @return false if an error occurs, true otherwise.
-     */
+    @Override
     public boolean deletePaymentOrder(PaymentOrder p){
         ArrayList<Object> params = new ArrayList<>();
         String query = "DELETE FROM PAYMENTORDER WHERE IDPAYMENTORDER = ?";
@@ -162,6 +136,7 @@ public class PaymentOrderDAO {
         return true;
     }
     
+    @Override
     public boolean update(PaymentOrder p, Status newStatus){
         ArrayList<Object> params = new ArrayList<>();
         String status = null;

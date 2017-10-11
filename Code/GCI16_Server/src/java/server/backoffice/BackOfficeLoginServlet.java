@@ -1,6 +1,6 @@
-package server;
+package server.backoffice;
 
-import dao.OperatorDAO;
+import dao.interfaces.OperatorDAO;
 import entities.Operator;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -21,7 +21,17 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/Login"})
 public class BackOfficeLoginServlet extends HttpServlet {
-    OperatorDAO operatorDAO = new OperatorDAO();
+    private volatile OperatorDAO operatorDAO;
+    
+    @Override
+    public void init(){
+        setOperatorDAO(new dao.concrete.oraclesql.OperatorDAOOracleSQL());
+    }
+    
+    public void setOperatorDAO(OperatorDAO operatorDAO){
+        this.operatorDAO = operatorDAO;
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.

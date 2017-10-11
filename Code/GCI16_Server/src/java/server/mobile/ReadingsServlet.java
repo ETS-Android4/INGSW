@@ -1,8 +1,9 @@
 package server.mobile;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import dao.ReadingDAO;
+import dao.interfaces.ReadingDAO;
 import entities.Reading;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -25,22 +26,42 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "ReadingsServlet", urlPatterns = {"/Readings"})
 public class ReadingsServlet extends HttpServlet {
-    private final ReadingDAO readingDAO = new ReadingDAO();
+    private volatile ReadingDAO readingDAO;
+    
+    public void setReadingDAO(ReadingDAO readingDAO){
+        this.readingDAO = readingDAO;
+    }
+    
+    @Override
+    public void init(){
+        setReadingDAO(new dao.concrete.oraclesql.ReadingDAOOracleSQL());
+    }
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
         // checks session cookie
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false);       
         if(session==null){
             response.sendError(462, "No session");
             return;
         }
         
+        String readingsParameter = request.getParameter("readings");
+        if(readingsParameter==null){
+            response.sendError(463, "Missing parameter");
+            return;
+        }
+        
         //JSON -> Collection
-        String jsonList = request.getReader().readLine();
         Gson gson = new Gson();
         Type type = new TypeToken<List<Reading>>(){}.getType();
-        Collection<Reading> readings = gson.fromJson(jsonList, type);
+        Collection<Reading> readings = null;
+        try{
+            readings = gson.fromJson(readingsParameter, type);
+        }catch(JsonSyntaxException ex){
+            response.sendError(464, "Bad parameter value");
+            return;
+        }
 
         boolean saved = readingDAO.saveReadings(readings);
         if(saved)

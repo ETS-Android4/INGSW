@@ -1,5 +1,6 @@
-package dao;
+package dao.concrete.oraclesql;
 
+import dao.interfaces.ReadingDAO;
 import entities.Reading;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,13 +15,8 @@ import java.util.logging.Logger;
  * 
  * @author Riccardo
  */
-public class ReadingDAO {
-    /**
-     * Saves a list of readings into the database.
-     * 
-     * @param readings list of readings to save into the database
-     * @return true if the operation is successful, false otherwise
-     */
+public class ReadingDAOOracleSQL implements ReadingDAO {
+    @Override
     public boolean saveReadings(Collection<Reading> readings){
         if(readings==null) throw new IllegalArgumentException("Argument is null");
         if(readings.isEmpty())return true;
@@ -50,7 +46,7 @@ public class ReadingDAO {
         try {
             db.commit();
         }catch(SQLException ex) {
-            Logger.getLogger(ReadingDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ReadingDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return true;
     }

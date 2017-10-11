@@ -1,7 +1,7 @@
-package server;
+package server.backoffice;
 
 import com.google.gson.Gson;
-import dao.BillDAO;
+import dao.interfaces.BillDAO;
 import entities.Bill;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,13 +21,17 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "BillServlet", urlPatterns = {"/Bill"})
 public class BillServlet extends HttpServlet {
-    BillDAO bDao;
-    
+    private volatile BillDAO billDAO;
     
     @Override
     public void init(){
-        bDao = new BillDAO();
+        setBillDAO(new dao.concrete.oraclesql.BillDAOOracleSQL());
     }
+    
+    public void setBillDAO(BillDAO billDAO){
+        this.billDAO = billDAO;
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -47,7 +51,7 @@ public class BillServlet extends HttpServlet {
             return ;
         }
         if (action.equals("show")){
-            List<Bill> list = bDao.getUnpaidBills();
+            List<Bill> list = billDAO.getUnpaidBills();
             /*Return the list in json format.*/
             String res = gson.toJson(list);
             try {

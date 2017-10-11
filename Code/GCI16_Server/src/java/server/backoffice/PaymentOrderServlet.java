@@ -1,16 +1,12 @@
-//TODO CONTROLLI JSON!!!!!
-
-package server;
+package server.backoffice;
 
 import com.google.gson.*;
-import dao.PaymentOrderDAO;
+import dao.interfaces.PaymentOrderDAO;
 import entities.*;
 import entities.PaymentOrder.Status;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,16 +20,21 @@ import javax.servlet.http.HttpSession;
  * @author Riccardo
  */
 public class PaymentOrderServlet extends HttpServlet {
-    private PaymentOrderDAO pDao;
+    private volatile PaymentOrderDAO paymentOrderDAO;
+    
     @Override
     public void init(){
-       pDao = new PaymentOrderDAO();
+        setPaymentOrderDAO(new dao.concrete.oraclesql.PaymentOrderDAOOracleSQL());
     }
+    
+    public void setPaymentOrderDAO(PaymentOrderDAO paymentOrderDAO){
+        this.paymentOrderDAO = paymentOrderDAO;
+    }
+    
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        
         String paymentOrder,bill;
-        int idBill,idPaymentOrder,protocol=0;
+        int protocol=0;
         String res;
         PaymentOrder p=null;
         PaymentOrder.Status newStatus=null;
@@ -42,11 +43,13 @@ public class PaymentOrderServlet extends HttpServlet {
         
         HttpSession session = request.getSession(false);
         if(session == null){
-            response.sendError(462,"No session!"); 
+            response.sendError(462,"No session!");
             return;
         }
+        
         String action = request.getParameter("action");
-        System.out.println(action);
+     
+        
         switch(action){
             case "show":
                 res = getPaymentOrders();
@@ -69,7 +72,7 @@ public class PaymentOrderServlet extends HttpServlet {
             
             default:
                 paymentOrder = request.getParameter("paymentOrder");
-                p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
+                p = gson.fromJson(paymentOrder, PaymentOrder.class);
                 System.out.println("ID: "+p.getId()+" Protocol: "+p.getProtocol());
                 switch(action){
                     case "saveAsPaid":
@@ -105,13 +108,13 @@ public class PaymentOrderServlet extends HttpServlet {
                        return;
                 }
                 if(p.isNextStatus(newStatus)){
-                    if(!pDao.update(p,newStatus)){
+                    if(!paymentOrderDAO.update(p,newStatus)){
                         response.sendError(500,"Internal server error");
                         return;
                     }
                     else{
                         if(p.getStatus().equals(Status.NOTISSUED) && newStatus.equals(Status.ISSUED)){
-                            protocol = pDao.getProtocol(p);
+                            protocol = paymentOrderDAO.getProtocol(p);
                             pw.write(gson.toJson(protocol));
                         }
                     }
@@ -121,12 +124,11 @@ public class PaymentOrderServlet extends HttpServlet {
                     return;
                 }
                 break;
-            }
+        }
     }
     
-  
     private String getPaymentOrders(){
-        List<PaymentOrder> list = pDao.getPaymentOrders();
+        List<PaymentOrder> list = paymentOrderDAO.getPaymentOrders();
         Gson gson = new Gson();
         /*List of payment orders in JSON format.*/
         String string = gson.toJson(list);
@@ -143,8 +145,8 @@ public class PaymentOrderServlet extends HttpServlet {
         String res = null;
         Gson gson = new Gson();
         Bill b = gson.fromJson(bill, Bill.class);
-        if(pDao.createPaymentOrder(b)){
-           PaymentOrder p = pDao.getPaymentOrderByBill(b);
+        if(paymentOrderDAO.createPaymentOrder(b)){
+           PaymentOrder p = paymentOrderDAO.getPaymentOrderByBill(b);
            /*Payment order in JSON format.*/
            res = gson.toJson(p);
            
@@ -154,9 +156,6 @@ public class PaymentOrderServlet extends HttpServlet {
     
     private boolean deletePaymentOrder(String paymentOrder){
         PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
-        return pDao.deletePaymentOrder(p);
+        return paymentOrderDAO.deletePaymentOrder(p);
     }
-    
-    
-    
 }

@@ -1,6 +1,7 @@
-package dao;
+package dao.concrete.oraclesql;
 
 import entities.Assignment;
+import dao.interfaces.AssignmentDAO;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -14,13 +15,8 @@ import java.util.logging.Logger;
  * 
  * @author Riccardo
  */
-public class AssignmentDAO {
-    /**
-     * Retrieves the assignments destined to the operator whose ID is passed as parameter.
-     * 
-     * @param operatorId
-     * @return null if an error occurs, the list of the assignments for the operator otherwise
-     */
+public class AssignmentDAOOracleSQL implements AssignmentDAO {
+    @Override
     public Collection<Assignment> getAssignments(int operatorId){
         Collection<Assignment> assignments = new LinkedList<>();
         List<Object> params = new LinkedList<>();
@@ -36,7 +32,7 @@ public class AssignmentDAO {
                 ));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(AssignmentDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AssignmentDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
         return assignments;

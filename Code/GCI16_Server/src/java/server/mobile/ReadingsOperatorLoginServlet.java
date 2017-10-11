@@ -1,6 +1,6 @@
 package server.mobile;
 
-import dao.OperatorDAO;
+import dao.interfaces.OperatorDAO;
 import entities.Operator;
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
@@ -20,7 +20,16 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "ReadingsOperatorLoginServlet", urlPatterns = {"/ReadingsOperatorLogin"})
 public class ReadingsOperatorLoginServlet extends HttpServlet {
-    OperatorDAO operatorDAO = new OperatorDAO();
+    private volatile OperatorDAO operatorDAO;
+    
+    @Override
+    public void init(){
+        setOperatorDAO(new dao.concrete.oraclesql.OperatorDAOOracleSQL());
+    }
+    
+    public void setOperatorDAO(OperatorDAO operatorDAO){
+        this.operatorDAO = operatorDAO;
+    }
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{

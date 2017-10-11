@@ -1,5 +1,6 @@
-package dao;
+package dao.concrete.oraclesql;
 
+import dao.interfaces.BillDAO;
 import entities.Bill;
 import entities.Customer;
 import java.sql.ResultSet;
@@ -13,12 +14,8 @@ import java.util.logging.Logger;
  * Provides database-hiding methods for Bill class.
  * @author GCI16_25
  */
-public class BillDAO {
-    
-    /**
-     * Retrieves unpaid bills (after three months);
-     * @return null if an error occurs, the list of unpaid bills otherwise.
-     */
+public class BillDAOOracleSQL implements BillDAO{
+    @Override
     public List<Bill> getUnpaidBills() {
         String query = "select idBill, year, trimester,name,surname,amount "
                     +  "from bill b join customer c on c.idcustomer = b.customer " +
@@ -29,7 +26,7 @@ public class BillDAO {
         List<Bill> list = new ArrayList<>();
         
         try {
-            ResultSet rs = dao.Database.getInstance().execQuery(query, params);
+            ResultSet rs = Database.getInstance().execQuery(query, params);
             if(rs!= null){
                 while(rs.next()){
                     Customer c = new Customer(rs.getString("name"), rs.getString("surname"));
@@ -38,7 +35,7 @@ public class BillDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(BillDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BillDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
         }
         return list;
     }
