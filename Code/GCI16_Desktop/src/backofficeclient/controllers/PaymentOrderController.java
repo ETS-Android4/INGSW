@@ -51,7 +51,7 @@ public class PaymentOrderController {
         });
 
         try {
-            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=show");
+            URL url = new URL("http://localhost:8081/GCI16/PaymentOrder?action=get");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
@@ -83,7 +83,7 @@ public class PaymentOrderController {
     public void createPaymentOrder(){
         billFrame = new BillForm(this);
         try{
-            URL url = new URL("http://localhost:8081/GCI16/Bill?action=show");
+            URL url = new URL("http://localhost:8081/GCI16/Bill?action=get");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestProperty("Cookie", session);
             connection.connect();
