@@ -1,14 +1,12 @@
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import dao.interfaces.ReadingDAO;
-import entities.Assignment;
 import entities.Customer;
 import entities.Reading;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -19,11 +17,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import server.mobile.ReadingsServlet;
 /**
- *
+ * Testing of doPost method using JUnit 4.9 in SECT method
  * @author GCI16_25
  */
 public final class ReadingsServletTest extends Mockito{
-    private ReadingsServlet servlet = new ReadingsServlet();
+    private final ReadingsServlet servlet = new ReadingsServlet();
     private HttpServletRequest request;
     private HttpServletResponse response;
     private ReadingDAO readingDAO;
@@ -72,7 +70,7 @@ public final class ReadingsServletTest extends Mockito{
     /*  Test 1
         Session found, JSON readings well-formed and DAO returns true */
     @Test
-    public void test_okSession_okJSON_trueDAO() throws Exception{
+    public void test_okSession_okJSON_trueDAO(){
         Gson gson = new Gson();
         Reading readingObject = new Reading(1, 1, new Date(), 1);
         LinkedList<Reading> readingCollection = new LinkedList<>();
@@ -82,8 +80,11 @@ public final class ReadingsServletTest extends Mockito{
         when(request.getSession(false)).thenReturn(session); // Set stub session
         when(request.getParameter("readings")).thenReturn(reading); // Set stub readings parameter
         when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
-        
-        servlet.doPost(request, response);
+        try {
+            servlet.doPost(request, response);
+        } catch (IOException ex) {
+            Assert.assertTrue(false);
+        }
         Assert.assertEquals(200, response.getStatus());
     }
     
@@ -134,27 +135,17 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_okSession_notReadingJSON_trueDAO() throws Exception{
         Gson gson = new Gson();
-        Customer customerObject = new Customer("peppe", "peeeppe");
+        Customer customerObject = new Customer("carlo", "de vita");
         LinkedList<Customer> customerCollection = new LinkedList<>();
         customerCollection.add(customerObject);
         String customer = gson.toJson(customerCollection);
-        System.out.println(customer);
-        try{
-            Type type = new TypeToken<List<Reading>>(){}.getType();
-            List<Reading> r = gson.fromJson(customer, type);
-            System.out.println(r);
-            System.out.println(gson.toJson(r));
-        }catch(RuntimeException ex){
-            System.out.println(ex.getMessage());
-            System.out.println(ex.getClass().getName());
-        }
         
         when(request.getSession(false)).thenReturn(session); // Set stub session
         when(request.getParameter("readings")).thenReturn(customer); // Set stub readings parameter
         when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
         
         servlet.doPost(request, response);
-        Assert.assertEquals(463, response.getStatus());
+        Assert.assertEquals(464, response.getStatus());
     }
     
     /*  Test 6
@@ -162,16 +153,164 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_okSession_notReadingJSON_falseDAO() throws Exception{
         Gson gson = new Gson();
-        Assignment readingObject = new Assignment(1, 1, "", "");
-        LinkedList<Assignment> assignmentCollection = new LinkedList<>();
-        assignmentCollection.add(readingObject);
-        String reading = gson.toJson(assignmentCollection);
+        Customer customerObject = new Customer("carlo", "de vita");
+        LinkedList<Customer> customerCollection = new LinkedList<>();
+        customerCollection.add(customerObject);
+        String customer = gson.toJson(customerCollection);
         
         when(request.getSession(false)).thenReturn(session); // Set stub session
+        when(request.getParameter("readings")).thenReturn(customer); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(464, response.getStatus());
+    }
+    
+    /*  Test 7
+        Session found, JSON readings not well-formed and DAO returns true */
+    @Test
+    public void test_okSession_notWellFormedJSON_trueDAO() throws Exception{
+        
+        when(request.getSession(false)).thenReturn(session); // Set stub session
+        when(request.getParameter("readings")).thenReturn("Provaaa"); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(464, response.getStatus());
+    }
+    
+    /*  Test 8
+        Session found, JSON readings not well-formed and DAO returns false */
+    @Test
+    public void test_okSession_notWellFormedJSON_falseDAO() throws Exception{
+        
+        when(request.getSession(false)).thenReturn(session); // Set stub session
+        when(request.getParameter("readings")).thenReturn("Provaaa"); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(464, response.getStatus());
+    }
+    
+    /*  Test 9
+        Session does not exist, JSON readings well-formed and DAO returns true */
+    @Test
+    public void test_noSession_okJSON_trueDAO() throws Exception{
+        Gson gson = new Gson();
+        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        LinkedList<Reading> readingCollection = new LinkedList<>();
+        readingCollection.add(readingObject);
+        String reading = gson.toJson(readingCollection);
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn(reading); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 10
+        Session does not exist, JSON readings well-formed and DAO returns false */
+    @Test
+    public void test_noSession_okJSON_falseDAO() throws Exception{
+        Gson gson = new Gson();
+        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        LinkedList<Reading> readingCollection = new LinkedList<>();
+        readingCollection.add(readingObject);
+        String reading = gson.toJson(readingCollection);
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
         when(request.getParameter("readings")).thenReturn(reading); // Set stub readings parameter
         when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
         
         servlet.doPost(request, response);
-        Assert.assertEquals(463, response.getStatus());
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 11
+        Session does not exist, no JSON readings and DAO returns true */
+    @Test
+    public void test_noSession_noJSON_trueDAO() throws Exception{
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn(null); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 12
+        Session does not exist, no JSON readings and DAO returns false */
+    @Test
+    public void test_noSession_noJSON_falseDAO() throws Exception{
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn(null); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 13
+        Session does not exist, not reading JSON and DAO returns true */
+    @Test
+    public void test_noSession_notReadingJSON_trueDAO() throws Exception{
+        Gson gson = new Gson();
+        Customer customerObject = new Customer("carlo", "de vita");
+        LinkedList<Customer> customerCollection = new LinkedList<>();
+        customerCollection.add(customerObject);
+        String customer = gson.toJson(customerCollection);
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn(customer); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 14
+        Session does not exist, not reading JSON and DAO returns false */
+    @Test
+    public void test_noSession_notReadingJSON_falseDAO() throws Exception{
+        Gson gson = new Gson();
+        Customer customerObject = new Customer("carlo", "de vita");
+        LinkedList<Customer> customerCollection = new LinkedList<>();
+        customerCollection.add(customerObject);
+        String customer = gson.toJson(customerCollection);
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn(customer); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 15
+        Session does not exist, JSON readings not well-formed and DAO returns true */
+    @Test
+    public void test_noSession_notWellFormedJSON_trueDAO() throws Exception{
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn("Provaaa"); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(true); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
+    }
+    
+    /*  Test 16
+        Session does not exist, JSON readings not well-formed and DAO returns false */
+    @Test
+    public void test_noSession_notWellFormedJSON_falseDAO() throws Exception{
+        
+        when(request.getSession(false)).thenReturn(null); // Set stub session
+        when(request.getParameter("readings")).thenReturn("Provaaa"); // Set stub readings parameter
+        when(readingDAO.saveReadings(any())).thenReturn(false); // Set stub readings parameter
+        
+        servlet.doPost(request, response);
+        Assert.assertEquals(462, response.getStatus());
     }
 }
