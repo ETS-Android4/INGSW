@@ -60,7 +60,7 @@ public class BackOfficeLoginServlet extends HttpServlet {
         if(log == true){
             response.setStatus(200);
             HttpSession session = request.getSession(true);
-            session.setMaxInactiveInterval(43200); //12 hours
+            session.setMaxInactiveInterval(20); //12 hours
         }else{
             response.sendError(461, "Wrong id or password");
             

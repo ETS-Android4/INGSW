@@ -57,9 +57,12 @@ public class PaymentOrderServlet extends HttpServlet {
      
         
         switch(action){
-            case "show":
+            case "get":
                 res = getPaymentOrders();
-                pw.print(res);
+                if(res != null)
+                    pw.print(res);
+                else
+                    response.sendError(500,"Server Error");
                 break;
             
             case "create":
@@ -78,8 +81,11 @@ public class PaymentOrderServlet extends HttpServlet {
             
             default:
                 paymentOrder = request.getParameter("paymentOrder");
+                if(paymentOrder == null){
+                    response.sendError(464,"Bad parameter values");
+                    return;
+                } 
                 p = gson.fromJson(paymentOrder, PaymentOrder.class);
-                System.out.println("ID: "+p.getId()+" Protocol: "+p.getProtocol());
                 switch(action){
                     case "saveAsPaid":
                         newStatus = Status.PAID;
@@ -110,9 +116,10 @@ public class PaymentOrderServlet extends HttpServlet {
                         break;
                         
                     default:
-                       response.sendError(464,"Bad parameter value");
+                       response.sendError(464,"Bad parameter values");
                        return;
                 }
+                
                 if(p.isNextStatus(newStatus)){
                     if(!paymentOrderDAO.update(p,newStatus)){
                         response.sendError(500,"Internal server error");
@@ -139,9 +146,13 @@ public class PaymentOrderServlet extends HttpServlet {
      */
     private String getPaymentOrders(){
         List<PaymentOrder> list = paymentOrderDAO.getPaymentOrders();
-        Gson gson = new Gson();
-        /*List of payment orders in JSON format.*/
-        String string = gson.toJson(list);
+        String string = null;
+        if(list!=null){
+            Gson gson = new Gson();
+            /*List of payment orders in JSON format.*/
+            string = gson.toJson(list);
+        }
+        
         return string;
        
     }

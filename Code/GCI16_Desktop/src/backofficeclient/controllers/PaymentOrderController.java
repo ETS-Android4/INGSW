@@ -50,6 +50,7 @@ public class PaymentOrderController {
      */
     public void start(){
         paymentOrderFrame = new PaymentOrderForm(this);
+        paymentOrderFrame.setVisible(true);
         //When user closes payment order form, main controller will start.
         paymentOrderFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -78,7 +79,12 @@ public class PaymentOrderController {
                 paymentOrderFrame.setVisible(true);
             }
             else if(resCode == 462){
-                JOptionPane.showMessageDialog(paymentOrderFrame,"Server not avalaible");
+                JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired");
+                disconnect();
+            }
+            else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         }catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);    
@@ -115,7 +121,12 @@ public class PaymentOrderController {
                 }
             }
             else if (resCode == 462){
-                JOptionPane.showMessageDialog(billFrame,"Server not available");
+                JOptionPane.showMessageDialog(billFrame,"Session expired");
+                disconnect();
+            }
+            else if(resCode == 500){
+                JOptionPane.showMessageDialog(billFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         }   catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -161,7 +172,12 @@ public class PaymentOrderController {
                 billFrame.dispose();
             }
             else if(resCode == 462){
-                JOptionPane.showMessageDialog(billFrame,"Server not available");
+                JOptionPane.showMessageDialog(billFrame,"Session expired");
+                disconnect();
+            }
+            else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         }catch (IOException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -195,7 +211,12 @@ public class PaymentOrderController {
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired"); 
+              disconnect();
+            }
+            else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         }catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -232,8 +253,13 @@ public class PaymentOrderController {
                 paymOrd.setStatus(Status.SUSPENDED);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
-            }       
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired"); 
+              disconnect();
+            } 
+            else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
+            }
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -265,11 +291,17 @@ public class PaymentOrderController {
                 paymentOrderFrame.removePaymentOrderByRow(row);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired");
+              disconnect();
             }else if (resCode == 464){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Bad parameter values"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Bad parameter values");
+              disconnect();
             }else if (resCode == 465){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Not practicable operation"); 
+              disconnect();
+            }else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         } catch (MalformedURLException ex) {
                 Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
@@ -306,10 +338,16 @@ public class PaymentOrderController {
                 paymOrdList.remove(row);
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired"); 
+              disconnect();
             }else if (resCode == 465){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Not practicable operation"); 
+              disconnect();
+            }else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
+            
         }catch (MalformedURLException ex) {
             Logger.getLogger(PaymentOrderController.class.getName()).log(Level.SEVERE, null, ex);
         }catch (IOException ex) {
@@ -361,7 +399,11 @@ public class PaymentOrderController {
                 else
                     JOptionPane.showMessageDialog(paymentOrderFrame, "Payment order with protocol " + p.getProtocol() + " has been issued, but the relative PDF could not be created.");
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired"); 
+              disconnect();
+            }else if(resCode == 500){
+                JOptionPane.showMessageDialog(paymentOrderFrame,"It's not possible to comunicate with server at this moment");
+                disconnect();
             }
         
         }catch (MalformedURLException ex) {
@@ -400,7 +442,7 @@ public class PaymentOrderController {
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
                 //In this case there is no creation of a new PDF
             }else if (resCode == 462){
-              JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
+              JOptionPane.showMessageDialog(paymentOrderFrame,"Session expired"); 
             }
         } catch (IOException ex) {
             Logger.getLogger(PaymentOrderForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -426,5 +468,12 @@ public class PaymentOrderController {
      */
     public Bill getBillByRow(int row){
         return billList.get(row);
+    }
+    
+    public void disconnect(){
+        BackOfficeLoginController lc = new BackOfficeLoginController();
+        lc.start();
+        paymentOrderFrame.dispose();
+        
     }
 }

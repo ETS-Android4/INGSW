@@ -51,6 +51,7 @@ public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
             }
         } catch (SQLException ex) {
             Logger.getLogger(PaymentOrderDAOOracleSQL.class.getName()).log(Level.SEVERE, null, ex);
+            list = null;
         }
         
         return list;
