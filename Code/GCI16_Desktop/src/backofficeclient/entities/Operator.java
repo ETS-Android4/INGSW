@@ -1,7 +1,7 @@
 package backofficeclient.entities;
 
 /**
- * Represents a operator of the company.
+ * Represents an operator of the company.
  * 
  * @author GCI16_25
  */

@@ -21,6 +21,9 @@ public class BackOfficeLoginForm extends javax.swing.JFrame {
         initComponents();
     }
     
+    /**
+     * Closes window and set null the reference to loginController.
+     */
     @Override
     public void dispose(){
         loginController = null;
@@ -180,7 +183,7 @@ public class BackOfficeLoginForm extends javax.swing.JFrame {
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
         String user = userField.getText();
         char[] passw = passField.getPassword();
-        if(passw == null || passw.length ==0){
+        if(user.isEmpty() || passw == null || passw.length ==0){
             JOptionPane.showMessageDialog(this,"Login Error! Missing username or password.");
             return;
         }

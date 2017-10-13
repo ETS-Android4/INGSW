@@ -33,6 +33,11 @@ public class PaymentOrder {
         this.amount = amount;
     }
     
+    /**
+     * Verifies that newStatus is a possible next status of a payment order.
+     * @param newStatus payment order's next status associated. 
+     * @return 
+     */
     public boolean isNextStatus(Status newStatus){
         switch (newStatus){
             case ISSUED:

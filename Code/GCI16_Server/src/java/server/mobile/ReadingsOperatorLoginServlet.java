@@ -31,6 +31,12 @@ public class ReadingsOperatorLoginServlet extends HttpServlet {
         this.operatorDAO = operatorDAO;
     }
     
+    /**
+     * Manage readings operator's login request 
+     * @param request
+     * @param response
+     * @throws IOException 
+     */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
         //checks parameters

@@ -11,6 +11,14 @@ public class Bill {
     private int year;
     private int trimester;
     
+    /**
+     * Constructor.
+     * @param id id of bill.
+     * @param customer person who has to pay the bill.
+     * @param cost amount of bill.
+     * @param year base year of bill.
+     * @param trimester base trimester of bill.
+     */
     public Bill(int id, Customer customer,double cost,int year,int trimester){
         this.id = id;
         this.customer = customer;

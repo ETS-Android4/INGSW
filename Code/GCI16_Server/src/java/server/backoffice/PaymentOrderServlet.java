@@ -16,8 +16,8 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(urlPatterns = {"/PaymentOrder"})
 /**
- *
- * @author Riccardo
+ * Handles request of managing payment orders
+ * @author GCI16_25
  */
 public class PaymentOrderServlet extends HttpServlet {
     private volatile PaymentOrderDAO paymentOrderDAO;
@@ -31,6 +31,12 @@ public class PaymentOrderServlet extends HttpServlet {
         this.paymentOrderDAO = paymentOrderDAO;
     }
     
+    /**
+     * Manages every functionality about payment orders
+     * @param request
+     * @param response
+     * @throws IOException 
+     */
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException{
         String paymentOrder,bill;
@@ -127,6 +133,10 @@ public class PaymentOrderServlet extends HttpServlet {
         }
     }
     
+    /**
+     * Manages operator's request to get payment orders
+     * @return JSON string that represent the list of payment orders
+     */
     private String getPaymentOrders(){
         List<PaymentOrder> list = paymentOrderDAO.getPaymentOrders();
         Gson gson = new Gson();
@@ -138,8 +148,8 @@ public class PaymentOrderServlet extends HttpServlet {
     /**
      * Create a payment order from a bill's id and then return the inserted payment order.
      * This because it's necessary to obtain that payment orders's ID, given into databse. 
-     * @param idBill
-     * @return 
+     * @param bill JSON string that represents bill
+     * @return json string that represents payment order
      */
     private String createPaymentOrder(String bill){
         String res = null;
@@ -154,6 +164,11 @@ public class PaymentOrderServlet extends HttpServlet {
         return res;
     }
     
+    /**
+     * Manages operator's request to delete a payment order
+     * @param paymentOrder JSON string that represents the payment order
+     * @return false if an error occurs, true otherwise.
+     */
     private boolean deletePaymentOrder(String paymentOrder){
         PaymentOrder p = new Gson().fromJson(paymentOrder, PaymentOrder.class);
         return paymentOrderDAO.deletePaymentOrder(p);

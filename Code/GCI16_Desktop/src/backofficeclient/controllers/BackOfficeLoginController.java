@@ -14,8 +14,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 /**
- * TODO
- * @author cdevi
+ * Manages login of back office operator.
+ * @author GCI16_25
  */
 public class BackOfficeLoginController {
     private JFrame login;
@@ -30,11 +30,20 @@ public class BackOfficeLoginController {
         loginController.start();
     }
     
+    /**
+     * Shows login form. 
+     */
     public void start(){
         login = new BackOfficeLoginForm(this);
         login.setVisible(true);
     }
     
+    /**
+     * Allows access to the system..
+     * Sends request to login servlet with user e password parameters.
+     * @param user user who want to accede in the system.
+     * @param pass user's password.
+     */
     public void login(String user, String pass){
         URL url;
         try {

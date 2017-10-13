@@ -8,8 +8,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author carlo
+ * Form where unpaid bills are shown.
+ * @author GCI16_25
  */
 public class BillForm extends javax.swing.JFrame {
     private PaymentOrderController paymOrdController;
@@ -19,6 +19,9 @@ public class BillForm extends javax.swing.JFrame {
         initComponents();
     }
     
+    /**
+     * Closes window and set null the reference to payment order controller.
+     */
     @Override
     public void dispose(){
         paymOrdController = null;

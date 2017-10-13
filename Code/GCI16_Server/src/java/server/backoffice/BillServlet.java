@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 
 /**
  * Handles operator's request of getting unpaid bills 
- * @author carlo
+ * @author GCI16_25
  */
 @WebServlet(name = "BillServlet", urlPatterns = {"/Bill"})
 public class BillServlet extends HttpServlet {
@@ -28,6 +28,10 @@ public class BillServlet extends HttpServlet {
         setBillDAO(new dao.concrete.oraclesql.BillDAOOracleSQL());
     }
     
+    /**
+     * Injection of concrete type of billDAO.
+     * @param billDAO 
+     */
     public void setBillDAO(BillDAO billDAO){
         this.billDAO = billDAO;
     }
@@ -56,7 +60,6 @@ public class BillServlet extends HttpServlet {
         }
         if (action.equals("get")){
             List<Bill> list = billDAO.getUnpaidBills();
-            /*Return the list in json format.*/
             String res = gson.toJson(list);
             try {
                 PrintWriter pw = response.getWriter();

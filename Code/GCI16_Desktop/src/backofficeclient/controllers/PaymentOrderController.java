@@ -1,4 +1,3 @@
-
 package backofficeclient.controllers;
 
 import backofficeclient.entities.Bill;
@@ -27,8 +26,8 @@ import javax.swing.JOptionPane;
 import pdfgenerator.PDFGenerator;
 
 /**
- *
- * @author cdevi
+ * Manages every functionality about payment orders.
+ * @author GCI16_25
  */
 public class PaymentOrderController {
     private PaymentOrderForm paymentOrderFrame; 
@@ -37,12 +36,21 @@ public class PaymentOrderController {
     private BillForm billFrame;
     private List<Bill> billList;
     
+    /**
+     * Constructor of payment order controller
+     * @param session current JSESSIONID.
+     */
     public PaymentOrderController(String session){
         this.session = session;
     }
     
+    /**
+     * Shows payment orders in the payment order form.
+     * 
+     */
     public void start(){
         paymentOrderFrame = new PaymentOrderForm(this);
+        //When user closes payment order form, main controller will start.
         paymentOrderFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -80,6 +88,10 @@ public class PaymentOrderController {
         }
     }
      
+    /**
+     * Manages creation functionality of a payment order.
+     * Unpaid bill are shown.
+     */
     public void createPaymentOrder(){
         billFrame = new BillForm(this);
         try{
@@ -94,7 +106,6 @@ public class PaymentOrderController {
                 String line = rd.readLine();
                 rd.close();
                 Gson gson = new Gson();
-                // From JSON to collection.
                 java.lang.reflect.Type BillListType = new TypeToken<Collection< Bill> >(){}.getType();
                 List<Bill> list = gson.fromJson(line, BillListType);
                 this.billList = list;
@@ -113,6 +124,10 @@ public class PaymentOrderController {
         }      
     }
     
+    /**
+     * Manages creation functionality.
+     * After choosing a bill, back office operator can create a payment order.
+     */
     public void createPaymentOrderByBill(){
         if( !ConfirmPanel.showConfirm(billFrame)) return;
         int row = billFrame.getTableSelectedRow();
@@ -154,6 +169,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Manages deletion functionality.
+     */
     public void deletePaymentOrder(){
         //Ask confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
@@ -163,7 +181,6 @@ public class PaymentOrderController {
         try {
             URL url = new URL("http://localhost:8081/GCI16/PaymentOrder");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            //Set JSESSIONID
             connection.setRequestProperty("Cookie", session);
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
@@ -176,7 +193,6 @@ public class PaymentOrderController {
             if(resCode == 200){                
                 paymOrdList.remove(row);
                 paymentOrderFrame.removePaymentOrderByRow(row);
-                //Operation completed
                 JOptionPane.showMessageDialog(paymentOrderFrame, "Operation successfully completed!");
             }else if (resCode == 462){
               JOptionPane.showMessageDialog(paymentOrderFrame,"Server not available"); 
@@ -189,6 +205,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
 
+    /**
+     * Saves as suspended a payment order.
+     */
     public void saveAsSuspendedPaymentOrder(){
        //Ask confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
@@ -221,6 +240,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Saves as paid a payment order.
+     */
     public void saveAsPaidPaymentOrder(){
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return; 
         int row = paymentOrderFrame.getTableSelectedRow();
@@ -257,6 +279,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Saves as not pertinent a payment order.
+     */
     public void saveAsNotPertinentPaymentOrder() {
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
         int row = paymentOrderFrame.getTableSelectedRow();
@@ -293,6 +318,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Manages issuing functionality.
+     */
     public void issuePaymentOrder() {
         //Confirm operation
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
@@ -344,6 +372,9 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Reissues a payment order
+     */
     public void reissuePaymentOrder(){
         //Confirm operation.
         if(!ConfirmPanel.showConfirm(paymentOrderFrame)) return;
@@ -377,10 +408,22 @@ public class PaymentOrderController {
         paymentOrderFrame.clearSelectionTable();
     }
     
+    /**
+     * Allows to take payment order from the payment order list.
+     * It can be done because list and table have the same order.
+     * @param row row selected in the table
+     * @return payment order in the list, with position 'row'.
+     */
     public PaymentOrder getPaymentOrderByRow(int row){
         return paymOrdList.get(row);
     } 
     
+    /**
+     * Allows to take bill from the list
+     * It can be done because list and table have the same order.
+     * @param row row selected in the table
+     * @return bill in the list, with position 'row'.
+     */
     public Bill getBillByRow(int row){
         return billList.get(row);
     }

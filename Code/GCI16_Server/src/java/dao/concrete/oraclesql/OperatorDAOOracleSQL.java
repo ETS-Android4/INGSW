@@ -13,6 +13,12 @@ import java.util.logging.Logger;
  * @author GCI16_25
  */
 public class OperatorDAOOracleSQL implements OperatorDAO {
+    
+    /**
+     * Verify that login credentials are correct.
+     * @param op operator
+     * @return true if login is correct, false if login is not correct, null if an error occurs.
+     */
     @Override
     public Boolean exists(Operator op){
         String user = op.getIdentifier();

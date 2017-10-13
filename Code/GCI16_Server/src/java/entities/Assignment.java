@@ -3,7 +3,7 @@ package entities;
 /**
  * A task assigned to a operator.
  *
- * @author Riccardo
+ * @author GCI16_25
  */
 public class Assignment {
     private int operatorId;

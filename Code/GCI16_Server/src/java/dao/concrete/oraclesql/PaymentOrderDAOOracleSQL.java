@@ -56,6 +56,7 @@ public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
         return list;
     }
     
+    
     @Override
     public int getProtocol(PaymentOrder p){
         String query = "SELECT PROTOCOL "
@@ -74,7 +75,8 @@ public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
         }
         return protocol;
     }
-        
+    
+    
     @Override
     public PaymentOrder getPaymentOrderByBill(Bill b){
         String query = "SELECT P.IDPAYMENTORDER, P.PROTOCOL,C.NAME,C.SURNAME,B.YEAR,B.TRIMESTER,B.AMOUNT as BAMOUNT ,P.AMOUNT as PAMOUNT,P.STATUS "
@@ -105,6 +107,7 @@ public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
         return p;
     }
     
+  
     @Override
     public boolean createPaymentOrder(Bill b){
         
@@ -121,6 +124,7 @@ public class PaymentOrderDAOOracleSQL implements PaymentOrderDAO{
         
         return true;
     }
+    
     
     @Override
     public boolean deletePaymentOrder(PaymentOrder p){
