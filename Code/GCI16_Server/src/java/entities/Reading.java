@@ -3,7 +3,7 @@ package entities;
 /**
  * The result of a meter reading.
  *
- * @author Riccardo
+ * @author GCI16_25
  */
 public class Reading {
     private int operatorId;

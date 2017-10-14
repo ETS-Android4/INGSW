@@ -15,6 +15,7 @@ import java.util.logging.Logger;
  * @author GCI16_25
  */
 public class BillDAOOracleSQL implements BillDAO{
+    
     @Override
     public List<Bill> getUnpaidBills() {
         String query = "select idBill, year, trimester,name,surname,amount "

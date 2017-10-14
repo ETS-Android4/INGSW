@@ -37,6 +37,12 @@ public class ReadingsServlet extends HttpServlet {
         setReadingDAO(new dao.concrete.oraclesql.ReadingDAOOracleSQL());
     }
     
+    /**
+     * Manges operator's request to save readings
+     * @param request
+     * @param response
+     * @throws IOException 
+     */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
         // checks session cookie

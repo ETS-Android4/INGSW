@@ -16,6 +16,7 @@ import java.util.logging.Logger;
  * @author Riccardo
  */
 public class ReadingDAOOracleSQL implements ReadingDAO {
+   
     @Override
     public boolean saveReadings(Collection<Reading> readings){
         if(readings==null) throw new IllegalArgumentException("Argument is null");

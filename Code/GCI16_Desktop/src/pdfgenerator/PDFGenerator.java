@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 /**
  * Creates PDF
- * @author Mattia
+ * @author GCI16_25
  */
 
 public class PDFGenerator {
@@ -30,7 +30,7 @@ public class PDFGenerator {
     
     /**
      * Generates PDF from a payment order.
-     * @param paym 
+     * @param paym payment order
      */
     public boolean generate(PaymentOrder paym) {
         /* Creates document */

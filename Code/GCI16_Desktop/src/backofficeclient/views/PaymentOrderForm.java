@@ -15,18 +15,25 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 /**
- * The window where is possible to manage payment orders.
+ * Form where is possible to manage payment orders.
  * 
  * @author GCI16_25
  */
 public class PaymentOrderForm extends javax.swing.JFrame {
     private PaymentOrderController paymOrdController;
     
+    /**
+     * Constructor
+     * @param paymOrdController payment order controller
+     */
     public PaymentOrderForm(PaymentOrderController paymOrdController) {
         this.paymOrdController = paymOrdController;
         initComponents();
     }
     
+    /**
+     * Closes the form and set null the reference to paymOrdController.
+     */
     @Override
     public void dispose(){
         this.paymOrdController = null;

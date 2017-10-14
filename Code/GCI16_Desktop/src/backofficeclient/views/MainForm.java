@@ -3,7 +3,7 @@ package backofficeclient.views;
 import backofficeclient.controllers.MainController;
 
 /**
- * The page where an user can select what to manage.
+ * Form where an user can choose to manage payment order,bill or customer records.
  * In this application an user can select only to manage payment orders.
  * @author GCI16_25
  */
