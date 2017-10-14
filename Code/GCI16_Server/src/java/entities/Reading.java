@@ -8,7 +8,7 @@ package entities;
 public class Reading {
     private int operatorId;
     private int meterId;
-    private java.util.Date date;
+    private long date;
     private float consumption;
 
     public int getOperatorId(){
@@ -18,7 +18,8 @@ public class Reading {
     public int getMeterId(){
         return meterId;
     }
-    public java.util.Date getDate(){
+    
+    public long getDate(){
         return date;
     }
 
@@ -26,12 +27,16 @@ public class Reading {
         return consumption;
     }
 
-    public Reading(int operatorId, int meterId, java.util.Date date, float consumption){
-        if(consumption<0 || date==null) throw new IllegalArgumentException();
+    public Reading(int operatorId, int meterId, float consumption, long date){
+        if(consumption<0 || date<0) throw new IllegalArgumentException();
         this.operatorId = operatorId;
         this.meterId = meterId;
         this.date = date;
         this.consumption = consumption;
+    }
+    
+    public Reading(int operatorId, int meterId, float consumption){
+        this(operatorId, meterId, consumption, System.currentTimeMillis());
     }
 
     @Override

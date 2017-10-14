@@ -216,7 +216,7 @@ public class ReadingsController extends AppCompatActivity{
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
-                        Reading r = new Reading(operatorId, a.getMeterId(),new Date(), consumption);
+                        Reading r = new Reading(operatorId, a.getMeterId(), consumption);
                         Gson gson = new Gson();
 
                         // modifies the collections
@@ -265,14 +265,14 @@ public class ReadingsController extends AppCompatActivity{
                     connection.setConnectTimeout(getResources().getInteger(R.integer.connection_timeout));
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Cookie", session);
-                    // scrive nel messaggio le letture effettuate in formato json
+                    // writes the readings
                     connection.setDoOutput(true);
                     DataOutputStream writer = new DataOutputStream(connection.getOutputStream());
                     writer.write("readings=".getBytes());
                     writer.write(json.getBytes());
                     writer.close();
 
-                    //invia
+                    //sends
                     connection.connect();
                     responseCode = connection.getResponseCode();
                 } catch (MalformedURLException e) {

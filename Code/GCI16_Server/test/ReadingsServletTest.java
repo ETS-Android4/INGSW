@@ -72,7 +72,7 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_okSession_okJSON_trueDAO(){
         Gson gson = new Gson();
-        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        Reading readingObject = new Reading(1, 1, 1);
         LinkedList<Reading> readingCollection = new LinkedList<>();
         readingCollection.add(readingObject);
         String reading = gson.toJson(readingCollection);
@@ -93,7 +93,7 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_okSession_okJSON_falseDAO() throws Exception{
         Gson gson = new Gson();
-        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        Reading readingObject = new Reading(1, 1, 1);
         LinkedList<Reading> readingCollection = new LinkedList<>();
         readingCollection.add(readingObject);
         String reading = gson.toJson(readingCollection);
@@ -197,7 +197,7 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_noSession_okJSON_trueDAO() throws Exception{
         Gson gson = new Gson();
-        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        Reading readingObject = new Reading(1, 1, 1);
         LinkedList<Reading> readingCollection = new LinkedList<>();
         readingCollection.add(readingObject);
         String reading = gson.toJson(readingCollection);
@@ -215,7 +215,7 @@ public final class ReadingsServletTest extends Mockito{
     @Test
     public void test_noSession_okJSON_falseDAO() throws Exception{
         Gson gson = new Gson();
-        Reading readingObject = new Reading(1, 1, new Date(), 1);
+        Reading readingObject = new Reading(1, 1, 1);
         LinkedList<Reading> readingCollection = new LinkedList<>();
         readingCollection.add(readingObject);
         String reading = gson.toJson(readingCollection);

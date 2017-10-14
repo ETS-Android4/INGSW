@@ -29,7 +29,7 @@ public class ReadingDAOOracleSQL implements ReadingDAO {
         for(Reading r : readings){
             params.add(r.getOperatorId());
             params.add(r.getMeterId());
-            params.add(new java.sql.Date(r.getDate().getTime()));
+            params.add(new java.sql.Date(r.getDate()));
             params.add(r.getConsumption());
             try{
                 ResultSet result = db.execQuery(query, params);

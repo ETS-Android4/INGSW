@@ -64,6 +64,12 @@ public class ReadingsServlet extends HttpServlet {
         Collection<Reading> readings = null;
         try{
             readings = gson.fromJson(readingsParameter, type);
+            for(Reading r : readings){
+                if(r.getConsumption()<0 || r.getDate()<0 || r.getMeterId()<=0 || r.getOperatorId()<=0){
+                    response.sendError(464, "Bad parameter value");
+                    return;
+                }
+            }
         }catch(JsonSyntaxException ex){
             response.sendError(464, "Bad parameter value");
             return;
