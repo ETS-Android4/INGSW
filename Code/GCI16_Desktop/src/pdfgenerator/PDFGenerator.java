@@ -9,6 +9,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.logging.Level;
@@ -33,6 +34,10 @@ public class PDFGenerator {
      * @param paym payment order
      */
     public boolean generate(PaymentOrder paym) {
+        // Creates the directory if it doesn't exist
+        File dir = new File("PaymentOrders");
+        dir.mkdir();
+        
         /* Creates document */
         Document document = new Document(PageSize.A4);
         document.addTitle("PaymentOrder " + paym.getProtocol());
